@@ -35,5 +35,5 @@ class FlavorConfig {
 
   static bool get isDev => _flavor == Flavor.dev;
   static bool get isStaging => _flavor == Flavor.staging;
-  static bool get isProd => _flavor == Flavor.prod;
+  static bool get isProduction => _flavor == Flavor.prod;
 }

@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:talker_riverpod_logger/talker_riverpod_logger.dart';
 
 import 'src/app.dart';
 import 'src/config/config.dart';
@@ -15,7 +16,9 @@ Future<void> main({Flavor flavor = Flavor.dev}) async {
   // * Register error handlers. For more info, see:
   // * https://docs.flutter.dev/testing/errors
   registerErrorHandlers();
-  runApp(ProviderScope(child: const MyApp()));
+  runApp(
+    ProviderScope(observers: [TalkerRiverpodObserver()], child: const MyApp()),
+  );
 }
 
 void registerErrorHandlers() {
