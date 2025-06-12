@@ -1,0 +1,24 @@
+{
+  "notImplemented": "This feature is not yet implemented. Please try again later or contact support if the issue persists.",
+  "requestCancelled": "The request was cancelled before completion. Please try again if it was important.",
+  "internalServerError": "The server encountered an internal error. Please try again later or contact support if the problem continues.",
+  "notFound": "The requested resource was not found. Please check your information and try again.",
+  "serviceUnavailable": "The service is currently unavailable. Please wait a few minutes and try again.",
+  "methodNotAllowed": "The requested method is not allowed for this resource. Please review your request or contact support.",
+  "badRequest": "The request contains incorrect or incomplete data. Please review and try again.",
+  "unauthorisedRequest": "You are not authorized to perform this action. Please log in or check your permissions.",
+  "unexpectedError": "An unexpected error occurred. Please try again or contact support if the problem persists.",
+  "requestTimeout": "The request took too long to respond and was cancelled. Please check your connection and try again.",
+  "noInternetConnection": "No internet connection detected. Please check your network and try again.",
+  "conflict": "A conflict was detected with the submitted information. Please review your data and try again.",
+  "sendTimeout": "The request send timeout expired. Please try again later.",
+  "unableToProcess": "Unable to process the request. Please review your data or contact support.",
+  "defaultError": "An unexpected error occurred. Please try again later.",
+  "formatException": "The format of the received data is invalid. Please contact support if the problem continues.",
+  "notAcceptable": "The server cannot process the request in the sent format. Please review your data and try again.",
+  "greeting": "Hello, {name}!",
+  "auth": {
+    "login": "Login",
+    "welcome": "Welcome back, {username}"
+  }
+}

@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:talker_riverpod_logger/talker_riverpod_logger.dart';
@@ -10,14 +11,30 @@ import 'src/config/config.dart';
 Future<void> main({Flavor flavor = Flavor.dev}) async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await EasyLocalization.ensureInitialized();
+
   // Initialize environment configuration
   FlavorConfig.initialize(flavor);
 
   // * Register error handlers. For more info, see:
   // * https://docs.flutter.dev/testing/errors
   registerErrorHandlers();
+
+  // * Initialize Firebase
+  // * Uncomment the following lines if you are using Firebase
+  // * Make sure to add the necessary Firebase dependencies in your pubspec.yaml
+  // * and configure your Firebase project correctly.
+  // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(
-    ProviderScope(observers: [TalkerRiverpodObserver()], child: const MyApp()),
+    ProviderScope(
+      observers: [TalkerRiverpodObserver()],
+      child: EasyLocalization(
+        supportedLocales: [Locale('en'), Locale('es')],
+        path: 'assets/translations',
+        fallbackLocale: Locale('en'),
+        child: const MyApp(),
+      ),
+    ),
   );
 }
 

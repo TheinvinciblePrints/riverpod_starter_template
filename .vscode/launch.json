@@ -9,7 +9,8 @@
       "program": "lib/main_dev.dart",
       "args": [
         "--flavor",
-        "dev"
+        "dev",
+        "--dart-define=ENV=dev"
       ]
     },
     {
@@ -20,7 +21,8 @@
       "program": "lib/main_staging.dart",
       "args": [
         "--flavor",
-        "staging"
+        "staging",
+        "--dart-define=ENV=staging"
       ]
     },
     {
@@ -31,7 +33,8 @@
       "program": "lib/main_prod.dart",
       "args": [
         "--flavor",
-        "prod"
+        "prod",
+        "--dart-define=ENV=prod"
       ]
     }
   ]

@@ -1,0 +1,19 @@
+{
+  "notImplemented": "Esta función aún no está implementada. Por favor, inténtalo más tarde o contacta con soporte si el problema persiste.",
+  "requestCancelled": "La solicitud fue cancelada antes de completarse. Por favor, vuelve a intentarlo si era importante.",
+  "internalServerError": "El servidor encontró un error interno. Intenta de nuevo más tarde o contacta con soporte si el problema continúa.",
+  "notFound": "El recurso solicitado no se encontró. Verifica la información e inténtalo nuevamente.",
+  "serviceUnavailable": "El servicio no está disponible en este momento. Por favor, espera unos minutos e inténtalo de nuevo.",
+  "methodNotAllowed": "El método solicitado no está permitido para este recurso. Revisa la solicitud o contacta con soporte.",
+  "badRequest": "La solicitud enviada contiene datos incorrectos o incompletos. Por favor, revisa e inténtalo de nuevo.",
+  "unauthorisedRequest": "No tienes autorización para realizar esta acción. Por favor, inicia sesión o verifica tus permisos.",
+  "unexpectedError": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo o contacta con soporte si el problema persiste.",
+  "requestTimeout": "La solicitud tardó demasiado en responder y fue cancelada. Verifica tu conexión e inténtalo nuevamente.",
+  "noInternetConnection": "No se detectó conexión a internet. Por favor, revisa tu red e inténtalo otra vez.",
+  "conflict": "Se detectó un conflicto con la información enviada. Por favor, revisa los datos e inténtalo nuevamente.",
+  "sendTimeout": "El tiempo de espera para enviar la solicitud ha expirado. Intenta de nuevo más tarde.",
+  "unableToProcess": "No se pudo procesar la solicitud. Por favor, revisa los datos o contacta con soporte.",
+  "defaultError": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo más tarde.",
+  "formatException": "El formato de los datos recibidos no es válido. Por favor, contacta con soporte si el problema continúa.",
+  "notAcceptable": "El servidor no puede procesar la solicitud en el formato enviado. Por favor, revisa los datos e inténtalo de nuevo."
+}

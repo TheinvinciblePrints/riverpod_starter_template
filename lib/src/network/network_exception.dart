@@ -1,8 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-
-import '../constants/constants.dart';
+import 'package:flutter_riverpod_starter_template/generated/locale_keys.g.dart';
 
 sealed class NetworkExceptions {
   const NetworkExceptions();
@@ -30,23 +29,23 @@ sealed class NetworkExceptions {
   /// and returns the corresponding localized error message.
   static String getErrorMessage(NetworkExceptions networkExceptions) {
     return networkExceptions.when(
-      notImplemented: () => LocaleConstants.notImplemented,
-      requestCancelled: () => LocaleConstants.requestCancelled,
-      internalServerError: () => LocaleConstants.internalServerError,
-      notFound: () => LocaleConstants.notFound,
-      serviceUnavailable: () => LocaleConstants.serviceUnavailable,
-      methodNotAllowed: () => LocaleConstants.methodNotAllowed,
-      badRequest: () => LocaleConstants.badRequest,
-      unauthorisedRequest: () => LocaleConstants.unauthorisedRequest,
-      unexpectedError: () => LocaleConstants.unexpectedError,
-      requestTimeout: () => LocaleConstants.requestTimeout,
-      noInternetConnection: () => LocaleConstants.noInternetConnection,
-      conflict: () => LocaleConstants.conflict,
-      sendTimeout: () => LocaleConstants.sendTimeout,
-      unableToProcess: () => LocaleConstants.unableToProcess,
-      defaultError: () => LocaleConstants.defaultError,
-      formatException: () => LocaleConstants.formatException,
-      notAcceptable: () => LocaleConstants.notAcceptable,
+      notImplemented: () => LocaleKeys.notImplemented,
+      requestCancelled: () => LocaleKeys.requestCancelled,
+      internalServerError: () => LocaleKeys.internalServerError,
+      notFound: () => LocaleKeys.notFound,
+      serviceUnavailable: () => LocaleKeys.serviceUnavailable,
+      methodNotAllowed: () => LocaleKeys.methodNotAllowed,
+      badRequest: () => LocaleKeys.badRequest,
+      unauthorisedRequest: () => LocaleKeys.unauthorisedRequest,
+      unexpectedError: () => LocaleKeys.unexpectedError,
+      requestTimeout: () => LocaleKeys.requestTimeout,
+      noInternetConnection: () => LocaleKeys.noInternetConnection,
+      conflict: () => LocaleKeys.conflict,
+      sendTimeout: () => LocaleKeys.sendTimeout,
+      unableToProcess: () => LocaleKeys.unableToProcess,
+      defaultError: () => LocaleKeys.defaultError,
+      formatException: () => LocaleKeys.formatException,
+      notAcceptable: () => LocaleKeys.notAcceptable,
     );
   }
 

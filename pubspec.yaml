@@ -8,6 +8,7 @@ environment:
 
 dependencies:
   dio: ^5.8.0+1
+  easy_localization: ^3.0.7+1
   envied: ^1.1.1
   flutter:
     sdk: flutter
@@ -42,23 +43,23 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/translations
     - .env.dev
     - .env.staging
     - .env.prod
 
-
 fonts:
-    - family: Roboto
-      fonts:
-        - asset: fonts/Roboto-Thin.ttf
-          weight: 200
-        - asset: fonts/Roboto-Light.ttf
-          weight: 200
-        - asset: fonts/Roboto-Regular.ttf
-          weight: 200
-        - asset: fonts/Roboto-Medium.ttf
-          weight: 300
-        - asset: fonts/Roboto-Bold.ttf
-          weight: 600
-        - asset: fonts/Roboto-Italic.ttf
-          style: italic
+  - family: Roboto
+    fonts:
+      - asset: fonts/Roboto-Thin.ttf
+        weight: 200
+      - asset: fonts/Roboto-Light.ttf
+        weight: 200
+      - asset: fonts/Roboto-Regular.ttf
+        weight: 200
+      - asset: fonts/Roboto-Medium.ttf
+        weight: 300
+      - asset: fonts/Roboto-Bold.ttf
+        weight: 600
+      - asset: fonts/Roboto-Italic.ttf
+        style: italic
