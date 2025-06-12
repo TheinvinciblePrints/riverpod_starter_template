@@ -5,11 +5,12 @@ import '../providers/dio_provider.dart';
 import 'connection_checker.dart';
 import 'network_exception.dart';
 
-final dioClientProvider = Provider<ApiClient>((ref) {
+final apiClientProvider = Provider<ApiClient>((ref) {
   final checker = ref.watch(connectionCheckerProvider);
   final dio = ref.watch(dioProvider);
   return ApiClientImpl(dio: dio, connectionChecker: checker);
 });
+
 abstract class ApiClient {
   Future<Response<dynamic>> get(
     String uri, {
@@ -17,6 +18,7 @@ abstract class ApiClient {
     Map<String, dynamic>? headers,
     Map<String, dynamic>? queryParameters,
     ProgressCallback? onReceiveProgress,
+    CancelToken? cancelToken,
     bool requireToken = true,
     int? timeout,
   });
@@ -28,6 +30,7 @@ abstract class ApiClient {
     Map<String, dynamic>? headers,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
+    CancelToken? cancelToken,
     bool requireToken = true,
     int? timeout,
   });
@@ -39,6 +42,7 @@ abstract class ApiClient {
     Map<String, dynamic>? headers,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
+    CancelToken? cancelToken,
     bool requireToken = true,
     int? timeout,
   });
@@ -48,6 +52,7 @@ abstract class ApiClient {
     required dynamic body,
     String? fullUrl,
     Map<String, dynamic>? headers,
+    CancelToken? cancelToken,
     bool requireToken = true,
     int? timeout,
   });
@@ -60,6 +65,7 @@ abstract class ApiClient {
     String? method,
     Map<String, dynamic>? queryParameters,
     ProgressCallback? onReceiveProgress,
+    CancelToken? cancelToken,
     bool requireToken = true,
     int? timeout,
   });
@@ -77,6 +83,7 @@ class ApiClientImpl implements ApiClient {
     required dynamic body,
     String? fullUrl,
     Map<String, dynamic>? headers,
+    CancelToken? cancelToken,
     bool requireToken = true,
     int? timeout,
   }) async {
@@ -94,6 +101,7 @@ class ApiClientImpl implements ApiClient {
     return await dio.delete(
       fullUrl ?? uri,
       data: body,
+      cancelToken: cancelToken,
       options: Options(headers: headers, extra: extra),
     );
   }
@@ -107,6 +115,7 @@ class ApiClientImpl implements ApiClient {
     Map<String, dynamic>? headers,
     Map<String, dynamic>? queryParameters,
     ProgressCallback? onReceiveProgress,
+    CancelToken? cancelToken,
     bool requireToken = true,
     int? timeout,
   }) async {
@@ -125,6 +134,7 @@ class ApiClientImpl implements ApiClient {
       fullUrl ?? uri,
       savePath,
       queryParameters: queryParameters,
+      cancelToken: cancelToken,
       options: Options(headers: headers, extra: extra, method: method),
       onReceiveProgress: onReceiveProgress,
     );
@@ -137,6 +147,7 @@ class ApiClientImpl implements ApiClient {
     Map<String, dynamic>? headers,
     Map<String, dynamic>? queryParameters,
     ProgressCallback? onReceiveProgress,
+    CancelToken? cancelToken,
     bool requireToken = true,
     int? timeout,
   }) async {
@@ -154,6 +165,7 @@ class ApiClientImpl implements ApiClient {
     return await dio.get(
       fullUrl ?? uri,
       queryParameters: queryParameters,
+      cancelToken: cancelToken,
       options: Options(headers: headers, extra: extra),
       onReceiveProgress: onReceiveProgress,
     );
@@ -167,6 +179,7 @@ class ApiClientImpl implements ApiClient {
     Map<String, dynamic>? headers,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
+    CancelToken? cancelToken,
     bool requireToken = true,
     int? timeout,
   }) async {
@@ -187,6 +200,7 @@ class ApiClientImpl implements ApiClient {
       options: Options(headers: headers, extra: extra),
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
+      cancelToken: cancelToken,
     );
   }
 
@@ -198,6 +212,7 @@ class ApiClientImpl implements ApiClient {
     Map<String, dynamic>? headers,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
+    CancelToken? cancelToken,
     bool requireToken = true,
     int? timeout,
   }) async {
@@ -218,6 +233,7 @@ class ApiClientImpl implements ApiClient {
       options: Options(headers: headers, extra: extra),
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
+      cancelToken: cancelToken,
     );
   }
 

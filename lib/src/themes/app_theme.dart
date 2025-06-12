@@ -1,71 +1,47 @@
 import 'package:flutter/material.dart';
 
+import '../shared/tag_chip.dart';
 import 'app_colors.dart';
+import 'app_text_styles.dart';
 
-class AppTheme {
-  /// Light Color Scheme
-  static const lightColorScheme = ColorScheme(
+abstract final class AppTheme {
+  static TextTheme get _textTheme => TextTheme(
+    headlineLarge: AppTextStyles.headlineLarge,
+    headlineSmall: AppTextStyles.headlineSmall,
+    titleMedium: AppTextStyles.titleMedium,
+    bodyLarge: AppTextStyles.bodyLarge,
+    bodyMedium: AppTextStyles.bodyMedium,
+    bodySmall: AppTextStyles.bodySmall(AppColors.grey3),
+    labelSmall: AppTextStyles.labelSmall(AppColors.grey3),
+    labelLarge: AppTextStyles.labelLarge(AppColors.grey3),
+  );
+
+  static InputDecorationTheme get _inputDecorationTheme =>
+      InputDecorationTheme(hintStyle: AppTextStyles.hintStyle(AppColors.grey3));
+
+  static ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
-    primary: AppColors.black1,
-    onPrimary: AppColors.white1,
-    secondary: AppColors.black1,
-    onSecondary: AppColors.white1,
-    surface: Colors.white,
-    onSurface: AppColors.black1,
-    error: Colors.white,
-    onError: Colors.red,
+    colorScheme: AppColors.lightColorScheme,
+    textTheme: _textTheme,
+    inputDecorationTheme: _inputDecorationTheme,
+    extensions: [
+      TagChipTheme(
+        chipColor: AppColors.whiteTransparent,
+        onChipColor: Colors.white,
+      ),
+    ],
   );
 
-  /// Dark Color Scheme
-  static const darkColorScheme = ColorScheme(
+  static ThemeData darkTheme = ThemeData(
     brightness: Brightness.dark,
-    primary: AppColors.white1,
-    onPrimary: AppColors.black1,
-    secondary: AppColors.white1,
-    onSecondary: AppColors.black1,
-    surface: AppColors.black1,
-    onSurface: Colors.white,
-    error: Colors.black,
-    onError: AppColors.red1,
-  );
-
-  /// Light ThemeData
-  static final lightTheme = ThemeData(
-    useMaterial3: true,
-    colorScheme: lightColorScheme,
-    scaffoldBackgroundColor: lightColorScheme.surface,
-    appBarTheme: AppBarTheme(
-      backgroundColor: lightColorScheme.primary,
-      foregroundColor: lightColorScheme.onPrimary,
-      elevation: 0,
-    ),
-    textTheme: Typography.blackCupertino,
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: lightColorScheme.primary,
-        foregroundColor: lightColorScheme.onPrimary,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    colorScheme: AppColors.darkColorScheme,
+    textTheme: _textTheme,
+    inputDecorationTheme: _inputDecorationTheme,
+    extensions: [
+      TagChipTheme(
+        chipColor: AppColors.blackTransparent,
+        onChipColor: Colors.white,
       ),
-    ),
-  );
-
-  /// Dark ThemeData
-  static final darkTheme = ThemeData(
-    useMaterial3: true,
-    colorScheme: darkColorScheme,
-    scaffoldBackgroundColor: darkColorScheme.surface,
-    appBarTheme: AppBarTheme(
-      backgroundColor: darkColorScheme.primary,
-      foregroundColor: darkColorScheme.onPrimary,
-      elevation: 0,
-    ),
-    textTheme: Typography.whiteCupertino,
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: darkColorScheme.primary,
-        foregroundColor: darkColorScheme.onPrimary,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    ),
+    ],
   );
 }

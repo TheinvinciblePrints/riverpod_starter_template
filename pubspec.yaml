@@ -20,6 +20,7 @@ dependencies:
   logging: ^1.3.0
   riverpod: ^2.6.1
   riverpod_annotation: ^2.6.1
+  share_plus: ^11.0.0
   shared_preferences: ^2.5.3
   talker_dio_logger: ^4.8.3
   talker_riverpod_logger: ^4.8.3
@@ -38,3 +39,26 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
+    - .env.dev
+    - .env.staging
+    - .env.prod
+
+
+fonts:
+    - family: Roboto
+      fonts:
+        - asset: fonts/Roboto-Thin.ttf
+          weight: 200
+        - asset: fonts/Roboto-Light.ttf
+          weight: 200
+        - asset: fonts/Roboto-Regular.ttf
+          weight: 200
+        - asset: fonts/Roboto-Medium.ttf
+          weight: 300
+        - asset: fonts/Roboto-Bold.ttf
+          weight: 600
+        - asset: fonts/Roboto-Italic.ttf
+          style: italic
