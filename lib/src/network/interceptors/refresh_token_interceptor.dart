@@ -33,7 +33,7 @@ class RefreshTokenInterceptor extends Interceptor {
           _queue.clear();
 
           // Retry the original request
-          final response = await _retryWithNewToken(requestOptions, newToken);
+          final response = await _retryRequestWithNewToken(requestOptions, newToken);
           return handler.resolve(response);
         } catch (e) {
           _isRefreshing = false;
@@ -44,7 +44,7 @@ class RefreshTokenInterceptor extends Interceptor {
         // Queue the current request to retry after refresh completes
         _queue.add(() async {
           final token = await _getToken();
-          final response = await _retryWithNewToken(requestOptions, token);
+          final response = await _retryRequestWithNewToken(requestOptions, token);
           handler.resolve(response);
         });
       }
@@ -77,7 +77,7 @@ class RefreshTokenInterceptor extends Interceptor {
     return newToken;
   }
 
-  Future<Response<dynamic>> _retryWithNewToken(
+  Future<Response<dynamic>> _retryRequestWithNewToken(
     RequestOptions options,
     String token,
   ) {
