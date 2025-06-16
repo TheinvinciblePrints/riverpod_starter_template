@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:flutter_riverpod_starter_template/generated/locale_keys.g.dart';
+import 'package:flutter_riverpod_starter_template/src/localization/locale_keys.g.dart';
 
 sealed class NetworkExceptions {
   const NetworkExceptions();

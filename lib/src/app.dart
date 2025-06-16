@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod_starter_template/src/themes/theme_mode_notifier.dart';
 
-import 'providers/global_providers.dart';
 import 'routing/routing.dart';
 import 'themes/themes.dart';
 

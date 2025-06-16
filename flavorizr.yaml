@@ -4,18 +4,27 @@ flavors:
       name: "[DEV] News App"
 
     android:
-      applicationId: "com.example.apple"  
+      applicationId: "com.example.newsapp.dev"  
     ios:
-      bundleId: "com.example.apple"
-    macos:
-      bundleId: "com.example.apple"  
-  banana:
+      bundleId: "com.example.newsapp.dev"
+    
+  staging:
     app:
-      name: "Banana App"
+      name: "[STG] News App"
   
     android:
-      applicationId: "com.example.banana"
+      applicationId: "com.example.newsapp.staging"
     ios:
-      bundleId: "com.example.banana"
-    macos:
-      bundleId: "com.example.banana"
+      bundleId: "com.example.newsapp.staging"
+
+  prod:
+    app:
+      name: "News App"
+  
+    android:
+      applicationId: "com.example.newsapp"
+    ios:
+      bundleId: "com.example.newsapp"
+
+ide: "vscode"
+    

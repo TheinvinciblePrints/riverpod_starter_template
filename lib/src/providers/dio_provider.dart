@@ -6,6 +6,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talker_dio_logger/talker_dio_logger_interceptor.dart';
 import 'package:talker_dio_logger/talker_dio_logger_settings.dart';
 
+import '../../flavors.dart';
 import '../config/config.dart';
 import 'storage_providers.dart';
 
@@ -32,14 +33,11 @@ Dio dio(Ref ref) {
     TalkerDioLogger(
       settings: TalkerDioLoggerSettings(
         printRequestHeaders:
-            !FlavorConfig
-                .isProduction, // Print request headers in non-production environments
+            !F.isProduction, // Print request headers in non-production environments
         printResponseHeaders:
-            !FlavorConfig
-                .isProduction, // Print request headers in non-production environments
+            !F.isProduction, // Print request headers in non-production environments
         printResponseMessage:
-            !FlavorConfig
-                .isProduction, // Print request headers in non-production environments
+            !F.isProduction, // Print request headers in non-production environments
       ),
     ),
   ]);

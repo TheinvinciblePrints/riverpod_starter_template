@@ -2,8 +2,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 
-import '../config/flavor_config.dart';
-
+import '../../flavors.dart';
 
 final loggerProvider = Provider<Logger>((ref) {
   final logger = Logger('AppLogger');
@@ -12,9 +11,9 @@ final loggerProvider = Provider<Logger>((ref) {
   Logger.root.clearListeners();
 
   // Set the log level based on the flavor
-  if (FlavorConfig.isProduction) {
+  if (F.isProduction) {
     Logger.root.level = Level.WARNING;
-  } else if (FlavorConfig.isStaging) {
+  } else if (F.isStaging) {
     Logger.root.level = Level.INFO;
   } else {
     Logger.root.level = Level.ALL; // for dev/debug
@@ -36,7 +35,7 @@ final loggerProvider = Provider<Logger>((ref) {
     }
   });
 
-  logger.info('Logger initialized for ${FlavorConfig.flavor.name}');
+  logger.info('Logger initialized for ${F.name}');
 
   return logger;
 });

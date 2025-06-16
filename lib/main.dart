@@ -2,19 +2,21 @@ import 'dart:ui';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:talker_riverpod_logger/talker_riverpod_logger.dart';
 
+import 'flavors.dart';
 import 'src/app.dart';
 import 'src/config/config.dart';
 
-Future<void> main({Flavor flavor = Flavor.dev}) async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await EasyLocalization.ensureInitialized();
 
   // Initialize environment configuration
-  FlavorConfig.initialize(flavor);
+  _initializeAppFlavor();
 
   // * Register error handlers. For more info, see:
   // * https://docs.flutter.dev/testing/errors
@@ -36,6 +38,13 @@ Future<void> main({Flavor flavor = Flavor.dev}) async {
       ),
     ),
   );
+}
+
+void _initializeAppFlavor() {
+  F.appFlavor = Flavor.values.firstWhere(
+    (element) => element.name == appFlavor,
+  );
+  Env.setEnv(F.name); // Maps enum name to env string
 }
 
 void registerErrorHandlers() {

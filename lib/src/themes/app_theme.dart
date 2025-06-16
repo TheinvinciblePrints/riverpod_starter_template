@@ -1,47 +1,45 @@
 import 'package:flutter/material.dart';
 
-import '../shared/tag_chip.dart';
 import 'app_colors.dart';
-import 'app_text_styles.dart';
+import 'app_text_theme.dart';
+import 'design_system_extension.dart';
 
 abstract final class AppTheme {
-  static TextTheme get _textTheme => TextTheme(
-    headlineLarge: AppTextStyles.headlineLarge,
-    headlineSmall: AppTextStyles.headlineSmall,
-    titleMedium: AppTextStyles.titleMedium,
-    bodyLarge: AppTextStyles.bodyLarge,
-    bodyMedium: AppTextStyles.bodyMedium,
-    bodySmall: AppTextStyles.bodySmall(AppColors.grey3),
-    labelSmall: AppTextStyles.labelSmall(AppColors.grey3),
-    labelLarge: AppTextStyles.labelLarge(AppColors.grey3),
-  );
-
-  static InputDecorationTheme get _inputDecorationTheme =>
-      InputDecorationTheme(hintStyle: AppTextStyles.hintStyle(AppColors.grey3));
-
   static ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
-    colorScheme: AppColors.lightColorScheme,
-    textTheme: _textTheme,
-    inputDecorationTheme: _inputDecorationTheme,
-    extensions: [
-      TagChipTheme(
-        chipColor: AppColors.whiteTransparent,
-        onChipColor: Colors.white,
-      ),
-    ],
+    primaryColor: AppColors.primary,
+    scaffoldBackgroundColor: AppColors.white,
+    textTheme: AppTextTheme.lightTextTheme,
+    extensions: const <ThemeExtension<dynamic>>[DesignSystemExtension.light],
+    colorScheme: const ColorScheme.light().copyWith(
+      primary: AppColors.primary,
+      error: AppColors.error,
+      surface: AppColors.white,
+      secondary: AppColors.secondaryButton,
+    ),
+    inputDecorationTheme: const InputDecorationTheme(
+      filled: true,
+      fillColor: AppColors.disableInput,
+      hintStyle: TextStyle(color: AppColors.placeholder),
+    ),
   );
 
   static ThemeData darkTheme = ThemeData(
     brightness: Brightness.dark,
-    colorScheme: AppColors.darkColorScheme,
-    textTheme: _textTheme,
-    inputDecorationTheme: _inputDecorationTheme,
-    extensions: [
-      TagChipTheme(
-        chipColor: AppColors.blackTransparent,
-        onChipColor: Colors.white,
-      ),
-    ],
+    primaryColor: AppColors.primary,
+    scaffoldBackgroundColor: AppColors.darkBackground,
+    textTheme: AppTextTheme.darkTextTheme,
+    extensions: const <ThemeExtension<dynamic>>[DesignSystemExtension.dark],
+    colorScheme: const ColorScheme.dark().copyWith(
+      primary: AppColors.primary,
+      error: AppColors.errorDarkMode,
+      surface: AppColors.darkBackground,
+      secondary: AppColors.darkInputBackground,
+    ),
+    inputDecorationTheme: const InputDecorationTheme(
+      filled: true,
+      fillColor: AppColors.darkInputBackground,
+      hintStyle: TextStyle(color: AppColors.placeholder),
+    ),
   );
 }
