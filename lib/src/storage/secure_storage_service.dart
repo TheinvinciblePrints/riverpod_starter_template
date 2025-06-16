@@ -16,19 +16,32 @@ class SecureStorageService implements ISecureStorage {
       _storage.write(key: _accessToken, value: token);
 
   @override
-  Future<String?> getAccessToken() => _storage.read(key: _accessToken);
+  Future<String?> getAccessToken() {
+    return _storage.read(key: _accessToken);
+  }
 
   @override
-  Future<void> clearAccessToken() => _storage.delete(key: _accessToken);
+  Future<void> clearAccessToken() {
+    return _storage.delete(key: _accessToken);
+  }
 
   @override
-  Future<void> clearRefreshToken() => _storage.delete(key: _refreshToken);
+  Future<void> clearRefreshToken() {
+    return _storage.delete(key: _refreshToken);
+  }
 
   @override
-  Future<String?> getRefreshToken() => _storage.read(key: _refreshToken);
+  Future<String?> getRefreshToken() {
+    return _storage.read(key: _refreshToken);
+  }
 
   @override
   Future<void> saveRefreshToken(String refreshToken) {
     return _storage.write(key: _refreshToken, value: refreshToken);
+  }
+
+  @override
+  Future<void> clearAll() async {
+    await _storage.deleteAll();
   }
 }

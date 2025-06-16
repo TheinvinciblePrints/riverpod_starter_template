@@ -1,11 +1,10 @@
-// lib/network/interceptor/refresh_token_interceptor.dart
 import 'package:dio/dio.dart';
 
 import '../../storage/interface/i_secure_storage.dart';
 
 class RefreshTokenInterceptor extends Interceptor {
   final ISecureStorage _secureStorage;
-  final Dio _refreshDio = Dio(); // Plain Dio instance
+  final Dio _refreshDio = Dio(); // Use separate dio instance
 
   RefreshTokenInterceptor(this._secureStorage);
 
@@ -16,40 +15,40 @@ class RefreshTokenInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     final requestOptions = err.requestOptions;
 
-    // Check if error is 401 Unauthorized and token is required
     if (_shouldRefresh(err)) {
       if (!_isRefreshing) {
         _isRefreshing = true;
 
         try {
-          final newToken =
-              await _refreshToken(); // Refresh token using plain Dio
+          final newToken = await _refreshToken();
+
           _isRefreshing = false;
 
-          // Retry all queued requests with new token
+          // Retry all queued requests
           for (final callback in _queue) {
             callback();
           }
           _queue.clear();
 
-          // Retry the original request
-          final response = await _retryRequestWithNewToken(requestOptions, newToken);
+          // Retry the current request
+          final response = await _retryRequest(requestOptions, newToken);
           return handler.resolve(response);
         } catch (e) {
           _isRefreshing = false;
           _queue.clear();
+          // Optional: logout or clear session
+          await _secureStorage.clearAll();
           return handler.reject(err);
         }
       } else {
-        // Queue the current request to retry after refresh completes
         _queue.add(() async {
-          final token = await _getToken();
-          final response = await _retryRequestWithNewToken(requestOptions, token);
+          final newToken = await _secureStorage.getAccessToken();
+          final response = await _retryRequest(requestOptions, newToken ?? '');
           handler.resolve(response);
         });
       }
     } else {
-      return handler.next(err);
+      handler.next(err);
     }
   }
 
@@ -59,7 +58,13 @@ class RefreshTokenInterceptor extends Interceptor {
   }
 
   Future<String> _refreshToken() async {
-    final refreshToken = await _getRefreshToken();
+    final refreshToken = await _secureStorage.getRefreshToken();
+    if (refreshToken == null || refreshToken.isEmpty) {
+      throw DioException(
+        requestOptions: RequestOptions(),
+        error: 'No refresh token available',
+      );
+    }
 
     final response = await _refreshDio.post(
       'https://your-api.com/auth/refresh',
@@ -72,12 +77,16 @@ class RefreshTokenInterceptor extends Interceptor {
       ),
     );
 
-    final newToken = response.data['accessToken'];
-    await _saveToken(newToken);
-    return newToken;
+    final newAccessToken = response.data['accessToken'];
+    final newRefreshToken = response.data['refreshToken'];
+
+    await _secureStorage.saveAccessToken(newAccessToken);
+    await _secureStorage.saveRefreshToken(newRefreshToken);
+
+    return newAccessToken;
   }
 
-  Future<Response<dynamic>> _retryRequestWithNewToken(
+  Future<Response<dynamic>> _retryRequest(
     RequestOptions options,
     String token,
   ) {
@@ -86,24 +95,12 @@ class RefreshTokenInterceptor extends Interceptor {
       headers: {...options.headers, 'Authorization': 'Bearer $token'},
     );
 
-    return Dio().request(
+    final dio = Dio();
+    return dio.request(
       options.path,
       data: options.data,
       queryParameters: options.queryParameters,
       options: newOptions,
     );
-  }
-
-  Future<String> _getRefreshToken() async {
-    // Replace with your secure storage or auth provider
-    return await _secureStorage.getRefreshToken() ?? '';
-  }
-
-  Future<String> _getToken() async {
-    return await _secureStorage.getAccessToken() ?? '';
-  }
-
-  Future<void> _saveToken(String token) async {
-    await _secureStorage.saveAccessToken(token);
   }
 }

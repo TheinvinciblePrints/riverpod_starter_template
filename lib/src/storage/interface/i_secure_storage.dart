@@ -5,4 +5,5 @@ abstract class ISecureStorage {
   Future<void> saveRefreshToken(String refreshToken);
   Future<String?> getRefreshToken();
   Future<void> clearRefreshToken();
+  Future<void> clearAll();
 }

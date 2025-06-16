@@ -1,4 +1,4 @@
-package com.example.flutter_riverpod_starter_template
+package com.example.newsapp
 
 import io.flutter.embedding.android.FlutterActivity
 

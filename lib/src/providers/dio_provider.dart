@@ -13,6 +13,8 @@ part 'dio_provider.g.dart';
 
 @Riverpod(keepAlive: true)
 Dio dio(Ref ref) {
+  final secureStorage = ref.watch(secureStorageServiceProvider);
+
   final dio = Dio(
     BaseOptions(
       baseUrl: Env.apiUrl,
@@ -25,8 +27,8 @@ Dio dio(Ref ref) {
   );
 
   dio.interceptors.addAll([
-    AuthInterceptor(ref.watch(secureStorageServiceProvider)),
-    RefreshTokenInterceptor(ref.watch(secureStorageServiceProvider)),
+    AuthInterceptor(secureStorage),
+    RefreshTokenInterceptor(secureStorage),
     TalkerDioLogger(
       settings: TalkerDioLoggerSettings(
         printRequestHeaders:
