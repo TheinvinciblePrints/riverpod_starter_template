@@ -20,7 +20,10 @@ abstract class  LocaleKeys {
   static const defaultError = 'defaultError';
   static const formatException = 'formatException';
   static const notAcceptable = 'notAcceptable';
-  static const greeting = 'greeting';
+  static const onboarding_getStarted = 'onboarding.getStarted';
+  static const onboarding_next = 'onboarding.next';
+  static const onboarding_back = 'onboarding.back';
+  static const onboarding = 'onboarding';
   static const auth_login = 'auth.login';
   static const auth_welcome = 'auth.welcome';
   static const auth = 'auth';

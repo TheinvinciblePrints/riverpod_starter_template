@@ -6,6 +6,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../features/authentication/authentication.dart';
 import '../features/home/presentation/home_screen.dart';
 import '../features/onboarding/onboarding.dart';
+import 'app_startup.dart';
 import 'routes.dart';
 
 part 'app_router.g.dart';
@@ -19,11 +20,12 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 @riverpod
 GoRouter goRouter(Ref ref) {
   return GoRouter(
-    initialLocation: Routes.login,
+    initialLocation: Routes.splash,
     navigatorKey: _rootNavigatorKey,
     debugLogDiagnostics: true,
     redirect: (context, state) => _handleRedirection(context, state, ref),
     routes: [
+      GoRoute(path: Routes.splash, builder: (_, __) => const AppStartupLoadingWidget()),
       GoRoute(
         path: Routes.onboarding,
         builder: (_, __) => const OnboardingScreen(),
@@ -49,7 +51,10 @@ FutureOr<String?> _handleRedirection(
   final onboarding = ref.watch(onboardingRepositoryProvider);
 
   // ⏳ If onboarding is still loading or errored, don't redirect yet
-  if (onboarding is AsyncLoading || onboarding is AsyncError) return null;
+  if (onboarding is AsyncLoading || onboarding is AsyncError) {
+    // Always show splash while loading or error
+    return Routes.splash;
+  }
 
   // Check if onboarding has been completed
   final didCompleteOnboarding =
@@ -69,7 +74,9 @@ FutureOr<String?> _handleRedirection(
 
   // If logged in and trying to access login or onboarding, redirect to home
   if (isLoggedIn) {
-    if (path == Routes.login || path == Routes.onboarding) {
+    if (path == Routes.login ||
+        path == Routes.onboarding ||
+        path == Routes.splash) {
       return Routes.home;
     }
   } else {
@@ -79,6 +86,15 @@ FutureOr<String?> _handleRedirection(
     }
   }
 
+  // If on splash and everything is ready, go to the right place
+  if (path == Routes.splash) {
+    if (!didCompleteOnboarding) return Routes.onboarding;
+    if (!isLoggedIn) return Routes.login;
+    return Routes.home;
+  }
+
   // No redirection needed — allow navigation to proceed
   return null;
 }
+
+

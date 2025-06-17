@@ -13,6 +13,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_riverpod: ^2.6.1
+  flutter_screenutil: ^5.9.3
   flutter_secure_storage: ^9.2.4
   flutter_svg: ^2.2.0
   freezed_annotation: ^3.0.0
@@ -41,7 +42,6 @@ dev_dependencies:
   riverpod_generator: ^2.6.5
   riverpod_lint: ^2.6.5
 
-
 flutter_gen:
   output: lib/src/gen # Optional (default: lib/gen/)
   line_length: 80 # Optional (default: 80)
@@ -59,17 +59,14 @@ flutter_gen:
       package_parameter_enabled: false
       # Assets.imagesChip
       # style: camel-case
-
       # Assets.images_chip
       # style: snake-case
-
       # Assets.images.chip (default style)
       style: dot-delimiter
     exclude:
       - .env.dev
       - .env.staging
       - .env.prod
-
 
 flutter:
   uses-material-design: true

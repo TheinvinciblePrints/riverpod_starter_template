@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod_starter_template/src/themes/themes.dart';
 
 import 'app_colors.dart';
 import 'app_text_theme.dart';
@@ -22,6 +23,16 @@ abstract final class AppTheme {
       fillColor: AppColors.disableInput,
       hintStyle: TextStyle(color: AppColors.placeholder),
     ),
+    bottomNavigationBarTheme:  BottomNavigationBarThemeData(
+      backgroundColor: AppColors.white,
+      selectedItemColor: AppColors.primary,
+      unselectedItemColor: AppColors.placeholder,
+      type: BottomNavigationBarType.fixed,
+      showSelectedLabels: true,
+      showUnselectedLabels: true,
+      selectedLabelStyle: AppTextStyles.textXSmall.copyWith(color: AppColors.primary),
+      unselectedLabelStyle: AppTextStyles.textXSmall.copyWith(color: AppColors.bodyText),
+    ),
   );
 
   static ThemeData darkTheme = ThemeData(
@@ -40,6 +51,16 @@ abstract final class AppTheme {
       filled: true,
       fillColor: AppColors.darkInputBackground,
       hintStyle: TextStyle(color: AppColors.placeholder),
+    ),
+    bottomNavigationBarTheme:  BottomNavigationBarThemeData(
+      backgroundColor: AppColors.darkBackground,
+      selectedItemColor: AppColors.primary,
+      unselectedItemColor: AppColors.darkBody,
+      type: BottomNavigationBarType.fixed,
+      showSelectedLabels: true,
+      showUnselectedLabels: true,
+      selectedLabelStyle: AppTextStyles.textXSmall.copyWith(color: AppColors.primary),
+      unselectedLabelStyle: AppTextStyles.textXSmall.copyWith(color: AppColors.darkBody),
     ),
   );
 }

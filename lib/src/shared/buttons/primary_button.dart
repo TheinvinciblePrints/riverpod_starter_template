@@ -22,11 +22,18 @@ class PrimaryButton extends BaseButton {
       width: width ?? double.infinity,
       height: 50,
       child: TextButton(
-        style: TextButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.primary,
-          padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 18),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.all(AppColors.primary),
+          foregroundColor: WidgetStateProperty.all(AppColors.primary),
+          padding: WidgetStateProperty.all(
+            const EdgeInsets.symmetric(vertical: 3, horizontal: 18),
+          ),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          ),
+          overlayColor: WidgetStateProperty.all(
+            Colors.transparent,
+          ), // Remove splash
         ),
         onPressed: onPressed,
         child: Padding(

@@ -16,7 +16,11 @@
   "defaultError": "An unexpected error occurred. Please try again later.",
   "formatException": "The format of the received data is invalid. Please contact support if the problem continues.",
   "notAcceptable": "The server cannot process the request in the sent format. Please review your data and try again.",
-  "greeting": "Hello, {name}!",
+  "onboarding": {
+    "getStarted": "Get Started",
+    "next": "Next",
+    "back": "Back"
+  },
   "auth": {
     "login": "Login",
     "welcome": "Welcome back, {username}"
