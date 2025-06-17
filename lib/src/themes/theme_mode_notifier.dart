@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../providers/global_providers.dart';
-
+import '../storage/storage.dart';
 
 part 'theme_mode_notifier.g.dart';
 
 @riverpod
 class ThemeModeNotifier extends _$ThemeModeNotifier {
-  late SharedPreferences _prefs;
+  late IPreferenceStorage _prefs;
 
   @override
   FutureOr<ThemeMode> build() async {
-    _prefs = await ref.watch(sharedPreferencesProvider.future);
-    final modeStr = _prefs.getString('theme_mode') ?? 'system';
+    _prefs = await ref.watch(preferenceStorageServiceProvider.future);
+    final modeStr = _prefs.getThemeMode();
 
     return ThemeMode.values.firstWhere(
       (m) => m.name == modeStr,
@@ -32,6 +31,6 @@ class ThemeModeNotifier extends _$ThemeModeNotifier {
     };
 
     state = AsyncValue.data(newMode);
-    await _prefs.setString('theme_mode', newMode.name);
+    await _prefs.setThemeMode(newMode.name);
   }
 }

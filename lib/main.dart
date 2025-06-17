@@ -9,6 +9,7 @@ import 'package:talker_riverpod_logger/talker_riverpod_logger.dart';
 import 'flavors.dart';
 import 'src/app.dart';
 import 'src/config/config.dart';
+import 'src/localization/localization.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,9 +32,10 @@ Future<void> main() async {
     ProviderScope(
       observers: [TalkerRiverpodObserver()],
       child: EasyLocalization(
-        supportedLocales: [Locale('en'), Locale('es')],
+        supportedLocales: supportedLocales.keys.toList(),
         path: 'assets/translations',
-        fallbackLocale: Locale('en'),
+        fallbackLocale: englishUs,
+        useFallbackTranslations: true,
         child: const MyApp(),
       ),
     ),

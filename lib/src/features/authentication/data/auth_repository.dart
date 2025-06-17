@@ -1,0 +1,60 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod_starter_template/src/network/api_client.dart';
+import 'package:flutter_riverpod_starter_template/src/storage/storage.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../../../providers/storage_providers.dart';
+import '../domain/app_user.dart';
+
+part 'auth_repository.g.dart';
+
+abstract class AuthRepository {
+  Future<void> login(String email, String password);
+  Future<void> logout();
+  Future<User?> getCurrentUser();
+  Future<void> saveUser(User user);
+}
+
+class AuthRepositoryImpl implements AuthRepository {
+  final IPreferenceStorage _preferenceStorage;
+  final ISecureStorage _secureStorage;
+  final ApiClient _apiClient;
+
+  AuthRepositoryImpl(
+    this._preferenceStorage,
+    this._secureStorage,
+    this._apiClient,
+  );
+
+  @override
+  Future<User?> getCurrentUser() async {
+    return await _preferenceStorage.getUser();
+  }
+
+  @override
+  Future<void> login(String email, String password) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> logout() async {
+    Future.wait([_secureStorage.clearAll(), _preferenceStorage.clearAll()]);
+  }
+
+  @override
+  Future<void> saveUser(User user) async {
+    _preferenceStorage.saveUser(user);
+  }
+}
+
+@Riverpod(keepAlive: true)
+Future<AuthRepository> authRepository(Ref ref) async {
+  // Replace the following with the actual providers for IPreferenceStorage, ISecureStorage, and ApiClient
+  final preferenceStorage = await ref.watch(
+    preferenceStorageServiceProvider.future,
+  );
+  final secureStorage = ref.watch(secureStorageServiceProvider);
+  final apiClient = ref.watch(apiClientProvider);
+
+  return AuthRepositoryImpl(preferenceStorage, secureStorage, apiClient);
+}

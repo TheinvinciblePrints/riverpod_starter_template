@@ -18,7 +18,7 @@ FlutterSecureStorage secureStorage(Ref ref) {
 }
 
 @Riverpod(keepAlive: true)
-Future<IPreferenceStorage> preferenceStorage(Ref ref) async {
+Future<IPreferenceStorage> preferenceStorageService(Ref ref) async {
   final prefs = await ref.watch(sharedPreferencesProvider.future);
   return PreferenceStorageService(prefs);
 }

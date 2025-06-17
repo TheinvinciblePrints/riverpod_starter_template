@@ -42,24 +42,26 @@ final secureStorageProvider = Provider<FlutterSecureStorage>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef SecureStorageRef = ProviderRef<FlutterSecureStorage>;
-String _$preferenceStorageHash() => r'f57e227e3ee23a7756cf2b3cd26aff4b6d237036';
+String _$preferenceStorageServiceHash() =>
+    r'a1b62a2a563b92d18a8285829dea528b3ed7be22';
 
-/// See also [preferenceStorage].
-@ProviderFor(preferenceStorage)
-final preferenceStorageProvider = FutureProvider<IPreferenceStorage>.internal(
-  preferenceStorage,
-  name: r'preferenceStorageProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$preferenceStorageHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+/// See also [preferenceStorageService].
+@ProviderFor(preferenceStorageService)
+final preferenceStorageServiceProvider =
+    FutureProvider<IPreferenceStorage>.internal(
+      preferenceStorageService,
+      name: r'preferenceStorageServiceProvider',
+      debugGetCreateSourceHash:
+          const bool.fromEnvironment('dart.vm.product')
+              ? null
+              : _$preferenceStorageServiceHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef PreferenceStorageRef = FutureProviderRef<IPreferenceStorage>;
+typedef PreferenceStorageServiceRef = FutureProviderRef<IPreferenceStorage>;
 String _$secureStorageServiceHash() =>
     r'afee7e5482e2adb62e60a329bf0fde275f3e456c';
 

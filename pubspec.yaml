@@ -14,6 +14,7 @@ dependencies:
     sdk: flutter
   flutter_riverpod: ^2.6.1
   flutter_secure_storage: ^9.2.4
+  flutter_svg: ^2.2.0
   freezed_annotation: ^3.0.0
   go_router: ^15.1.3
   internet_connection_checker: ^3.0.1
@@ -31,6 +32,7 @@ dev_dependencies:
   custom_lint: ^0.7.5
   envied_generator: ^1.0.0
   flutter_flavorizr: ^2.4.1
+  flutter_gen_runner: ^5.10.0
   flutter_lints: ^5.0.0
   flutter_test:
     sdk: flutter
@@ -38,6 +40,36 @@ dev_dependencies:
   json_serializable: ^6.9.5
   riverpod_generator: ^2.6.5
   riverpod_lint: ^2.6.5
+
+
+flutter_gen:
+  output: lib/src/gen # Optional (default: lib/gen/)
+  line_length: 80 # Optional (default: 80)
+
+  integrations:
+    flutter_svg: true
+    rive: false
+    lottie: false
+
+  assets:
+    enabled: true
+
+    outputs:
+      class_name: AppAssets
+      package_parameter_enabled: false
+      # Assets.imagesChip
+      # style: camel-case
+
+      # Assets.images_chip
+      # style: snake-case
+
+      # Assets.images.chip (default style)
+      style: dot-delimiter
+    exclude:
+      - .env.dev
+      - .env.staging
+      - .env.prod
+
 
 flutter:
   uses-material-design: true

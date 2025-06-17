@@ -3,9 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../features/authentication/authentication.dart';
+import '../features/home/presentation/home_screen.dart';
+import '../features/onboarding/onboarding.dart';
 import 'routes.dart';
-part 'app_router.g.dart';
 
+part 'app_router.g.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -14,125 +17,68 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 /// Listens to changes in [AuthTokenRepository] to redirect the user
 /// to /login when the user logs out.
 @riverpod
-GoRouter goRouter(Ref ref) => GoRouter(
-  initialLocation: Routes.home,
-  navigatorKey: _rootNavigatorKey,
-  debugLogDiagnostics: true,
-  redirect: _redirect,
-  // refreshListenable: authRepository,
-  routes: [
-    GoRoute(
-      path: Routes.login,
-      builder: (context, state) {
-        // return LoginScreen(
-        //   viewModel: LoginViewModel(authRepository: context.read()),
-        // );
-        return Container();
-      },
-    ),
-    GoRoute(
-      path: Routes.home,
-      builder: (context, state) {
-        // final viewModel = HomeViewModel(
-        //   bookingRepository: context.read(),
-        //   userRepository: context.read(),
-        // );
-        // return HomeScreen(viewModel: viewModel);
-        return Container();
-      },
-      routes: [
-        GoRoute(
-          path: Routes.searchRelative,
-          builder: (context, state) {
-            // final viewModel = SearchFormViewModel(
-            //   continentRepository: context.read(),
-            //   itineraryConfigRepository: context.read(),
-            // );
-            // return SearchFormScreen(viewModel: viewModel);
-            return Container();
-          },
-        ),
-        GoRoute(
-          path: Routes.resultsRelative,
-          builder: (context, state) {
-            // final viewModel = ResultsViewModel(
-            //   destinationRepository: context.read(),
-            //   itineraryConfigRepository: context.read(),
-            // );
-            // return ResultsScreen(viewModel: viewModel);
-            return Container();
-          },
-        ),
-        GoRoute(
-          path: Routes.activitiesRelative,
-          builder: (context, state) {
-            // final viewModel = ActivitiesViewModel(
-            //   activityRepository: context.read(),
-            //   itineraryConfigRepository: context.read(),
-            // );
-            // return ActivitiesScreen(viewModel: viewModel);
-            return Container();
-          },
-        ),
-        GoRoute(
-          path: Routes.bookingRelative,
-          builder: (context, state) {
-            // final viewModel = BookingViewModel(
-            //   itineraryConfigRepository: context.read(),
-            //   createBookingUseCase: context.read(),
-            //   shareBookingUseCase: context.read(),
-            //   bookingRepository: context.read(),
-            // );
+GoRouter goRouter(Ref ref) {
+  return GoRouter(
+    initialLocation: Routes.login,
+    navigatorKey: _rootNavigatorKey,
+    debugLogDiagnostics: true,
+    redirect: (context, state) => _handleRedirection(context, state, ref),
+    routes: [
+      GoRoute(
+        path: Routes.onboarding,
+        builder: (_, __) => const OnboardingScreen(),
+      ),
+      GoRoute(path: Routes.login, builder: (_, __) => const LoginScreen()),
+      GoRoute(path: Routes.home, builder: (_, __) => const HomeScreen()),
+    ],
+  );
+}
 
-            // // When opening the booking screen directly
-            // // create a new booking from the stored ItineraryConfig.
-            // viewModel.createBooking.execute();
+/// Handles redirection logic for GoRouter based on onboarding status and auth state.
+///
+/// This method determines where the user should be redirected:
+/// - Redirects to onboarding if onboarding is incomplete.
+/// - Redirects to login if not authenticated.
+/// - Redirects to home if already authenticated but tries to access login/onboarding.
+FutureOr<String?> _handleRedirection(
+  BuildContext context,
+  GoRouterState state,
+  Ref ref,
+) async {
+  // Watch the onboarding repository (AsyncValue)
+  final onboarding = ref.watch(onboardingRepositoryProvider);
 
-            // return BookingScreen(viewModel: viewModel);
-            return Container();
-          },
-          routes: [
-            GoRoute(
-              path: ':id',
-              builder: (context, state) {
-                // final id = int.parse(state.pathParameters['id']!);
-                // final viewModel = BookingViewModel(
-                //   itineraryConfigRepository: context.read(),
-                //   createBookingUseCase: context.read(),
-                //   shareBookingUseCase: context.read(),
-                //   bookingRepository: context.read(),
-                // );
+  // ⏳ If onboarding is still loading or errored, don't redirect yet
+  if (onboarding is AsyncLoading || onboarding is AsyncError) return null;
 
-                // // When opening the booking screen with an existing id
-                // // load and display that booking.
-                // viewModel.loadBooking.execute(id);
+  // Check if onboarding has been completed
+  final didCompleteOnboarding =
+      onboarding.value?.isOnboardingComplete() ?? false;
 
-                // return BookingScreen(viewModel: viewModel);
-                return Container();
-              },
-            ),
-          ],
-        ),
-      ],
-    ),
-  ],
-);
+  // Current requested route path
+  final path = state.uri.path;
 
-// From https://github.com/flutter/packages/blob/main/packages/go_router/example/lib/redirection.dart
-Future<String?> _redirect(BuildContext context, GoRouterState state) async {
-  // // if the user is not logged in, they need to login
-  // final loggedIn = await context.read<AuthRepository>().isAuthenticated;
-  // final loggingIn = state.matchedLocation == Routes.login;
-  // if (!loggedIn) {
-  //   return Routes.login;
-  // }
+  // Redirect to onboarding if not complete and not already on onboarding page
+  if (!didCompleteOnboarding && path != Routes.onboarding) {
+    return Routes.onboarding;
+  }
 
-  // // if the user is logged in but still on the login page, send them to
-  // // the home page
-  // if (loggingIn) {
-  //   return Routes.home;
-  // }
+  // Read the auth repository and check if user is logged in
+  final authRepository = await ref.read(authRepositoryProvider.future);
+  final isLoggedIn = await authRepository.getCurrentUser() != null;
 
-  // no need to redirect at all
+  // If logged in and trying to access login or onboarding, redirect to home
+  if (isLoggedIn) {
+    if (path == Routes.login || path == Routes.onboarding) {
+      return Routes.home;
+    }
+  } else {
+    // If NOT logged in and trying to access protected routes, redirect to login
+    if (path.startsWith(Routes.home)) {
+      return Routes.login;
+    }
+  }
+
+  // No redirection needed — allow navigation to proceed
   return null;
 }

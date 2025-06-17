@@ -1,15 +1,19 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../providers/dio_provider.dart';
 import 'connection_checker.dart';
 import 'network_exception.dart';
 
-final apiClientProvider = Provider<ApiClient>((ref) {
+part 'api_client.g.dart';
+
+@riverpod
+ApiClient apiClient(Ref ref) {
   final checker = ref.watch(connectionCheckerProvider);
   final dio = ref.watch(dioProvider);
   return ApiClientImpl(dio: dio, connectionChecker: checker);
-});
+}
 
 abstract class ApiClient {
   Future<Response<dynamic>> get(

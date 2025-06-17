@@ -6,7 +6,7 @@ part of 'app_router.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$goRouterHash() => r'bcd91fc40a7ffc3a8b99b20a1a0d54f73f5c7b61';
+String _$goRouterHash() => r'5cd61b04c44d1b0efadbd4b0e208b6bdd7cab24d';
 
 /// Top go_router entry point.
 ///

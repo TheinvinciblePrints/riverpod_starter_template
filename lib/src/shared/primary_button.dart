@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'base/base_button.dart';
+import 'buttons/base_button.dart';
 
 /// Primary button based on [ElevatedButton].
 /// Useful for CTAs in the app.

@@ -1,13 +1,9 @@
 import 'dart:ui';
 
-const spanishMx = Locale('es', 'MX');
-const spanishVe = Locale('es', 'VE');
-const englishUs = Locale('en', 'US');
-const chineseTw = Locale('zh', 'TW');
+const englishUs = Locale('en');
+const spanish = Locale('es');
 
 final supportedLocales = <Locale, String>{
   englishUs: 'English - US',
-  spanishMx: 'Español - MX',
-  spanishVe: 'Español - VE',
-  chineseTw: '中文 - TW',
+  spanish: 'Español - VE',
 };

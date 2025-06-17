@@ -1,6 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod_starter_template/src/themes/theme_mode_notifier.dart';
 
 import 'routing/routing.dart';
 import 'themes/themes.dart';
@@ -14,6 +14,7 @@ class MyApp extends ConsumerWidget {
     final goRouter = ref.watch(goRouterProvider);
 
     return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
       routerConfig: goRouter,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
@@ -22,8 +23,13 @@ class MyApp extends ConsumerWidget {
         loading: () => ThemeMode.system,
         error: (err, stack) => ThemeMode.system,
       ),
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
       builder: (context, child) {
-        return Scaffold(body: Center(child: Text('Hello World!')));
+        return AppStartupWidget(
+          onLoaded: (_) => GoRouterDelegateListener(child: child!),
+        );
       },
     );
   }
