@@ -75,6 +75,15 @@ class StartupNotifier extends BaseStateNotifier<StartupState> {
       logger.severe('Startup failed', e, st);
     }
   }
+
+  void retry() {
+    state = state.copyWith(
+      isLoading: true,
+      hasError: false,
+      errorMessage: null,
+    );
+    _handleStartUpLogic();
+  }
 }
 
 final startupNotifierProvider =

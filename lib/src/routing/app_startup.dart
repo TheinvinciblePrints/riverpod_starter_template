@@ -1,22 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod_starter_template/src/shared/shared.dart';
 
 import '../gen/assets.gen.dart';
 import '../localization/locale_keys.g.dart';
 import '../network/network_exception.dart';
-
-/// Widget class to manage asynchronous app initialization
-class AppStartupWidget extends ConsumerWidget {
-  const AppStartupWidget({super.key, required this.onLoaded});
-  final WidgetBuilder onLoaded;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return onLoaded(context);
-  }
-}
 
 /// Widget to show while initialization is in progress
 class AppStartupLoadingWidget extends StatelessWidget {
@@ -24,12 +12,11 @@ class AppStartupLoadingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    return Scaffold(
       backgroundColor: Colors.white,
-        body: Center(
-          child: AppAssets.images.appLogo.image(height: 66, width: 217),
-        ),
-      
+      body: Center(
+        child: AppAssets.images.appLogo.image(height: 66, width: 217),
+      ),
     );
   }
 }

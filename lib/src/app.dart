@@ -32,12 +32,10 @@ class MyApp extends ConsumerWidget {
           localizationsDelegates: context.localizationDelegates,
           supportedLocales: context.supportedLocales,
           locale: context.locale,
+          // If you do not need to track screen views or analytics, you can remove GoRouterDelegateListener and use the child widget directly.
           builder:
-              (context, child) => AppStartupWidget(
-                onLoaded:
-                    (_) => GoRouterDelegateListener(
-                      child: child ?? const AppStartupLoadingWidget(),
-                    ),
+              (context, child) => GoRouterDelegateListener(
+                child: child ?? const AppStartupLoadingWidget(),
               ),
         );
       },
