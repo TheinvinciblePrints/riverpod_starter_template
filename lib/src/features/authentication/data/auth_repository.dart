@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod_starter_template/src/network/api_client.dart';
+import 'package:flutter_riverpod_starter_template/src/network/connection_checker.dart';
+import 'package:flutter_riverpod_starter_template/src/network/network_exception.dart';
 import 'package:flutter_riverpod_starter_template/src/storage/storage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -28,6 +30,13 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<User?> getCurrentUser() async {
+    // Check for internet connection before attempting to get user
+    if (_apiClient is ApiClientImpl) {
+      final checker = (_apiClient).connectionChecker;
+      if (await checker.isConnected() == NetworkStatus.offline) {
+        throw NetworkExceptions.noInternetConnection();
+      }
+    }
     return await _preferenceStorage.getUser();
   }
 

@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod_starter_template/src/shared/shared.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../features/authentication/authentication.dart';
 import '../features/onboarding/onboarding.dart';
 import '../gen/assets.gen.dart';
+import '../network/connection_checker.dart';
+import '../network/network_exception.dart';
 
 part 'app_startup.g.dart';
 
@@ -14,11 +17,19 @@ Future<void> appStartup(Ref ref) async {
     // ensure dependent providers are disposed as well
     ref.invalidate(onboardingRepositoryProvider);
   });
-  // Uncomment this to test that URL-based navigation and deep linking works
-  // even when there's a delay in the app startup logic
-  await Future.delayed(Duration(seconds: 3));
-  // await for all initialization code to be complete before returning
+
+  // Check for internet connection before proceeding
+  final connectionChecker = ref.watch(connectionCheckerProvider);
+  if (await connectionChecker.isConnected() == NetworkStatus.offline) {
+    throw NetworkExceptions.noInternetConnection();
+  }
+
+  // Wait for onboarding repository
   await ref.watch(onboardingRepositoryProvider.future);
+
+  // Wait for authentication repository and check user (this will also throw if no internet)
+  final authRepository = await ref.watch(authRepositoryProvider.future);
+  await authRepository.getCurrentUser();
 }
 
 /// Widget class to manage asynchronous app initialization
@@ -47,10 +58,13 @@ class AppStartupLoadingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: AppAssets.images.appLogo.image(
-      height: 66,
-      width: 217,
-    )));
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: AppAssets.images.appLogo.image(height: 66, width: 217),
+        ),
+      ),
+    );
   }
 }
 
@@ -66,16 +80,18 @@ class AppStartupErrorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(message, style: Theme.of(context).textTheme.headlineSmall),
-            Gap(16),
-            ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
-          ],
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(message, style: Theme.of(context).textTheme.headlineSmall),
+              Gap(16),
+              ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
+            ],
+          ),
         ),
       ),
     );

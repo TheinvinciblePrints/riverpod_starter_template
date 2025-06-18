@@ -10,23 +10,13 @@ import 'flavors.dart';
 import 'src/app.dart';
 import 'src/config/config.dart';
 import 'src/localization/localization.dart';
+import 'src/routing/app_startup.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await EasyLocalization.ensureInitialized();
-
-  // Initialize environment configuration
   _initializeAppFlavor();
-
-  // * Register error handlers. For more info, see:
-  // * https://docs.flutter.dev/testing/errors
   registerErrorHandlers();
-
-  // * Initialize Firebase
-  // * Uncomment the following lines if you are using Firebase
-  // * Make sure to add the necessary Firebase dependencies in your pubspec.yaml
-  // * and configure your Firebase project correctly.
   // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(
     ProviderScope(
@@ -36,7 +26,7 @@ Future<void> main() async {
         path: 'assets/translations',
         fallbackLocale: englishUs,
         useFallbackTranslations: true,
-        child: const MyApp(),
+        child: AppStartupWidget(onLoaded: (_) => const RootAppWidget()),
       ),
     ),
   );

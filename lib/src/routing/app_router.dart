@@ -25,7 +25,10 @@ GoRouter goRouter(Ref ref) {
     debugLogDiagnostics: true,
     redirect: (context, state) => _handleRedirection(context, state, ref),
     routes: [
-      GoRoute(path: Routes.splash, builder: (_, __) => const AppStartupLoadingWidget()),
+      GoRoute(
+        path: Routes.splash,
+        builder: (_, __) => const AppStartupLoadingWidget(),
+      ),
       GoRoute(
         path: Routes.onboarding,
         builder: (_, __) => const OnboardingScreen(),
@@ -47,6 +50,12 @@ FutureOr<String?> _handleRedirection(
   GoRouterState state,
   Ref ref,
 ) async {
+  // Wait for app startup to complete before any routing
+  final appStartup = ref.watch(appStartupProvider);
+  if (appStartup is AsyncLoading || appStartup is AsyncError) {
+    return Routes.splash;
+  }
+
   // Watch the onboarding repository (AsyncValue)
   final onboarding = ref.watch(onboardingRepositoryProvider);
 
@@ -96,5 +105,3 @@ FutureOr<String?> _handleRedirection(
   // No redirection needed — allow navigation to proceed
   return null;
 }
-
-

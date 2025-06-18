@@ -11,11 +11,21 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    return AppStartupWidget(onLoaded: (_) => const RootAppWidget());
+  }
+}
+
+/// Root widget that builds MaterialApp.router after app startup is complete
+class RootAppWidget extends ConsumerWidget {
+  const RootAppWidget({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final themeModeAsync = ref.watch(themeModeNotifierProvider);
     final goRouter = ref.watch(goRouterProvider);
 
     return ScreenUtilInit(
-      designSize: const Size(428, 926), // Default Figma design size
+      designSize: const Size(428, 926),
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
@@ -32,13 +42,9 @@ class MyApp extends ConsumerWidget {
           localizationsDelegates: context.localizationDelegates,
           supportedLocales: context.supportedLocales,
           locale: context.locale,
-          builder: (context, child) {
-            return AppStartupWidget(
-              onLoaded: (_) => GoRouterDelegateListener(child: child!),
-            );
-          },
+          builder: (context, child) => GoRouterDelegateListener(child: child!),
         );
-      }
+      },
     );
   }
 }
