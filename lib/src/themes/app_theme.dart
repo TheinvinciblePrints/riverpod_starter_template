@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod_starter_template/src/themes/themes.dart';
 
-import 'app_color_theme_extension.dart';
-
 abstract final class AppTheme {
   static ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,

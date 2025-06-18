@@ -34,7 +34,10 @@ class MyApp extends ConsumerWidget {
           locale: context.locale,
           builder:
               (context, child) => AppStartupWidget(
-                onLoaded: (_) => GoRouterDelegateListener(child: child!),
+                onLoaded:
+                    (_) => GoRouterDelegateListener(
+                      child: child ?? const AppStartupLoadingWidget(),
+                    ),
               ),
         );
       },

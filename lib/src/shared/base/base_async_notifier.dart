@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod_starter_template/src/providers/logger_provider.dart';
 import 'package:logging/logging.dart';
 
-abstract class BaseAsyncViewModel<T> extends AsyncNotifier<T> {
+abstract class BaseAsyncNotifier<T> extends AsyncNotifier<T> {
   late final Logger _logger;
 
   @override

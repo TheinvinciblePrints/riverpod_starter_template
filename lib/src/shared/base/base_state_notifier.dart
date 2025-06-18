@@ -17,7 +17,9 @@ abstract class BaseStateNotifier<T> extends StateNotifier<T> {
   @protected
   Logger get logger => _logger;
 
+  /// Expose the protected ref getter in BaseStateNotifier so it can be used in other classes for provider reads.
+  Ref get ref => _ref;
+
   /// Lifecycle hook (optional)
   void onInit() {}
 }
-

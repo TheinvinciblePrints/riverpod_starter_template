@@ -2,37 +2,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod_starter_template/src/shared/shared.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../features/authentication/authentication.dart';
-import '../features/onboarding/onboarding.dart';
 import '../gen/assets.gen.dart';
 import '../localization/locale_keys.g.dart';
-import '../network/connection_checker.dart';
 import '../network/network_exception.dart';
-
-part 'app_startup.g.dart';
-
-@Riverpod(keepAlive: true)
-Future<void> appStartup(Ref ref) async {
-  ref.onDispose(() {
-    // ensure dependent providers are disposed as well
-    ref.invalidate(onboardingRepositoryProvider);
-  });
-
-  // Check for internet connection before proceeding
-  final connectionChecker = ref.watch(connectionCheckerProvider);
-  if (await connectionChecker.isConnected() == NetworkStatus.offline) {
-    throw NetworkExceptions.noInternetConnection();
-  }
-
-  // Wait for onboarding repository
-  await ref.watch(onboardingRepositoryProvider.future);
-
-  // Wait for authentication repository and check user (this will also throw if no internet)
-  final authRepository = await ref.watch(authRepositoryProvider.future);
-  await authRepository.getCurrentUser();
-}
 
 /// Widget class to manage asynchronous app initialization
 class AppStartupWidget extends ConsumerWidget {
@@ -41,17 +14,7 @@ class AppStartupWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final appStartupState = ref.watch(appStartupProvider);
-    return appStartupState.when(
-      data: (_) => onLoaded(context),
-      loading: () => const AppStartupLoadingWidget(),
-      error:
-          (e, st) => AppStartupErrorWidget(
-            message: e.toString(),
-            onRetry: () => ref.invalidate(appStartupProvider),
-            error: e,
-          ),
-    );
+    return onLoaded(context);
   }
 }
 
@@ -61,10 +24,12 @@ class AppStartupLoadingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: AppAssets.images.appLogo.image(height: 66, width: 217),
-      ),
+    return  Scaffold(
+      backgroundColor: Colors.white,
+        body: Center(
+          child: AppAssets.images.appLogo.image(height: 66, width: 217),
+        ),
+      
     );
   }
 }
@@ -86,7 +51,6 @@ class AppStartupErrorWidget extends StatelessWidget {
       final key = NetworkExceptions.getErrorMessage(error as NetworkExceptions);
       return key.tr();
     }
-    // fallback: try to match known error strings
     if (message.toLowerCase().contains('no internet')) {
       return LocaleKeys.noInternetConnection.tr();
     }
@@ -99,20 +63,16 @@ class AppStartupErrorWidget extends StatelessWidget {
       home: Scaffold(
         appBar: AppBar(),
         body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  _getDisplayMessage(context),
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                Gap(24),
-                ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
-              ],
-            ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                _getDisplayMessage(context),
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              Gap(16),
+              ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
+            ],
           ),
         ),
       ),
