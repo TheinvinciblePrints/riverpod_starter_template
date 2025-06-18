@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod_starter_template/src/shared/shared.dart';
@@ -6,6 +7,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../features/authentication/authentication.dart';
 import '../features/onboarding/onboarding.dart';
 import '../gen/assets.gen.dart';
+import '../localization/locale_keys.g.dart';
 import '../network/connection_checker.dart';
 import '../network/network_exception.dart';
 
@@ -47,6 +49,7 @@ class AppStartupWidget extends ConsumerWidget {
           (e, st) => AppStartupErrorWidget(
             message: e.toString(),
             onRetry: () => ref.invalidate(appStartupProvider),
+            error: e,
           ),
     );
   }
@@ -72,24 +75,47 @@ class AppStartupErrorWidget extends StatelessWidget {
     super.key,
     required this.message,
     required this.onRetry,
+    this.error,
   });
   final String message;
   final VoidCallback onRetry;
+  final Object? error;
+
+  String _getDisplayMessage(BuildContext context) {
+    if (error is NetworkExceptions) {
+      final key = NetworkExceptions.getErrorMessage(error as NetworkExceptions);
+      return key.tr();
+    }
+    // fallback: try to match known error strings
+    if (message.toLowerCase().contains('no internet')) {
+      return LocaleKeys.noInternetConnection.tr();
+    }
+    return message;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return MaterialApp(
+      home: Scaffold(
         appBar: AppBar(),
         body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(message, style: Theme.of(context).textTheme.headlineSmall),
-              Gap(16),
-              ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _getDisplayMessage(context),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                Gap(24),
+                ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
+              ],
+            ),
           ),
         ),
-      );
+      ),
+    );
   }
 }

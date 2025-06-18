@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod_starter_template/src/gen/assets.gen.dart';
 import 'package:flutter_riverpod_starter_template/src/localization/locale_keys.g.dart';
 import 'package:flutter_riverpod_starter_template/src/shared/shared.dart';
@@ -8,18 +9,18 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../themes/themes.dart';
 import '../data/onboarding_page_data.dart';
+import 'onboarding_controller.dart';
 import 'widgets/onboarding_dot.dart';
 
-class OnboardingScreen extends StatefulWidget {
+class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
   @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
+  ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
+class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final PageController _pageController = PageController();
-  int _currentPage = 0;
 
   final List<OnboardingPageData> _pages = [
     OnboardingPageData(
@@ -42,19 +43,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     ),
   ];
 
+  // Use Riverpod state for current page
+  late final StateProvider<int> _currentPageProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentPageProvider = StateProvider<int>((_) => 0);
+  }
+
   void _onNext() {
-    if (_currentPage < _pages.length - 1) {
+    final currentPage = ref.read(_currentPageProvider);
+    if (currentPage < _pages.length - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
     } else {
-      // TODO: Handle Get Started (navigate to home or login)
+      // Complete onboarding using controller
+      ref.read(onboardingProvider.notifier).completeOnboarding();
+      // TODO: Navigate to home or login
     }
   }
 
   void _onBack() {
-    if (_currentPage > 0) {
+    final currentPage = ref.read(_currentPageProvider);
+    if (currentPage > 0) {
       _pageController.previousPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -70,6 +84,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final currentPage = ref.watch(_currentPageProvider);
+    final onboardingState = ref.watch(onboardingProvider);
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
@@ -78,7 +94,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             child: PageView.builder(
               controller: _pageController,
               itemCount: _pages.length,
-              onPageChanged: (index) => setState(() => _currentPage = index),
+              onPageChanged:
+                  (index) =>
+                      ref.read(_currentPageProvider.notifier).state = index,
               itemBuilder: (context, index) {
                 final page = _pages[index];
                 return Column(
@@ -86,7 +104,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     Image.asset(
                       page.image,
                       width: double.infinity,
-                      height: 584.h, // Using ScreenUtil for responsive design
+                      height: 584.h,
                       cacheHeight: 584.h.toInt(),
                       cacheWidth: 428.w.toInt(),
                       fit: BoxFit.cover,
@@ -115,10 +133,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     children: [
                       ...List.generate(
                         _pages.length,
-                        (i) => OnboardingDot(isActive: i == _currentPage),
+                        (i) => OnboardingDot(isActive: i == currentPage),
                       ),
                       const Spacer(),
-                      if (_currentPage > 0)
+                      if (currentPage > 0)
                         TextButton(
                           onPressed: _onBack,
                           style: TextButton.styleFrom(
@@ -133,15 +151,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
 
                       PrimaryButton(
-                        width: _currentPage == _pages.length - 1 ? 142 : 85,
+                        width: currentPage == _pages.length - 1 ? 142 : 85,
                         onPressed: _onNext,
                         label:
-                            _currentPage == _pages.length - 1
+                            currentPage == _pages.length - 1
                                 ? LocaleKeys.onboarding_getStarted
                                 : LocaleKeys.onboarding_next,
                       ),
                     ],
                   ),
+                  if (onboardingState is AsyncLoading)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 16.0),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  if (onboardingState is AsyncError)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16.0),
+                      child: Text(
+                        onboardingState.error.toString(),
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -169,15 +200,9 @@ class _OnboardingPageContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            title,
-            style: context.textTheme.onboardingTitle,
-          ),
+          Text(title, style: context.textTheme.onboardingTitle),
 
-          Text(
-            description,
-            style: context.textTheme.onboardingDescription,
-          ),
+          Text(description, style: context.textTheme.onboardingDescription),
         ],
       ),
     );
