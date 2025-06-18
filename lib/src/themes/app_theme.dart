@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod_starter_template/src/themes/themes.dart';
 
-import 'app_colors.dart';
-import 'app_text_theme.dart';
-import 'design_system_extension.dart';
+import 'app_color_theme_extension.dart';
 
 abstract final class AppTheme {
   static ThemeData lightTheme = ThemeData(
@@ -11,7 +9,7 @@ abstract final class AppTheme {
     primaryColor: AppColors.primary,
     scaffoldBackgroundColor: AppColors.white,
     textTheme: AppTextTheme.lightTextTheme,
-    extensions: const <ThemeExtension<dynamic>>[DesignSystemExtension.light],
+
     colorScheme: const ColorScheme.light().copyWith(
       primary: AppColors.primary,
       error: AppColors.error,
@@ -23,16 +21,25 @@ abstract final class AppTheme {
       fillColor: AppColors.disableInput,
       hintStyle: TextStyle(color: AppColors.placeholder),
     ),
-    bottomNavigationBarTheme:  BottomNavigationBarThemeData(
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: AppColors.white,
       selectedItemColor: AppColors.primary,
       unselectedItemColor: AppColors.placeholder,
       type: BottomNavigationBarType.fixed,
       showSelectedLabels: true,
       showUnselectedLabels: true,
-      selectedLabelStyle: AppTextStyles.textXSmall.copyWith(color: AppColors.primary),
-      unselectedLabelStyle: AppTextStyles.textXSmall.copyWith(color: AppColors.bodyText),
+      selectedLabelStyle: AppTextStyles.textXSmall.copyWith(
+        color: AppColors.primary,
+      ),
+      unselectedLabelStyle: AppTextStyles.textXSmall.copyWith(
+        color: AppColors.bodyText,
+      ),
     ),
+    extensions: <ThemeExtension<dynamic>>[
+      DesignSystemExtension.light,
+      AppTextThemeExtension.light,
+      AppColorThemeExtension.light,
+    ],
   );
 
   static ThemeData darkTheme = ThemeData(
@@ -40,7 +47,7 @@ abstract final class AppTheme {
     primaryColor: AppColors.primary,
     scaffoldBackgroundColor: AppColors.darkBackground,
     textTheme: AppTextTheme.darkTextTheme,
-    extensions: const <ThemeExtension<dynamic>>[DesignSystemExtension.dark],
+
     colorScheme: const ColorScheme.dark().copyWith(
       primary: AppColors.primary,
       error: AppColors.errorDarkMode,
@@ -52,15 +59,24 @@ abstract final class AppTheme {
       fillColor: AppColors.darkInputBackground,
       hintStyle: TextStyle(color: AppColors.placeholder),
     ),
-    bottomNavigationBarTheme:  BottomNavigationBarThemeData(
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: AppColors.darkBackground,
       selectedItemColor: AppColors.primary,
       unselectedItemColor: AppColors.darkBody,
       type: BottomNavigationBarType.fixed,
       showSelectedLabels: true,
       showUnselectedLabels: true,
-      selectedLabelStyle: AppTextStyles.textXSmall.copyWith(color: AppColors.primary),
-      unselectedLabelStyle: AppTextStyles.textXSmall.copyWith(color: AppColors.darkBody),
+      selectedLabelStyle: AppTextStyles.textXSmall.copyWith(
+        color: AppColors.primary,
+      ),
+      unselectedLabelStyle: AppTextStyles.textXSmall.copyWith(
+        color: AppColors.darkBody,
+      ),
     ),
+    extensions: <ThemeExtension<dynamic>>[
+      DesignSystemExtension.dark,
+      AppTextThemeExtension.dark,
+      AppColorThemeExtension.dark,
+    ],
   );
 }

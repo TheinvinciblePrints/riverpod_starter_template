@@ -1,7 +1,9 @@
+export 'app_color_theme_extension.dart';
 export 'app_colors.dart';
 export 'app_shadows.dart';
 export 'app_text_styles.dart';
 export 'app_text_theme.dart';
+export 'app_text_theme_extension.dart';
 export 'app_theme.dart';
 export 'design_system_extension.dart';
 export 'theme_mode_notifier.dart';

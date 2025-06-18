@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod_starter_template/src/gen/assets.gen.dart';
 import 'package:flutter_riverpod_starter_template/src/localization/locale_keys.g.dart';
 import 'package:flutter_riverpod_starter_template/src/shared/shared.dart';
+import 'package:flutter_riverpod_starter_template/src/utils/extensions/context_extensions.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../themes/themes.dart';
@@ -170,12 +171,12 @@ class _OnboardingPageContent extends StatelessWidget {
         children: [
           Text(
             title,
-            style: AppTextStyles.displaySmallBold.copyWith(color: Colors.black),
+            style: context.textTheme.onboardingTitle,
           ),
 
           Text(
             description,
-            style: AppTextStyles.textMedium.copyWith(color: AppColors.bodyText),
+            style: context.textTheme.onboardingDescription,
           ),
         ],
       ),

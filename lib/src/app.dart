@@ -11,16 +11,6 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return AppStartupWidget(onLoaded: (_) => const RootAppWidget());
-  }
-}
-
-/// Root widget that builds MaterialApp.router after app startup is complete
-class RootAppWidget extends ConsumerWidget {
-  const RootAppWidget({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
     final themeModeAsync = ref.watch(themeModeNotifierProvider);
     final goRouter = ref.watch(goRouterProvider);
 
@@ -42,7 +32,10 @@ class RootAppWidget extends ConsumerWidget {
           localizationsDelegates: context.localizationDelegates,
           supportedLocales: context.supportedLocales,
           locale: context.locale,
-          builder: (context, child) => GoRouterDelegateListener(child: child!),
+          builder:
+              (context, child) => AppStartupWidget(
+                onLoaded: (_) => GoRouterDelegateListener(child: child!),
+              ),
         );
       },
     );

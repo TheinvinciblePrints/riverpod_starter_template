@@ -20,17 +20,17 @@ class $AssetsImagesGen {
   AssetGenImage get icLauncher =>
       const AssetGenImage('assets/images/ic_launcher.png');
 
-  /// File path: assets/images/onboarding_image_1.png
+  /// File path: assets/images/onboarding_image_1.webp
   AssetGenImage get onboardingImage1 =>
-      const AssetGenImage('assets/images/onboarding_image_1.png');
+      const AssetGenImage('assets/images/onboarding_image_1.webp');
 
-  /// File path: assets/images/onboarding_image_2.png
+  /// File path: assets/images/onboarding_image_2.webp
   AssetGenImage get onboardingImage2 =>
-      const AssetGenImage('assets/images/onboarding_image_2.png');
+      const AssetGenImage('assets/images/onboarding_image_2.webp');
 
-  /// File path: assets/images/onboarding_image_3.png
+  /// File path: assets/images/onboarding_image_3.webp
   AssetGenImage get onboardingImage3 =>
-      const AssetGenImage('assets/images/onboarding_image_3.png');
+      const AssetGenImage('assets/images/onboarding_image_3.webp');
 
   /// List of all assets
   List<AssetGenImage> get values => [

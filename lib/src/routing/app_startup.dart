@@ -58,11 +58,9 @@ class AppStartupLoadingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: AppAssets.images.appLogo.image(height: 66, width: 217),
-        ),
+    return Scaffold(
+      body: Center(
+        child: AppAssets.images.appLogo.image(height: 66, width: 217),
       ),
     );
   }
@@ -80,8 +78,7 @@ class AppStartupErrorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
+    return Scaffold(
         appBar: AppBar(),
         body: Center(
           child: Column(
@@ -93,7 +90,6 @@ class AppStartupErrorWidget extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 }

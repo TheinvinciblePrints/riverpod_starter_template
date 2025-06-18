@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod_starter_template/src/utils/extensions/context_extensions.dart';
 
 class OnboardingDot extends StatelessWidget {
   final bool isActive;
@@ -11,7 +12,7 @@ class OnboardingDot extends StatelessWidget {
       width: 14,
       height: 14,
       decoration: BoxDecoration(
-        color: isActive ? const Color(0xFF1877F2) : const Color(0xFFBFC9DA),
+        color: isActive ? context.colorTheme.dotActiveColor : context.colorTheme.dotInactiveColor,
         shape: BoxShape.circle,
       ),
     );

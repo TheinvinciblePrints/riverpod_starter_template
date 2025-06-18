@@ -10,7 +10,6 @@ import 'flavors.dart';
 import 'src/app.dart';
 import 'src/config/config.dart';
 import 'src/localization/localization.dart';
-import 'src/routing/app_startup.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +25,7 @@ Future<void> main() async {
         path: 'assets/translations',
         fallbackLocale: englishUs,
         useFallbackTranslations: true,
-        child: AppStartupWidget(onLoaded: (_) => const RootAppWidget()),
+        child: const MyApp(),
       ),
     ),
   );
