@@ -46,23 +46,23 @@ class AppStartupErrorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(),
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                _getDisplayMessage(context),
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              Gap(16),
-              ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
-            ],
-          ),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(),
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              _getDisplayMessage(context),
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            Gap(16),
+            ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
+          ],
         ),
       ),
     );
   }
 }
+

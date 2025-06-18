@@ -18,7 +18,7 @@ class SplashScreen extends ConsumerWidget {
     if (startup.hasError) {
       return AppStartupErrorWidget(
         message: startup.errorMessage ?? 'Unknown error',
-        error: startup.errorMessage,
+        error: startup.errorObject,
         onRetry: () => notifier.retry(),
       );
     }

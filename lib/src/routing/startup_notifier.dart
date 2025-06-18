@@ -8,6 +8,7 @@ class StartupState {
   final bool isLoading;
   final bool hasError;
   final String? errorMessage;
+  final Object? errorObject;
   final bool didCompleteOnboarding;
   final bool isLoggedIn;
 
@@ -15,6 +16,7 @@ class StartupState {
     this.isLoading = true,
     this.hasError = false,
     this.errorMessage,
+    this.errorObject,
     this.didCompleteOnboarding = false,
     this.isLoggedIn = false,
   });
@@ -23,6 +25,7 @@ class StartupState {
     bool? isLoading,
     bool? hasError,
     String? errorMessage,
+    Object? errorObject,
     bool? didCompleteOnboarding,
     bool? isLoggedIn,
   }) {
@@ -30,6 +33,7 @@ class StartupState {
       isLoading: isLoading ?? this.isLoading,
       hasError: hasError ?? this.hasError,
       errorMessage: errorMessage ?? this.errorMessage,
+      errorObject: errorObject ?? this.errorObject,
       didCompleteOnboarding:
           didCompleteOnboarding ?? this.didCompleteOnboarding,
       isLoggedIn: isLoggedIn ?? this.isLoggedIn,
@@ -49,6 +53,7 @@ class StartupNotifier extends BaseStateNotifier<StartupState> {
     try {
       // Simulate splash delay for UX/testing
       await Future.delayed(const Duration(seconds: 2));
+
       // Onboarding
       final onboardingRepo = await ref.read(
         onboardingRepositoryProvider.future,
@@ -71,6 +76,7 @@ class StartupNotifier extends BaseStateNotifier<StartupState> {
         isLoading: false,
         hasError: true,
         errorMessage: e.toString(),
+        errorObject: e,
       );
       logger.severe('Startup failed', e, st);
     }
