@@ -32,7 +32,7 @@ class StartupNotifier extends BaseStateNotifier<StartupState> {
         didCompleteOnboarding: didCompleteOnboarding,
         isLoggedIn: isLoggedIn,
       );
-      logger.info(
+      logger.i(
         'Startup completed: onboarding=$didCompleteOnboarding, loggedIn=$isLoggedIn',
       );
     } catch (e, st) {
@@ -42,7 +42,7 @@ class StartupNotifier extends BaseStateNotifier<StartupState> {
         errorMessage: e.toString(),
         errorObject: e,
       );
-      logger.severe('Startup failed', e, st);
+      logger.f('Startup failed', error: e, stackTrace: st);
     }
   }
 

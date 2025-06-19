@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod_starter_template/src/providers/logger_provider.dart';
-import 'package:logging/logging.dart';
+import 'package:logger/logger.dart';
 
 abstract class BaseAsyncNotifier<T> extends AsyncNotifier<T> {
   late final Logger _logger;

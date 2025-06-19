@@ -1,41 +1,37 @@
 // logger_provider.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logging/logging.dart';
+import 'package:logger/logger.dart';
 
 import '../../flavors.dart';
 
-final loggerProvider = Provider<Logger>((ref) {
-  final logger = Logger('AppLogger');
-
-  // Clear previous listeners if any
-  Logger.root.clearListeners();
-
-  // Set the log level based on the flavor
-  if (F.isProduction) {
-    Logger.root.level = Level.WARNING;
-  } else if (F.isStaging) {
-    Logger.root.level = Level.INFO;
-  } else {
-    Logger.root.level = Level.ALL; // for dev/debug
+class _DummyLogger extends Logger {
+  _DummyLogger() : super(printer: PrettyPrinter(methodCount: 0));
+  @override
+  void log(
+    Level level,
+    message, {
+    Object? error,
+    StackTrace? stackTrace,
+    DateTime? time,
+  }) {
+    // Do nothing
   }
+}
 
-  // Attach a listener for log output
-  Logger.root.onRecord.listen((record) {
-    final output =
-        '[${record.level.name}] ${record.time.toIso8601String()} (${record.loggerName}): ${record.message}';
-
-    if (record.error != null) {
-      print('$output\nError: ${record.error}');
-    } else {
-      print(output);
-    }
-
-    if (record.stackTrace != null) {
-      print('StackTrace:\n${record.stackTrace}');
-    }
-  });
-
-  logger.info('Logger initialized for ${F.name}');
-
-  return logger;
+final loggerProvider = Provider<Logger>((ref) {
+  if (F.isDev) {
+    return Logger(
+      printer: PrettyPrinter(
+        methodCount: 2, // Number of method calls to be displayed
+        errorMethodCount: 8, // Number of method calls if stacktrace is provided
+        lineLength: 120, // Width of the output
+        colors: true, // Colorful log messages
+        printEmojis: true, // Print an emoji for each log message
+        // Should each log print contain a timestamp
+        dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart,
+      ),
+    );
+  } else {
+    return _DummyLogger();
+  }
 });
