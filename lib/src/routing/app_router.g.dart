@@ -6,11 +6,11 @@ part of 'app_router.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$goRouterHash() => r'78583fae643be15f830611504704aa993140a8bb';
+String _$goRouterHash() => r'8e90fb3a54f72a93bda2c6ef5588a188ac08a66c';
 
 /// Top go_router entry point.
 ///
-/// Listens to changes in [AuthTokenRepository] to redirect the user
+/// Listens to changes in [AuthRepository] to redirect the user
 /// to /login when the user logs out.
 ///
 /// Copied from [goRouter].

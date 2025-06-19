@@ -6,7 +6,9 @@ import 'package:flutter_riverpod_starter_template/src/localization/locale_keys.g
 import 'package:flutter_riverpod_starter_template/src/shared/shared.dart';
 import 'package:flutter_riverpod_starter_template/src/utils/extensions/context_extensions.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../routing/routing.dart';
 import '../../../themes/themes.dart';
 import '../data/onboarding_page_data.dart';
 import 'onboarding_controller.dart';
@@ -25,21 +27,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final List<OnboardingPageData> _pages = [
     OnboardingPageData(
       image: AppAssets.images.onboardingImage1.path,
-      title: 'Lorem Ipsum is simply dummy',
-      description:
-          'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
+      title: LocaleKeys.onboarding_pageOneTitle.tr(),
+      description: LocaleKeys.onboarding_pageOneSubTitle.tr(),
     ),
     OnboardingPageData(
       image: AppAssets.images.onboardingImage2.path,
-      title: 'Lorem Ipsum is simply dummy',
-      description:
-          'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
+      title: LocaleKeys.onboarding_pageTwoTitle.tr(),
+      description: LocaleKeys.onboarding_pageTwoSubTitle.tr(),
     ),
     OnboardingPageData(
       image: AppAssets.images.onboardingImage3.path,
-      title: 'Lorem Ipsum is simply dummy',
-      description:
-          'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
+      title: LocaleKeys.onboarding_pageThreeTitle.tr(),
+      description: LocaleKeys.onboarding_pageThreeSubTitle.tr(),
     ),
   ];
 
@@ -50,20 +49,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   void initState() {
     super.initState();
     _currentPageProvider = StateProvider<int>((_) => 0);
-  }
-
-  void _onNext() {
-    final currentPage = ref.read(_currentPageProvider);
-    if (currentPage < _pages.length - 1) {
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    } else {
-      // Complete onboarding using controller
-      ref.read(onboardingProvider.notifier).completeOnboarding();
-      // TODO: Navigate to home or login
-    }
   }
 
   void _onBack() {
@@ -104,8 +89,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     Image.asset(
                       page.image,
                       width: double.infinity,
-                      height: 584.h,
-                      cacheHeight: 584.h.toInt(),
+                      height: 544.h,
+                      cacheHeight: 544.h.toInt(),
                       cacheWidth: 428.w.toInt(),
                       fit: BoxFit.cover,
                     ),
@@ -119,62 +104,80 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               },
             ),
           ),
-          SafeArea(
-            top: false,
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 32),
-              decoration: const BoxDecoration(color: Colors.white),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Gap(24),
-                  Row(
-                    children: [
-                      ...List.generate(
-                        _pages.length,
-                        (i) => OnboardingDot(isActive: i == currentPage),
-                      ),
-                      const Spacer(),
-                      if (currentPage > 0)
-                        TextButton(
-                          onPressed: _onBack,
-                          style: TextButton.styleFrom(
-                            overlayColor: Colors.transparent,
-                          ),
-                          child: Text(
-                            context.tr(LocaleKeys.onboarding_back),
-                            style: AppTextStyles.linkMedium.copyWith(
-                              color: AppColors.darkBody,
-                            ),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 32),
+            margin: EdgeInsets.only(bottom: 20),
+            decoration: const BoxDecoration(color: Colors.white),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Gap(24),
+                Row(
+                  children: [
+                    ...List.generate(
+                      _pages.length,
+                      (i) => OnboardingDot(isActive: i == currentPage),
+                    ),
+                    const Spacer(),
+                    if (currentPage > 0)
+                      TextButton(
+                        onPressed: _onBack,
+                        style: TextButton.styleFrom(
+                          overlayColor: Colors.transparent,
+                        ),
+                        child: Text(
+                          context.tr(LocaleKeys.onboarding_back),
+                          style: AppTextStyles.linkMedium.copyWith(
+                            color: AppColors.darkBody,
                           ),
                         ),
+                      ),
 
-                      PrimaryButton(
-                        width: currentPage == _pages.length - 1 ? 142 : 85,
-                        onPressed: _onNext,
-                        label:
-                            currentPage == _pages.length - 1
-                                ? LocaleKeys.onboarding_getStarted
-                                : LocaleKeys.onboarding_next,
-                      ),
-                    ],
+                    PrimaryButton(
+                      width: currentPage == _pages.length - 1 ? 142 : 85,
+                      onPressed: () async {
+                        final currentPage = ref.read(_currentPageProvider);
+                        if (currentPage < _pages.length - 1) {
+                          _pageController.nextPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        } else {
+                          // Mark onboarding as complete in shared preferences
+                          await ref
+                              .read(onboardingProvider.notifier)
+                              .completeOnboarding();
+                          ref
+                              .read(startupNotifierProvider.notifier)
+                              .completeOnboardingAndSetUnauthenticated();
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (!mounted) return;
+                            context.goNamed(AppRoute.login.name);
+                          });
+                        }
+                      },
+                      label:
+                          currentPage == _pages.length - 1
+                              ? LocaleKeys.onboarding_getStarted
+                              : LocaleKeys.onboarding_next,
+                    ),
+                  ],
+                ),
+                if (onboardingState is AsyncLoading)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 16.0),
+                    child: Center(child: CircularProgressIndicator()),
                   ),
-                  if (onboardingState is AsyncLoading)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 16.0),
-                      child: Center(child: CircularProgressIndicator()),
+                if (onboardingState is AsyncError)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16.0),
+                    child: Text(
+                      onboardingState.error.toString(),
+                      style: const TextStyle(color: Colors.red),
                     ),
-                  if (onboardingState is AsyncError)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16.0),
-                      child: Text(
-                        onboardingState.error.toString(),
-                        style: const TextStyle(color: Colors.red),
-                      ),
-                    ),
-                ],
-              ),
+                  ),
+              ],
             ),
           ),
         ],

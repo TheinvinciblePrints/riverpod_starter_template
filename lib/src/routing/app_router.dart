@@ -7,34 +7,51 @@ import '../features/authentication/authentication.dart';
 import '../features/home/presentation/home_screen.dart';
 import '../features/onboarding/onboarding.dart';
 import 'routing.dart';
-import 'startup_notifier.dart';
 
 part 'app_router.g.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
+enum AppRoute { splash, onboarding, login, home }
+
+extension AppRoutePath on AppRoute {
+  String get path => '/$name';
+}
+
 /// Top go_router entry point.
 ///
-/// Listens to changes in [AuthTokenRepository] to redirect the user
+/// Listens to changes in [AuthRepository] to redirect the user
 /// to /login when the user logs out.
 @riverpod
 GoRouter goRouter(Ref ref) {
   return GoRouter(
-    initialLocation: Routes.home,
+    initialLocation: AppRoute.login.path,
     navigatorKey: _rootNavigatorKey,
-    debugLogDiagnostics: true,
     redirect: (context, state) => _handleRedirection(context, state, ref),
     routes: [
       GoRoute(
-        path: Routes.splash,
+        path: AppRoute.splash.path,
+        name: AppRoute.splash.name,
         builder: (_, __) => const AppStartupWidget(),
       ),
       GoRoute(
-        path: Routes.onboarding,
-        builder: (_, __) => const OnboardingScreen(),
+        path: AppRoute.onboarding.path,
+        name: AppRoute.onboarding.name,
+        pageBuilder:
+            (context, state) =>
+                const NoTransitionPage(child: OnboardingScreen()),
       ),
-      GoRoute(path: Routes.login, builder: (_, __) => const LoginScreen()),
-      GoRoute(path: Routes.home, builder: (_, __) => const HomeScreen()),
+      GoRoute(
+        path: AppRoute.login.path,
+        name: AppRoute.login.name,
+        pageBuilder:
+            (context, state) => const NoTransitionPage(child: LoginScreen()),
+      ),
+      GoRoute(
+        path: AppRoute.home.path,
+        name: AppRoute.home.name,
+        builder: (_, __) => const HomeScreen(),
+      ),
     ],
   );
 }
@@ -53,25 +70,35 @@ FutureOr<String?> _handleRedirection(
   final startup = ref.watch(startupNotifierProvider);
   final path = state.uri.path;
 
-  if (startup.isLoading || startup.hasError) {
-    return Routes.splash;
+  switch (startup) {
+    case StartupLoading():
+      return AppRoute.splash.path;
+    case StartupError():
+      return AppRoute.splash.path;
+    case StartupUnauthenticated():
+      return path == AppRoute.login.path ? null : AppRoute.login.path;
+    case StartupCompleted(didCompleteOnboarding: final didCompleteOnboarding, isLoggedIn: final isLoggedIn):
+      // If onboarding not complete, redirect to onboarding
+      if (!didCompleteOnboarding && path != AppRoute.onboarding.path) {
+        return AppRoute.onboarding.path;
+      }
+      // If not logged in and trying to access home, redirect to login
+      if (!isLoggedIn && path.startsWith(AppRoute.home.path)) {
+        return AppRoute.login.path;
+      }
+      // If logged in and trying to access login/onboarding/splash, redirect to home
+      if (isLoggedIn &&
+          (path == AppRoute.login.path ||
+              path == AppRoute.onboarding.path ||
+              path == AppRoute.splash.path)) {
+        return AppRoute.home.path;
+      }
+      // If on splash, route to correct place
+      if (path == AppRoute.splash.path) {
+        if (!didCompleteOnboarding) return AppRoute.onboarding.path;
+        if (!isLoggedIn) return AppRoute.login.path;
+        return AppRoute.home.path;
+      }
+      return null;
   }
-  if (!startup.didCompleteOnboarding && path != Routes.onboarding) {
-    return Routes.onboarding;
-  }
-  if (!startup.isLoggedIn && path.startsWith(Routes.home)) {
-    return Routes.login;
-  }
-  if (startup.isLoggedIn &&
-      (path == Routes.login ||
-          path == Routes.onboarding ||
-          path == Routes.splash)) {
-    return Routes.home;
-  }
-  if (path == Routes.splash) {
-    if (!startup.didCompleteOnboarding) return Routes.onboarding;
-    if (!startup.isLoggedIn) return Routes.login;
-    return Routes.home;
-  }
-  return null;
 }

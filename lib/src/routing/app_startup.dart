@@ -1,12 +1,15 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod_starter_template/src/network/network_error_handler.dart';
 import 'package:flutter_riverpod_starter_template/src/shared/shared.dart';
+import 'package:flutter_riverpod_starter_template/src/utils/extensions/context_extensions.dart';
 
 import '../gen/assets.gen.dart';
 import '../localization/locale_keys.g.dart';
 import '../network/network_exception.dart';
-import 'startup_notifier.dart';
+import '../network/network_failures.dart';
+import 'routing.dart';
 
 class AppStartupWidget extends ConsumerWidget {
   const AppStartupWidget({super.key});
@@ -16,18 +19,18 @@ class AppStartupWidget extends ConsumerWidget {
     final startup = ref.watch(startupNotifierProvider);
     final notifier = ref.read(startupNotifierProvider.notifier);
 
-    if (startup.isLoading) {
-      return const AppStartupLoadingWidget();
-    }
-    if (startup.hasError) {
-      return AppStartupErrorWidget(
-        message: startup.errorMessage ?? 'Unknown error',
-        error: startup.errorObject,
-        onRetry: () => notifier.retry(),
-      );
-    }
-    // Should never reach here, as GoRouter will redirect away when ready
-    return const SizedBox.shrink();
+    return switch (startup) {
+      StartupLoading() => const AppStartupLoadingWidget(),
+      StartupError(message: final message, errorObject: final error) =>
+        AppStartupErrorWidget(
+          message: message ?? 'Unknown error',
+          error: error,
+          onRetry: () => notifier.retry(),
+        ),
+      StartupUnauthenticated() => const SizedBox.shrink(),
+      StartupCompleted(didCompleteOnboarding: final _, isLoggedIn: final _) =>
+        const SizedBox.shrink(),
+    };
   }
 }
 
@@ -38,7 +41,6 @@ class AppStartupLoadingWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: Center(
         child: AppAssets.images.appLogo.image(height: 66, width: 217),
       ),
@@ -47,7 +49,7 @@ class AppStartupLoadingWidget extends StatelessWidget {
 }
 
 /// Widget to show if initialization fails
-class AppStartupErrorWidget extends StatelessWidget {
+class AppStartupErrorWidget extends StatelessWidget with NetworkErrorHandler {
   const AppStartupErrorWidget({
     super.key,
     required this.message,
@@ -58,35 +60,56 @@ class AppStartupErrorWidget extends StatelessWidget {
   final VoidCallback onRetry;
   final Object? error;
 
-  String _getDisplayMessage(BuildContext context) {
-    if (error is NetworkExceptions) {
-      final key = NetworkExceptions.getErrorMessage(error as NetworkExceptions);
-      return key.tr();
-    }
-    if (message.toLowerCase().contains('no internet')) {
-      return LocaleKeys.noInternetConnection.tr();
-    }
-    return message;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            AppAssets.lottie.errorLottie.lottie(),
             Text(
-              _getDisplayMessage(context),
-              style: Theme.of(context).textTheme.headlineSmall,
+              _getDisplayTitleMessage(),
+              textAlign: TextAlign.center,
+              style: context.textTheme.appStartUpErrorTitle,
             ),
-            Gap(16),
-            ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
+            Text(
+              _getDisplayMessage(),
+              textAlign: TextAlign.center,
+              style: context.textTheme.appStartUpErrorSubTitle,
+            ),
+            Gap(50),
+            Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: PrimaryButton(label: LocaleKeys.retry, onPressed: onRetry),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  String _getDisplayMessage() {
+    if (error is NetworkExceptions) {
+      final key = NetworkExceptions.getErrorMessage(error as NetworkExceptions);
+      return key.tr();
+    }
+    return message;
+  }
+
+  String _getDisplayTitleMessage() {
+    if (error is NetworkExceptions) {
+      final networkFailure = mapNetworkExceptionToNetworkFailure(
+        error as NetworkExceptions,
+      );
+      if (networkFailure is NoInternetConnectionNetworkFailure) {
+        return LocaleKeys.noInternetConnectionTitle.tr();
+      } else {
+        return networkFailure.message.tr();
+      }
+    }
+    return LocaleKeys.error.tr();
   }
 }

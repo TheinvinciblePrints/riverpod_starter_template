@@ -20,6 +20,15 @@ abstract class  LocaleKeys {
   static const defaultError = 'defaultError';
   static const formatException = 'formatException';
   static const notAcceptable = 'notAcceptable';
+  static const noInternetConnectionTitle = 'noInternetConnectionTitle';
+  static const retry = 'retry';
+  static const error = 'error';
+  static const onboarding_pageOneTitle = 'onboarding.pageOneTitle';
+  static const onboarding_pageOneSubTitle = 'onboarding.pageOneSubTitle';
+  static const onboarding_pageTwoTitle = 'onboarding.pageTwoTitle';
+  static const onboarding_pageTwoSubTitle = 'onboarding.pageTwoSubTitle';
+  static const onboarding_pageThreeTitle = 'onboarding.pageThreeTitle';
+  static const onboarding_pageThreeSubTitle = 'onboarding.pageThreeSubTitle';
   static const onboarding_getStarted = 'onboarding.getStarted';
   static const onboarding_next = 'onboarding.next';
   static const onboarding_back = 'onboarding.back';

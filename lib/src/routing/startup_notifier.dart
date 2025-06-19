@@ -6,7 +6,7 @@ import '../shared/base/base_state_notifier.dart';
 import 'startup_state.dart';
 
 class StartupNotifier extends BaseStateNotifier<StartupState> {
-  StartupNotifier(Ref ref) : super(ref, const StartupState());
+  StartupNotifier(Ref ref) : super(ref, const StartupState.loading());
 
   @override
   void onInit() {
@@ -26,9 +26,8 @@ class StartupNotifier extends BaseStateNotifier<StartupState> {
       // Auth
       final authRepo = await ref.read(authRepositoryProvider.future);
       final isLoggedIn = await authRepo.getCurrentUser() != null;
-      state = state.copyWith(
-        isLoading: false,
-        hasError: false,
+
+      state = StartupState.completed(
         didCompleteOnboarding: didCompleteOnboarding,
         isLoggedIn: isLoggedIn,
       );
@@ -36,23 +35,18 @@ class StartupNotifier extends BaseStateNotifier<StartupState> {
         'Startup completed: onboarding=$didCompleteOnboarding, loggedIn=$isLoggedIn',
       );
     } catch (e, st) {
-      state = state.copyWith(
-        isLoading: false,
-        hasError: true,
-        errorMessage: e.toString(),
-        errorObject: e,
-      );
+      state = StartupState.error(e.toString(), e);
       logger.f('Startup failed', error: e, stackTrace: st);
     }
   }
 
   void retry() {
-    state = state.copyWith(
-      isLoading: true,
-      hasError: false,
-      errorMessage: null,
-    );
+    state = const StartupState.loading();
     _handleStartUpLogic();
+  }
+
+  void completeOnboardingAndSetUnauthenticated() {
+    state = const StartupState.unauthenticated();
   }
 }
 

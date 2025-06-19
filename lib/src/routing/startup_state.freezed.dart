@@ -15,38 +15,106 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$StartupState {
 
- bool get isLoading; bool get hasError; String? get errorMessage; Object? get errorObject; bool get didCompleteOnboarding; bool get isLoggedIn;
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StartupState);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'StartupState()';
+}
+
+
+}
+
+/// @nodoc
+class $StartupStateCopyWith<$Res>  {
+$StartupStateCopyWith(StartupState _, $Res Function(StartupState) __);
+}
+
+
+/// @nodoc
+
+
+class StartupLoading implements StartupState {
+  const StartupLoading();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StartupLoading);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'StartupState.loading()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class StartupError implements StartupState {
+  const StartupError([this.message, this.errorObject]);
+  
+
+ final  String? message;
+ final  Object? errorObject;
+
 /// Create a copy of StartupState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$StartupStateCopyWith<StartupState> get copyWith => _$StartupStateCopyWithImpl<StartupState>(this as StartupState, _$identity);
+$StartupErrorCopyWith<StartupError> get copyWith => _$StartupErrorCopyWithImpl<StartupError>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is StartupState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.hasError, hasError) || other.hasError == hasError)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&const DeepCollectionEquality().equals(other.errorObject, errorObject)&&(identical(other.didCompleteOnboarding, didCompleteOnboarding) || other.didCompleteOnboarding == didCompleteOnboarding)&&(identical(other.isLoggedIn, isLoggedIn) || other.isLoggedIn == isLoggedIn));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StartupError&&(identical(other.message, message) || other.message == message)&&const DeepCollectionEquality().equals(other.errorObject, errorObject));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isLoading,hasError,errorMessage,const DeepCollectionEquality().hash(errorObject),didCompleteOnboarding,isLoggedIn);
+int get hashCode => Object.hash(runtimeType,message,const DeepCollectionEquality().hash(errorObject));
 
 @override
 String toString() {
-  return 'StartupState(isLoading: $isLoading, hasError: $hasError, errorMessage: $errorMessage, errorObject: $errorObject, didCompleteOnboarding: $didCompleteOnboarding, isLoggedIn: $isLoggedIn)';
+  return 'StartupState.error(message: $message, errorObject: $errorObject)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $StartupStateCopyWith<$Res>  {
-  factory $StartupStateCopyWith(StartupState value, $Res Function(StartupState) _then) = _$StartupStateCopyWithImpl;
+abstract mixin class $StartupErrorCopyWith<$Res> implements $StartupStateCopyWith<$Res> {
+  factory $StartupErrorCopyWith(StartupError value, $Res Function(StartupError) _then) = _$StartupErrorCopyWithImpl;
 @useResult
 $Res call({
- bool isLoading, bool hasError, String? errorMessage, Object? errorObject, bool didCompleteOnboarding, bool isLoggedIn
+ String? message, Object? errorObject
 });
 
 
@@ -54,74 +122,98 @@ $Res call({
 
 }
 /// @nodoc
-class _$StartupStateCopyWithImpl<$Res>
-    implements $StartupStateCopyWith<$Res> {
-  _$StartupStateCopyWithImpl(this._self, this._then);
+class _$StartupErrorCopyWithImpl<$Res>
+    implements $StartupErrorCopyWith<$Res> {
+  _$StartupErrorCopyWithImpl(this._self, this._then);
 
-  final StartupState _self;
-  final $Res Function(StartupState) _then;
+  final StartupError _self;
+  final $Res Function(StartupError) _then;
 
 /// Create a copy of StartupState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? hasError = null,Object? errorMessage = freezed,Object? errorObject = freezed,Object? didCompleteOnboarding = null,Object? isLoggedIn = null,}) {
-  return _then(_self.copyWith(
-isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
-as bool,hasError: null == hasError ? _self.hasError : hasError // ignore: cast_nullable_to_non_nullable
-as bool,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
-as String?,errorObject: freezed == errorObject ? _self.errorObject : errorObject ,didCompleteOnboarding: null == didCompleteOnboarding ? _self.didCompleteOnboarding : didCompleteOnboarding // ignore: cast_nullable_to_non_nullable
-as bool,isLoggedIn: null == isLoggedIn ? _self.isLoggedIn : isLoggedIn // ignore: cast_nullable_to_non_nullable
-as bool,
+@pragma('vm:prefer-inline') $Res call({Object? message = freezed,Object? errorObject = freezed,}) {
+  return _then(StartupError(
+freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String?,freezed == errorObject ? _self.errorObject : errorObject ,
   ));
 }
 
-}
 
+}
 
 /// @nodoc
 
 
-class _StartupState implements StartupState {
-  const _StartupState({this.isLoading = true, this.hasError = false, this.errorMessage, this.errorObject, this.didCompleteOnboarding = false, this.isLoggedIn = false});
+class StartupUnauthenticated implements StartupState {
+  const StartupUnauthenticated();
   
 
-@override@JsonKey() final  bool isLoading;
-@override@JsonKey() final  bool hasError;
-@override final  String? errorMessage;
-@override final  Object? errorObject;
-@override@JsonKey() final  bool didCompleteOnboarding;
-@override@JsonKey() final  bool isLoggedIn;
 
-/// Create a copy of StartupState
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-_$StartupStateCopyWith<_StartupState> get copyWith => __$StartupStateCopyWithImpl<_StartupState>(this, _$identity);
+
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StartupState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.hasError, hasError) || other.hasError == hasError)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&const DeepCollectionEquality().equals(other.errorObject, errorObject)&&(identical(other.didCompleteOnboarding, didCompleteOnboarding) || other.didCompleteOnboarding == didCompleteOnboarding)&&(identical(other.isLoggedIn, isLoggedIn) || other.isLoggedIn == isLoggedIn));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StartupUnauthenticated);
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isLoading,hasError,errorMessage,const DeepCollectionEquality().hash(errorObject),didCompleteOnboarding,isLoggedIn);
+int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'StartupState(isLoading: $isLoading, hasError: $hasError, errorMessage: $errorMessage, errorObject: $errorObject, didCompleteOnboarding: $didCompleteOnboarding, isLoggedIn: $isLoggedIn)';
+  return 'StartupState.unauthenticated()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class StartupCompleted implements StartupState {
+  const StartupCompleted({required this.didCompleteOnboarding, required this.isLoggedIn});
+  
+
+ final  bool didCompleteOnboarding;
+ final  bool isLoggedIn;
+
+/// Create a copy of StartupState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$StartupCompletedCopyWith<StartupCompleted> get copyWith => _$StartupCompletedCopyWithImpl<StartupCompleted>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StartupCompleted&&(identical(other.didCompleteOnboarding, didCompleteOnboarding) || other.didCompleteOnboarding == didCompleteOnboarding)&&(identical(other.isLoggedIn, isLoggedIn) || other.isLoggedIn == isLoggedIn));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,didCompleteOnboarding,isLoggedIn);
+
+@override
+String toString() {
+  return 'StartupState.completed(didCompleteOnboarding: $didCompleteOnboarding, isLoggedIn: $isLoggedIn)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$StartupStateCopyWith<$Res> implements $StartupStateCopyWith<$Res> {
-  factory _$StartupStateCopyWith(_StartupState value, $Res Function(_StartupState) _then) = __$StartupStateCopyWithImpl;
-@override @useResult
+abstract mixin class $StartupCompletedCopyWith<$Res> implements $StartupStateCopyWith<$Res> {
+  factory $StartupCompletedCopyWith(StartupCompleted value, $Res Function(StartupCompleted) _then) = _$StartupCompletedCopyWithImpl;
+@useResult
 $Res call({
- bool isLoading, bool hasError, String? errorMessage, Object? errorObject, bool didCompleteOnboarding, bool isLoggedIn
+ bool didCompleteOnboarding, bool isLoggedIn
 });
 
 
@@ -129,21 +221,18 @@ $Res call({
 
 }
 /// @nodoc
-class __$StartupStateCopyWithImpl<$Res>
-    implements _$StartupStateCopyWith<$Res> {
-  __$StartupStateCopyWithImpl(this._self, this._then);
+class _$StartupCompletedCopyWithImpl<$Res>
+    implements $StartupCompletedCopyWith<$Res> {
+  _$StartupCompletedCopyWithImpl(this._self, this._then);
 
-  final _StartupState _self;
-  final $Res Function(_StartupState) _then;
+  final StartupCompleted _self;
+  final $Res Function(StartupCompleted) _then;
 
 /// Create a copy of StartupState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? hasError = null,Object? errorMessage = freezed,Object? errorObject = freezed,Object? didCompleteOnboarding = null,Object? isLoggedIn = null,}) {
-  return _then(_StartupState(
-isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
-as bool,hasError: null == hasError ? _self.hasError : hasError // ignore: cast_nullable_to_non_nullable
-as bool,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
-as String?,errorObject: freezed == errorObject ? _self.errorObject : errorObject ,didCompleteOnboarding: null == didCompleteOnboarding ? _self.didCompleteOnboarding : didCompleteOnboarding // ignore: cast_nullable_to_non_nullable
+@pragma('vm:prefer-inline') $Res call({Object? didCompleteOnboarding = null,Object? isLoggedIn = null,}) {
+  return _then(StartupCompleted(
+didCompleteOnboarding: null == didCompleteOnboarding ? _self.didCompleteOnboarding : didCompleteOnboarding // ignore: cast_nullable_to_non_nullable
 as bool,isLoggedIn: null == isLoggedIn ? _self.isLoggedIn : isLoggedIn // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
