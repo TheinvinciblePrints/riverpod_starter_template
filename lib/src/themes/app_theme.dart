@@ -7,7 +7,6 @@ abstract final class AppTheme {
     primaryColor: AppColors.primary,
     scaffoldBackgroundColor: AppColors.white,
     textTheme: AppTextTheme.lightTextTheme,
-
     colorScheme: const ColorScheme.light().copyWith(
       primary: AppColors.primary,
       error: AppColors.error,
@@ -45,7 +44,6 @@ abstract final class AppTheme {
     primaryColor: AppColors.primary,
     scaffoldBackgroundColor: AppColors.darkBackground,
     textTheme: AppTextTheme.darkTextTheme,
-
     colorScheme: const ColorScheme.dark().copyWith(
       primary: AppColors.primary,
       error: AppColors.errorDarkMode,

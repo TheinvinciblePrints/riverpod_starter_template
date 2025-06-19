@@ -53,24 +53,24 @@ FutureOr<String?> _handleRedirection(
   final startup = ref.watch(startupNotifierProvider);
   final path = state.uri.path;
 
-  if ((startup.isLoading ?? false) || (startup.hasError ?? false)) {
+  if (startup.isLoading || startup.hasError) {
     return Routes.splash;
   }
-  if (!(startup.didCompleteOnboarding ?? false) && path != Routes.onboarding) {
+  if (!startup.didCompleteOnboarding && path != Routes.onboarding) {
     return Routes.onboarding;
   }
-  if (!(startup.isLoggedIn ?? false) && path.startsWith(Routes.home)) {
+  if (!startup.isLoggedIn && path.startsWith(Routes.home)) {
     return Routes.login;
   }
-  if ((startup.isLoggedIn ?? false) &&
+  if (startup.isLoggedIn &&
       (path == Routes.login ||
           path == Routes.onboarding ||
           path == Routes.splash)) {
     return Routes.home;
   }
   if (path == Routes.splash) {
-    if (!(startup.didCompleteOnboarding ?? false)) return Routes.onboarding;
-    if (!(startup.isLoggedIn ?? false)) return Routes.login;
+    if (!startup.didCompleteOnboarding) return Routes.onboarding;
+    if (!startup.isLoggedIn) return Routes.login;
     return Routes.home;
   }
   return null;

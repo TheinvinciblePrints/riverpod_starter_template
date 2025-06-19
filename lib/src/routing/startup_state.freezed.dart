@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$StartupState {
 
- bool? get isLoading; bool? get hasError; String? get errorMessage; Object? get errorObject; bool? get didCompleteOnboarding; bool? get isLoggedIn;
+ bool get isLoading; bool get hasError; String? get errorMessage; Object? get errorObject; bool get didCompleteOnboarding; bool get isLoggedIn;
 /// Create a copy of StartupState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -46,7 +46,7 @@ abstract mixin class $StartupStateCopyWith<$Res>  {
   factory $StartupStateCopyWith(StartupState value, $Res Function(StartupState) _then) = _$StartupStateCopyWithImpl;
 @useResult
 $Res call({
- bool? isLoading, bool? hasError, String? errorMessage, Object? errorObject, bool? didCompleteOnboarding, bool? isLoggedIn
+ bool isLoading, bool hasError, String? errorMessage, Object? errorObject, bool didCompleteOnboarding, bool isLoggedIn
 });
 
 
@@ -63,14 +63,14 @@ class _$StartupStateCopyWithImpl<$Res>
 
 /// Create a copy of StartupState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = freezed,Object? hasError = freezed,Object? errorMessage = freezed,Object? errorObject = freezed,Object? didCompleteOnboarding = freezed,Object? isLoggedIn = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? hasError = null,Object? errorMessage = freezed,Object? errorObject = freezed,Object? didCompleteOnboarding = null,Object? isLoggedIn = null,}) {
   return _then(_self.copyWith(
-isLoading: freezed == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
-as bool?,hasError: freezed == hasError ? _self.hasError : hasError // ignore: cast_nullable_to_non_nullable
-as bool?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
-as String?,errorObject: freezed == errorObject ? _self.errorObject : errorObject ,didCompleteOnboarding: freezed == didCompleteOnboarding ? _self.didCompleteOnboarding : didCompleteOnboarding // ignore: cast_nullable_to_non_nullable
-as bool?,isLoggedIn: freezed == isLoggedIn ? _self.isLoggedIn : isLoggedIn // ignore: cast_nullable_to_non_nullable
-as bool?,
+isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
+as bool,hasError: null == hasError ? _self.hasError : hasError // ignore: cast_nullable_to_non_nullable
+as bool,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as String?,errorObject: freezed == errorObject ? _self.errorObject : errorObject ,didCompleteOnboarding: null == didCompleteOnboarding ? _self.didCompleteOnboarding : didCompleteOnboarding // ignore: cast_nullable_to_non_nullable
+as bool,isLoggedIn: null == isLoggedIn ? _self.isLoggedIn : isLoggedIn // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -81,15 +81,15 @@ as bool?,
 
 
 class _StartupState implements StartupState {
-   _StartupState({this.isLoading, this.hasError, this.errorMessage, this.errorObject, this.didCompleteOnboarding, this.isLoggedIn});
+  const _StartupState({this.isLoading = true, this.hasError = false, this.errorMessage, this.errorObject, this.didCompleteOnboarding = false, this.isLoggedIn = false});
   
 
-@override final  bool? isLoading;
-@override final  bool? hasError;
+@override@JsonKey() final  bool isLoading;
+@override@JsonKey() final  bool hasError;
 @override final  String? errorMessage;
 @override final  Object? errorObject;
-@override final  bool? didCompleteOnboarding;
-@override final  bool? isLoggedIn;
+@override@JsonKey() final  bool didCompleteOnboarding;
+@override@JsonKey() final  bool isLoggedIn;
 
 /// Create a copy of StartupState
 /// with the given fields replaced by the non-null parameter values.
@@ -121,7 +121,7 @@ abstract mixin class _$StartupStateCopyWith<$Res> implements $StartupStateCopyWi
   factory _$StartupStateCopyWith(_StartupState value, $Res Function(_StartupState) _then) = __$StartupStateCopyWithImpl;
 @override @useResult
 $Res call({
- bool? isLoading, bool? hasError, String? errorMessage, Object? errorObject, bool? didCompleteOnboarding, bool? isLoggedIn
+ bool isLoading, bool hasError, String? errorMessage, Object? errorObject, bool didCompleteOnboarding, bool isLoggedIn
 });
 
 
@@ -138,14 +138,14 @@ class __$StartupStateCopyWithImpl<$Res>
 
 /// Create a copy of StartupState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = freezed,Object? hasError = freezed,Object? errorMessage = freezed,Object? errorObject = freezed,Object? didCompleteOnboarding = freezed,Object? isLoggedIn = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? hasError = null,Object? errorMessage = freezed,Object? errorObject = freezed,Object? didCompleteOnboarding = null,Object? isLoggedIn = null,}) {
   return _then(_StartupState(
-isLoading: freezed == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
-as bool?,hasError: freezed == hasError ? _self.hasError : hasError // ignore: cast_nullable_to_non_nullable
-as bool?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
-as String?,errorObject: freezed == errorObject ? _self.errorObject : errorObject ,didCompleteOnboarding: freezed == didCompleteOnboarding ? _self.didCompleteOnboarding : didCompleteOnboarding // ignore: cast_nullable_to_non_nullable
-as bool?,isLoggedIn: freezed == isLoggedIn ? _self.isLoggedIn : isLoggedIn // ignore: cast_nullable_to_non_nullable
-as bool?,
+isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
+as bool,hasError: null == hasError ? _self.hasError : hasError // ignore: cast_nullable_to_non_nullable
+as bool,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as String?,errorObject: freezed == errorObject ? _self.errorObject : errorObject ,didCompleteOnboarding: null == didCompleteOnboarding ? _self.didCompleteOnboarding : didCompleteOnboarding // ignore: cast_nullable_to_non_nullable
+as bool,isLoggedIn: null == isLoggedIn ? _self.isLoggedIn : isLoggedIn // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

@@ -4,12 +4,15 @@ part 'startup_state.freezed.dart';
 
 @freezed
 abstract class StartupState with _$StartupState {
-  factory StartupState({
-    bool? isLoading,
-    bool? hasError,
+  /// Represents the state of the app during startup.
+  const factory StartupState({
+    @Default(true) bool isLoading,
+    @Default(false) bool hasError,
     String? errorMessage,
     Object? errorObject,
-    bool? didCompleteOnboarding,
-    bool? isLoggedIn,
+    @Default(false) bool didCompleteOnboarding,
+    @Default(false) bool isLoggedIn,
   }) = _StartupState;
 }
+
+
