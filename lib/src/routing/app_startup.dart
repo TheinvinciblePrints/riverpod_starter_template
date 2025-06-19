@@ -16,10 +16,10 @@ class AppStartupWidget extends ConsumerWidget {
     final startup = ref.watch(startupNotifierProvider);
     final notifier = ref.read(startupNotifierProvider.notifier);
 
-    if (startup.isLoading) {
+    if (startup.isLoading ?? false) {
       return const AppStartupLoadingWidget();
     }
-    if (startup.hasError) {
+    if (startup.hasError ?? false) {
       return AppStartupErrorWidget(
         message: startup.errorMessage ?? 'Unknown error',
         error: startup.errorObject,

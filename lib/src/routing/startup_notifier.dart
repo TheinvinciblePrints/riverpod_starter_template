@@ -6,7 +6,7 @@ import '../shared/base/base_state_notifier.dart';
 import 'startup_state.dart';
 
 class StartupNotifier extends BaseStateNotifier<StartupState> {
-  StartupNotifier(Ref ref) : super(ref, const StartupState());
+  StartupNotifier(Ref ref) : super(ref, StartupState());
 
   @override
   void onInit() {
