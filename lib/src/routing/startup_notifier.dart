@@ -3,43 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/authentication/data/auth_repository.dart';
 import '../features/onboarding/data/onboarding_repository.dart';
 import '../shared/base/base_state_notifier.dart';
-
-class StartupState {
-  final bool isLoading;
-  final bool hasError;
-  final String? errorMessage;
-  final Object? errorObject;
-  final bool didCompleteOnboarding;
-  final bool isLoggedIn;
-
-  const StartupState({
-    this.isLoading = true,
-    this.hasError = false,
-    this.errorMessage,
-    this.errorObject,
-    this.didCompleteOnboarding = false,
-    this.isLoggedIn = false,
-  });
-
-  StartupState copyWith({
-    bool? isLoading,
-    bool? hasError,
-    String? errorMessage,
-    Object? errorObject,
-    bool? didCompleteOnboarding,
-    bool? isLoggedIn,
-  }) {
-    return StartupState(
-      isLoading: isLoading ?? this.isLoading,
-      hasError: hasError ?? this.hasError,
-      errorMessage: errorMessage ?? this.errorMessage,
-      errorObject: errorObject ?? this.errorObject,
-      didCompleteOnboarding:
-          didCompleteOnboarding ?? this.didCompleteOnboarding,
-      isLoggedIn: isLoggedIn ?? this.isLoggedIn,
-    );
-  }
-}
+import 'startup_state.dart';
 
 class StartupNotifier extends BaseStateNotifier<StartupState> {
   StartupNotifier(Ref ref) : super(ref, const StartupState());

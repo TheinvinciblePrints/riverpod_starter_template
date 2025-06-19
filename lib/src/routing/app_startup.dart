@@ -1,10 +1,35 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod_starter_template/src/shared/shared.dart';
 
 import '../gen/assets.gen.dart';
 import '../localization/locale_keys.g.dart';
 import '../network/network_exception.dart';
+import 'startup_notifier.dart';
+
+class AppStartupWidget extends ConsumerWidget {
+  const AppStartupWidget({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final startup = ref.watch(startupNotifierProvider);
+    final notifier = ref.read(startupNotifierProvider.notifier);
+
+    if (startup.isLoading) {
+      return const AppStartupLoadingWidget();
+    }
+    if (startup.hasError) {
+      return AppStartupErrorWidget(
+        message: startup.errorMessage ?? 'Unknown error',
+        error: startup.errorObject,
+        onRetry: () => notifier.retry(),
+      );
+    }
+    // Should never reach here, as GoRouter will redirect away when ready
+    return const SizedBox.shrink();
+  }
+}
 
 /// Widget to show while initialization is in progress
 class AppStartupLoadingWidget extends StatelessWidget {
@@ -65,4 +90,3 @@ class AppStartupErrorWidget extends StatelessWidget {
     );
   }
 }
-

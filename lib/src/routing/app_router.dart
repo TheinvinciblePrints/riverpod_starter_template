@@ -6,8 +6,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../features/authentication/authentication.dart';
 import '../features/home/presentation/home_screen.dart';
 import '../features/onboarding/onboarding.dart';
-import 'routes.dart';
-import 'splash_screen.dart';
+import 'routing.dart';
 import 'startup_notifier.dart';
 
 part 'app_router.g.dart';
@@ -26,7 +25,10 @@ GoRouter goRouter(Ref ref) {
     debugLogDiagnostics: true,
     redirect: (context, state) => _handleRedirection(context, state, ref),
     routes: [
-      GoRoute(path: Routes.splash, builder: (_, __) => const SplashScreen()),
+      GoRoute(
+        path: Routes.splash,
+        builder: (_, __) => const AppStartupWidget(),
+      ),
       GoRoute(
         path: Routes.onboarding,
         builder: (_, __) => const OnboardingScreen(),
