@@ -105,49 +105,52 @@ class CustomTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TextField(
-          controller: controller,
-          enabled: enabled,
-          obscureText: obscureText,
-          style: TextStyle(color: _textColor, fontWeight: FontWeight.w500),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: _backgroundColor,
-            labelText: labelText,
-            labelStyle: TextStyle(color: _iconColor),
-            hintText:
-                state == CustomTextFieldState.disabled
-                    ? 'Placeholder Text'
-                    : null,
-            hintStyle: TextStyle(color: _iconColor),
-            prefixIcon:
-                type == CustomTextFieldType.icon
-                    ? Icon(Icons.search, color: _iconColor)
-                    : null,
-            suffixIcon:
-                suffixIcon ??
-                (showClear
-                    ? IconButton(
-                      icon: Icon(Icons.close, color: _iconColor),
-                      onPressed: onClear,
-                    )
-                    : null),
-            enabledBorder: _border,
-            focusedBorder: _border,
-            disabledBorder: _border,
-            errorBorder: _border,
-            focusedErrorBorder: _border,
-            errorText: state == CustomTextFieldState.error ? errorText : null,
-            errorStyle: TextStyle(
-              color: isDarkMode ? AppColors.errorDarkMode : AppColors.error,
-              fontSize: 13,
+        SizedBox(
+          height: 60,
+          child: TextField(
+            controller: controller,
+            enabled: enabled,
+            obscureText: obscureText,
+            style: TextStyle(color: _textColor, fontWeight: FontWeight.w500),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: _backgroundColor,
+              labelText: labelText,
+              labelStyle: TextStyle(color: _iconColor),
+              hintText:
+                  state == CustomTextFieldState.disabled
+                      ? 'Placeholder Text'
+                      : null,
+              hintStyle: TextStyle(color: _iconColor),
+              prefixIcon:
+                  type == CustomTextFieldType.icon
+                      ? Icon(Icons.search, color: _iconColor)
+                      : null,
+              suffixIcon:
+                  suffixIcon ??
+                  (showClear
+                      ? IconButton(
+                        icon: Icon(Icons.close, color: _iconColor),
+                        onPressed: onClear,
+                      )
+                      : null),
+              enabledBorder: _border,
+              focusedBorder: _border,
+              disabledBorder: _border,
+              errorBorder: _border,
+              focusedErrorBorder: _border,
+              errorText: state == CustomTextFieldState.error ? errorText : null,
+              errorStyle: TextStyle(
+                color: isDarkMode ? AppColors.errorDarkMode : AppColors.error,
+                fontSize: 13,
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 16,
+              ),
             ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
+            onChanged: onChanged,
           ),
-          onChanged: onChanged,
         ),
         if (state == CustomTextFieldState.error && errorText != null)
           Padding(

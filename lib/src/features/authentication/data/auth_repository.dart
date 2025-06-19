@@ -41,8 +41,24 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> login(String email, String password) {
-    throw UnimplementedError();
+  Future<void> login(String username, String password) async {
+    // Simulate a network call and validation
+    await Future.delayed(const Duration(milliseconds: 800));
+    if (username != 'user' || password != 'password') {
+      throw Exception('Invalid credentials');
+    }
+    // Save user to storage or set session as needed
+    await _preferenceStorage.saveUser(
+      User(
+        id: 1,
+        username: username,
+        email: 'user@example.com',
+        firstName: 'First',
+        lastName: 'Last',
+        gender: 'other',
+        image: '',
+      ),
+    );
   }
 
   @override
