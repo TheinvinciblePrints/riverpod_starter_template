@@ -33,7 +33,7 @@ class SecondaryButton extends BaseButton {
           child:
               child ??
               Text(
-                context.tr(label),
+                context.tr(label ?? ''),
                 style: AppTextStyles.linkMedium.copyWith(
                   color: AppColors.buttonText,
                 ),

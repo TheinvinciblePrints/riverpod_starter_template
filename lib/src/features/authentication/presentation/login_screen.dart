@@ -1,8 +1,15 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod_starter_template/src/features/authentication/presentation/widgets/auth_social_button.dart';
+import 'package:flutter_riverpod_starter_template/src/features/authentication/presentation/widgets/text_field_title_text.dart';
 import 'package:flutter_riverpod_starter_template/src/gen/assets.gen.dart';
+import 'package:flutter_riverpod_starter_template/src/localization/locale_keys.g.dart';
+import 'package:flutter_riverpod_starter_template/src/shared/buttons/primary_button.dart';
+import 'package:flutter_riverpod_starter_template/src/shared/form_loader.dart';
 import 'package:flutter_riverpod_starter_template/src/utils/extensions/context_extensions.dart';
 
+import '../../../shared/gap.dart';
 import '../../../shared/textfields/custom_text_field.dart';
 import '../../../shared/textfields/password_text_field.dart';
 import '../../../themes/themes.dart';
@@ -19,7 +26,6 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _rememberMe = false;
 
   @override
   void dispose() {
@@ -37,7 +43,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         state is AuthenticationUnauthenticated ? state.errorMessage : null;
 
     return Scaffold(
-      // appBar: AppBar(),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -45,12 +50,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 20),
-                Text('Hello', style: context.textTheme.displayLargeBold),
+                const Gap(20),
+                Text(
+                  context.tr(LocaleKeys.auth_hello),
+                  style: context.textTheme.displayLargeBold,
+                ),
                 Transform.translate(
                   offset: const Offset(0, -8),
                   child: Text(
-                    'Again!',
+                    context.tr(LocaleKeys.auth_again),
                     style: context.textTheme.displayLargeBold.copyWith(
                       color: AppColors.primary,
                     ),
@@ -60,98 +68,51 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 SizedBox(
                   width: 222,
                   child: Text(
-                    "Welcome back you've been missed",
+                    context.tr(LocaleKeys.auth_welcomeBack),
                     style: context.textTheme.textLarge,
                   ),
                 ),
-                const SizedBox(height: 32),
-                CustomTextField(
+                const Gap(32),
+                _UsernameInput(
                   controller: _usernameController,
-                  labelText: 'Username*',
-                  errorText:
-                      errorText == 'Invalid Username'
-                          ? 'Please enter a valid username'
-                          : null,
-                  state:
-                      errorText == 'Invalid Username'
-                          ? CustomTextFieldState.error
-                          : CustomTextFieldState.initial,
+                  errorText: errorText,
                   onChanged: notifier.setUsername,
                 ),
-                const SizedBox(height: 20),
-                PasswordTextField(
+                const Gap(20),
+                _PasswordInput(
                   controller: _passwordController,
-                  labelText: 'Password*',
-                  errorText:
-                      errorText == 'Invalid Password'
-                          ? 'Please enter a valid password'
-                          : null,
-                  state:
-                      errorText == 'Invalid Password'
-                          ? CustomTextFieldState.error
-                          : CustomTextFieldState.initial,
+                  errorText: errorText,
                   onChanged: notifier.setPassword,
                 ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Checkbox(
-                      value: _rememberMe,
-                      onChanged:
-                          (v) => setState(() => _rememberMe = v ?? false),
-                      activeColor: Colors.blue,
-                    ),
-                    const Text('Remember me'),
-                    const Spacer(),
-                    TextButton(
-                      onPressed: () {},
-                      style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                      child: const Text(
-                        'Forgot the password ?',
-                        style: TextStyle(color: Colors.blue),
-                      ),
-                    ),
-                  ],
+
+                _ForgotPasswordButton(
+                  onPressed: () {
+                    // Handle forgot password
+                  },
                 ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    onPressed:
-                        isLoading
-                            ? null
-                            : () async {
-                              await notifier.login();
-                            },
-                    child:
-                        isLoading
-                            ? const SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                            : const Text(
-                              'Login',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
+                const Gap(10),
+                PrimaryButton(
+                  onPressed:
+                      isLoading
+                          ? null
+                          : () {
+                            notifier.login();
+                          },
+
+                  child:
+                      isLoading
+                          ? const FormLoader()
+                          : Text(
+                            context.tr(LocaleKeys.auth_login),
+                            style: AppTextStyles.linkMedium.copyWith(
+                              color: AppColors.white,
                             ),
-                  ),
+                            textAlign: TextAlign.center,
+                          ),
                 ),
                 if (errorText != null &&
-                    errorText != 'Invalid Username' &&
-                    errorText != 'Invalid Password')
+                    errorText != LocaleKeys.auth_invalideUsername.tr() &&
+                    errorText != LocaleKeys.auth_invalidPassword.tr())
                   Padding(
                     padding: const EdgeInsets.only(top: 12.0),
                     child: Text(
@@ -159,88 +120,152 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       style: const TextStyle(color: Colors.red),
                     ),
                   ),
-                const SizedBox(height: 24),
-                Row(
-                  children: const [
-                    Expanded(child: Divider()),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text(
-                        'or continue with',
-                        style: TextStyle(color: Colors.grey),
-                      ),
+                const Gap(16),
+                Align(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text(
+                      context.tr(LocaleKeys.auth_continueWith),
+                      style: context.textTheme.textSmall,
                     ),
-                    Expanded(child: Divider()),
-                  ],
+                  ),
                 ),
-                const SizedBox(height: 16),
+                const Gap(16),
                 Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                          backgroundColor: AppColors.secondaryButton,
-                          side: BorderSide.none,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
+                      child: AuthSocialButton(
                         icon: AppAssets.icons.facebookIcon.svg(),
-                        label: const Text(
-                          'Facebook',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        label: LocaleKeys.auth_facebook,
                         onPressed: () {},
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const Gap(31),
                     Expanded(
-                      child: OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                          backgroundColor: AppColors.secondaryButton,
-                          side: BorderSide.none,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
+                      child: AuthSocialButton(
                         icon: AppAssets.icons.googleIcon.svg(),
-                        label: const Text(
-                          'Google',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        label: LocaleKeys.auth_google,
                         onPressed: () {},
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const Gap(24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("don't have an account ? "),
+                    Text(
+                      context.tr(LocaleKeys.auth_dontHaveAnAccount),
+                      style: context.textTheme.textSmall,
+                    ),
                     GestureDetector(
                       onTap: () {},
-                      child: const Text(
-                        'Sign Up',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      child: Text(
+                        context.tr(LocaleKeys.auth_signUp),
+                        style: context.textTheme.linkSmall,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const Gap(24),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _UsernameInput extends StatelessWidget {
+  const _UsernameInput({
+    required this.controller,
+    required this.errorText,
+    required this.onChanged,
+  });
+
+  final TextEditingController controller;
+  final String? errorText;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextFieldTitleText(title: LocaleKeys.auth_username, isRequired: true),
+        CustomTextField(
+          controller: controller,
+
+          errorText:
+              errorText == LocaleKeys.auth_invalideUsername.tr()
+                  ? LocaleKeys.auth_pleaseEnterValidUsername.tr()
+                  : null,
+          state:
+              errorText == LocaleKeys.auth_invalideUsername.tr()
+                  ? CustomTextFieldState.error
+                  : CustomTextFieldState.initial,
+          onChanged: onChanged,
+        ),
+      ],
+    );
+  }
+}
+
+class _PasswordInput extends StatelessWidget {
+  const _PasswordInput({
+    required this.controller,
+    required this.errorText,
+    required this.onChanged,
+  });
+
+  final TextEditingController controller;
+  final String? errorText;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextFieldTitleText(title: LocaleKeys.auth_password, isRequired: true),
+        PasswordTextField(
+          controller: controller,
+
+          errorText:
+              errorText == LocaleKeys.auth_invalidPassword.tr()
+                  ? LocaleKeys.auth_pleaseEnterValidPassword.tr()
+                  : null,
+          state:
+              errorText == LocaleKeys.auth_invalidPassword.tr()
+                  ? CustomTextFieldState.error
+                  : CustomTextFieldState.initial,
+          onChanged: onChanged,
+        ),
+      ],
+    );
+  }
+}
+
+class _ForgotPasswordButton extends StatelessWidget {
+  const _ForgotPasswordButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: TextButton(
+        onPressed: onPressed,
+        style: TextButton.styleFrom(
+          padding: EdgeInsets.zero,
+          overlayColor: Colors.transparent,
+        ),
+        child: Text(
+          context.tr(LocaleKeys.auth_forgotPassword),
+          style: context.textTheme.textSmall.copyWith(
+            color: AppColors.forgotPassword,
           ),
         ),
       ),

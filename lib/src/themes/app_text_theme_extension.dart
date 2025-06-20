@@ -22,6 +22,7 @@ class AppTextThemeExtension extends ThemeExtension<AppTextThemeExtension> {
   final TextStyle linkMedium;
   final TextStyle linkSmall;
   final TextStyle linkXSmall;
+  final TextStyle errorText;
 
   const AppTextThemeExtension({
     required this.onboardingTitle,
@@ -42,6 +43,7 @@ class AppTextThemeExtension extends ThemeExtension<AppTextThemeExtension> {
     required this.linkMedium,
     required this.linkSmall,
     required this.linkXSmall,
+    required this.errorText,
   });
 
   @override
@@ -64,6 +66,7 @@ class AppTextThemeExtension extends ThemeExtension<AppTextThemeExtension> {
     TextStyle? linkMedium,
     TextStyle? linkSmall,
     TextStyle? linkXSmall,
+    TextStyle? errorText,
   }) {
     return AppTextThemeExtension(
       onboardingTitle: onboardingTitle ?? this.onboardingTitle,
@@ -86,6 +89,7 @@ class AppTextThemeExtension extends ThemeExtension<AppTextThemeExtension> {
       linkMedium: linkMedium ?? this.linkMedium,
       linkSmall: linkSmall ?? this.linkSmall,
       linkXSmall: linkXSmall ?? this.linkXSmall,
+      errorText: errorText ?? this.errorText,
     );
   }
 
@@ -129,6 +133,7 @@ class AppTextThemeExtension extends ThemeExtension<AppTextThemeExtension> {
       linkMedium: TextStyle.lerp(linkMedium, other.linkMedium, t)!,
       linkSmall: TextStyle.lerp(linkSmall, other.linkSmall, t)!,
       linkXSmall: TextStyle.lerp(linkXSmall, other.linkXSmall, t)!,
+      errorText: TextStyle.lerp(errorText, other.errorText, t)!,
     );
   }
 
@@ -161,6 +166,9 @@ class AppTextThemeExtension extends ThemeExtension<AppTextThemeExtension> {
     linkMedium: AppTextStyles.linkMedium.copyWith(color: AppColors.bodyText),
     linkSmall: AppTextStyles.linkSmall.copyWith(color: AppColors.primary),
     linkXSmall: AppTextStyles.linkXSmall.copyWith(color: AppColors.primary),
+    errorText: AppTextStyles.textSmall.copyWith(
+      color: AppColors.errorDark,
+    ),
   );
 
   static final dark = AppTextThemeExtension(
@@ -192,5 +200,8 @@ class AppTextThemeExtension extends ThemeExtension<AppTextThemeExtension> {
     linkMedium: AppTextStyles.linkMedium.copyWith(color: AppColors.bodyText),
     linkSmall: AppTextStyles.linkSmall.copyWith(color: AppColors.primary),
     linkXSmall: AppTextStyles.linkXSmall.copyWith(color: AppColors.primary),
+    errorText: AppTextStyles.textSmall.copyWith(
+      color: AppColors.errorDarkMode,
+    ),
   );
 }

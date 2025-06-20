@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod_starter_template/src/utils/extensions/context_extensions.dart';
 
 import '../../themes/app_colors.dart';
 
@@ -66,7 +67,7 @@ class CustomTextField extends StatelessWidget {
         state == CustomTextFieldState.typing) {
       return AppColors.primary;
     }
-    return isDarkMode ? AppColors.darkInputBackground : AppColors.disableInput;
+    return isDarkMode ? AppColors.darkInputBackground : AppColors.bodyText;
   }
 
   Color get _textColor {
@@ -90,8 +91,8 @@ class CustomTextField extends StatelessWidget {
   }
 
   InputBorder get _border => OutlineInputBorder(
-    borderRadius: BorderRadius.circular(8),
-    borderSide: BorderSide(color: _borderColor, width: 1.5),
+    borderRadius: BorderRadius.circular(6),
+    borderSide: BorderSide(color: _borderColor, width: 1),
   );
 
   @override
@@ -106,7 +107,7 @@ class CustomTextField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          height: 60,
+          height: 55,
           child: TextField(
             controller: controller,
             enabled: enabled,
@@ -139,11 +140,6 @@ class CustomTextField extends StatelessWidget {
               disabledBorder: _border,
               errorBorder: _border,
               focusedErrorBorder: _border,
-              errorText: state == CustomTextFieldState.error ? errorText : null,
-              errorStyle: TextStyle(
-                color: isDarkMode ? AppColors.errorDarkMode : AppColors.error,
-                fontSize: 13,
-              ),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 16,
@@ -165,10 +161,9 @@ class CustomTextField extends StatelessWidget {
                 const SizedBox(width: 4),
                 Text(
                   errorText!,
-                  style: TextStyle(
+                  style: context.textTheme.textSmall.copyWith(
                     color:
                         isDarkMode ? AppColors.errorDarkMode : AppColors.error,
-                    fontSize: 13,
                   ),
                 ),
               ],

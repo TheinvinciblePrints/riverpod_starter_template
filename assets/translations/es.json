@@ -29,5 +29,19 @@
     "getStarted": "Comenzar",
     "next": "Siguiente",
     "back": "Atrás"
+  },
+  "auth": {
+    "login": "Iniciar Sesión",
+    "hello": "Hola",
+    "again": "Aquí de nuevo!",
+    "username": "Nombre de Usuario",
+    "password": "Contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "dontHaveAnAccount":  "no tienes una cuenta? ",
+    "signUp": "Regístrate",
+    "continueWith": "o continúa con",
+    "facebook": "Facebook",
+    "google": "Google",
+    "welcomeBack": "Bienvenido de nuevo, te hemos extrañado"
   }
 }

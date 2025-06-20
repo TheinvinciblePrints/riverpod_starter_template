@@ -8,8 +8,8 @@ import 'package:flutter/material.dart';
 ///
 /// Usage: Extend this class to create custom button types with consistent behavior.
 abstract class BaseButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onPressed;
+  final String? label;
+  final VoidCallback? onPressed;
 
   const BaseButton({super.key, required this.label, required this.onPressed});
 

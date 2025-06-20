@@ -6,7 +6,7 @@ import 'base_button.dart';
 
 class PrimaryButton extends BaseButton {
   const PrimaryButton({
-    required super.label,
+    super.label,
     required super.onPressed,
     this.child,
     this.width,
@@ -41,7 +41,7 @@ class PrimaryButton extends BaseButton {
           child:
               child ??
               Text(
-                context.tr(label),
+                context.tr(label ?? ''),
                 style: AppTextStyles.linkMedium.copyWith(
                   color: AppColors.white,
                 ),

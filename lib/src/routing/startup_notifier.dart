@@ -48,6 +48,12 @@ class StartupNotifier extends BaseStateNotifier<StartupState> {
   void completeOnboardingAndSetUnauthenticated() {
     state = const StartupState.unauthenticated();
   }
+
+  void disposeStartupAndDependents(WidgetRef ref) {
+    ref.invalidate(startupNotifierProvider);
+    ref.invalidate(onboardingRepositoryProvider);
+    // Add any other dependent providers here if needed
+  }
 }
 
 final startupNotifierProvider =

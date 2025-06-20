@@ -34,7 +34,21 @@ abstract class  LocaleKeys {
   static const onboarding_back = 'onboarding.back';
   static const onboarding = 'onboarding';
   static const auth_login = 'auth.login';
-  static const auth_welcome = 'auth.welcome';
+  static const auth_hello = 'auth.hello';
+  static const auth_again = 'auth.again';
+  static const auth_username = 'auth.username';
+  static const auth_password = 'auth.password';
+  static const auth_forgotPassword = 'auth.forgotPassword';
+  static const auth_dontHaveAnAccount = 'auth.dontHaveAnAccount';
+  static const auth_signUp = 'auth.signUp';
+  static const auth_continueWith = 'auth.continueWith';
+  static const auth_facebook = 'auth.facebook';
+  static const auth_google = 'auth.google';
+  static const auth_welcomeBack = 'auth.welcomeBack';
+  static const auth_invalideUsername = 'auth.invalideUsername';
+  static const auth_pleaseEnterValidUsername = 'auth.pleaseEnterValidUsername';
+  static const auth_invalidPassword = 'auth.invalidPassword';
+  static const auth_pleaseEnterValidPassword = 'auth.pleaseEnterValidPassword';
   static const auth = 'auth';
 
 }

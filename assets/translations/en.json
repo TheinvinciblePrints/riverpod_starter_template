@@ -32,6 +32,20 @@
   },
   "auth": {
     "login": "Login",
-    "welcome": "Welcome back, {username}"
+    "hello": "Hello",
+    "again": "Again!",
+    "username": "Username",
+    "password": "Password",
+    "forgotPassword": "Forgot Password?",
+    "dontHaveAnAccount": "don't have an account? ",
+    "signUp": "Sign Up",
+    "continueWith": "or continue with",
+    "facebook": "Facebook",
+    "google": "Google",
+    "welcomeBack": "Welcome back you've been missed",
+    "invalideUsername": "Invalid username",
+    "pleaseEnterValidUsername": "Please enter a valid username",
+    "invalidPassword": "Invalid Password",
+    "pleaseEnterValidPassword": "Please enter a valid password"
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod_starter_template/src/themes/themes.dart';
 
 import 'custom_text_field.dart';
 
@@ -48,7 +49,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
       builder: (context, obscure, _) {
         return CustomTextField(
           controller: widget.controller,
-          labelText: widget.labelText ?? 'Password',
+          labelText: widget.labelText,
           errorText: widget.errorText,
           enabled: widget.enabled,
           obscureText: obscure,
@@ -61,7 +62,8 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
           suffixIcon: IconButton(
             icon: Icon(
               obscure ? Icons.visibility_off : Icons.visibility,
-              color: widget.isDarkMode ? Colors.white70 : Colors.grey,
+              color:
+                  widget.isDarkMode ? AppColors.darkBody : AppColors.bodyText,
             ),
             onPressed: () => _obscureNotifier.value = !obscure,
           ),

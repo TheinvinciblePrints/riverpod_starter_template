@@ -35,4 +35,6 @@ abstract final class AppColors {
   static const Color darkTitle = Color(0xFFE4E6EB);
   static const Color darkBody = Color(0xFFB0B3B8);
   static const Color darkInputBackground = Color(0xFF3A3B3C);
+
+  static const Color forgotPassword = Color(0xFF5890FF);
 }
