@@ -7,6 +7,7 @@ import 'package:flutter_riverpod_starter_template/src/gen/assets.gen.dart';
 import 'package:flutter_riverpod_starter_template/src/localization/locale_keys.g.dart';
 import 'package:flutter_riverpod_starter_template/src/shared/buttons/primary_button.dart';
 import 'package:flutter_riverpod_starter_template/src/shared/form_loader.dart';
+import 'package:flutter_riverpod_starter_template/src/utils/another_snackbar.dart';
 import 'package:flutter_riverpod_starter_template/src/utils/extensions/context_extensions.dart';
 
 import '../../../shared/gap.dart';
@@ -27,6 +28,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  AuthenticationState? _previousState;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize controllers with values from current state if available
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final notifier = ref.read(authenticationNotifierProvider.notifier);
+      _usernameController.addListener(() {
+        notifier.setUsername(_usernameController.text);
+      });
+      _passwordController.addListener(() {
+        notifier.setPassword(_passwordController.text);
+      });
+    });
+  }
+
   @override
   void dispose() {
     _usernameController.dispose();
@@ -41,6 +59,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final isLoading = state is AuthenticationLoading;
     final errorText =
         state is AuthenticationUnauthenticated ? state.errorMessage : null;
+
+    // Listen for state changes to show snackbars for errors
+    ref.listen<AuthenticationState>(authenticationNotifierProvider, (
+      previous,
+      current,
+    ) {
+      // Store previous state to avoid duplicate messages
+      if (_previousState == current) return;
+      _previousState = current;
+
+      // Show error messages in a snackbar
+      if (current is AuthenticationUnauthenticated &&
+          current.errorMessage != null &&
+          current.errorMessage != LocaleKeys.auth_invalideUsername.tr() &&
+          current.errorMessage != LocaleKeys.auth_invalidPassword.tr()) {
+        AnotherSnackbar.showError(context, message: current.errorMessage!);
+      }
+
+      // Show success message when authenticated
+      if (current is AuthenticationAuthenticated) {
+        AnotherSnackbar.showSuccess(context, message: 'Successfully logged in');
+      }
+    });
 
     return Scaffold(
       body: SafeArea(
@@ -96,9 +137,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       isLoading
                           ? null
                           : () {
+                            // Trim input values to ensure no extra whitespace
+                            notifier.setUsername(
+                              _usernameController.text.trim(),
+                            );
+                            notifier.setPassword(
+                              _passwordController.text.trim(),
+                            );
+
+                            // Unfocus the keyboard before login
+                            FocusScope.of(context).unfocus();
+
+                            // Perform login
                             notifier.login();
                           },
-
                   child:
                       isLoading
                           ? const FormLoader()
@@ -110,16 +162,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             textAlign: TextAlign.center,
                           ),
                 ),
-                if (errorText != null &&
-                    errorText != LocaleKeys.auth_invalideUsername.tr() &&
-                    errorText != LocaleKeys.auth_invalidPassword.tr())
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12.0),
-                    child: Text(
-                      errorText,
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  ),
+                // We're now using snackbars for error messages instead of inline text
                 const Gap(16),
                 Align(
                   child: Padding(

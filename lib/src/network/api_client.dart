@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -102,6 +104,8 @@ class ApiClientImpl implements ApiClient {
       dio.options.receiveTimeout = Duration(seconds: timeout);
     }
 
+    await _setHeader();
+
     return await dio.delete(
       fullUrl ?? uri,
       data: body,
@@ -133,6 +137,8 @@ class ApiClientImpl implements ApiClient {
       dio.options.connectTimeout = Duration(seconds: timeout);
       dio.options.receiveTimeout = Duration(seconds: timeout);
     }
+
+    await _setHeader();
 
     return await dio.download(
       fullUrl ?? uri,
@@ -166,6 +172,8 @@ class ApiClientImpl implements ApiClient {
       dio.options.receiveTimeout = Duration(seconds: timeout);
     }
 
+    await _setHeader();
+
     return await dio.get(
       fullUrl ?? uri,
       queryParameters: queryParameters,
@@ -197,6 +205,8 @@ class ApiClientImpl implements ApiClient {
       dio.options.connectTimeout = Duration(seconds: timeout);
       dio.options.receiveTimeout = Duration(seconds: timeout);
     }
+
+    await _setHeader();
 
     return await dio.post(
       fullUrl ?? uri,
@@ -231,6 +241,8 @@ class ApiClientImpl implements ApiClient {
       dio.options.receiveTimeout = Duration(seconds: timeout);
     }
 
+    await _setHeader();
+
     return await dio.put(
       fullUrl ?? uri,
       data: body,
@@ -246,5 +258,14 @@ class ApiClientImpl implements ApiClient {
     if (await connectionChecker.isConnected() == NetworkStatus.offline) {
       throw NetworkExceptions.noInternetConnection();
     }
+  }
+
+  Future<void> _setHeader() async {
+    dio.options.headers = {
+      // HttpHeaders.acceptHeader: appJson,
+      HttpHeaders.contentTypeHeader: 'application/json',
+      // Add any other headers you need here
+      // 'Custom-Header': 'value',
+    };
   }
 }
