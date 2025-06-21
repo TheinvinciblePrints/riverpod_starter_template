@@ -7,7 +7,6 @@ import 'package:talker_dio_logger/talker_dio_logger_interceptor.dart';
 import 'package:talker_dio_logger/talker_dio_logger_settings.dart';
 
 import '../../flavors.dart';
-import '../config/config.dart';
 import 'storage_providers.dart';
 
 part 'dio_provider.g.dart';
@@ -18,7 +17,6 @@ Dio dio(Ref ref) {
 
   final dio = Dio(
     BaseOptions(
-      baseUrl: Env.apiUrl,
       connectTimeout: const Duration(seconds: 60),
       receiveTimeout: const Duration(seconds: 60),
       sendTimeout: const Duration(seconds: 60),

@@ -111,6 +111,9 @@ class CustomTextField extends StatelessWidget {
           child: TextField(
             controller: controller,
             enabled: enabled,
+            onTapOutside: (event) {
+              FocusManager.instance.primaryFocus?.unfocus();
+            },
             obscureText: obscureText,
             style: TextStyle(color: _textColor, fontWeight: FontWeight.w500),
             decoration: InputDecoration(

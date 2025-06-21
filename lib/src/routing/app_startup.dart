@@ -27,7 +27,8 @@ class AppStartupWidget extends ConsumerWidget {
           error: error,
           onRetry: () => notifier.retry(),
         ),
-      StartupUnauthenticated() => const SizedBox.shrink(),
+      StartupUnauthenticated() =>
+        const SizedBox.shrink(), // Let router handle navigation
       StartupCompleted(didCompleteOnboarding: final _, isLoggedIn: final _) =>
         const SizedBox.shrink(),
     };

@@ -46,6 +46,7 @@ class StartupNotifier extends BaseStateNotifier<StartupState> {
   }
 
   void completeOnboardingAndSetUnauthenticated() {
+    logger.i('Setting state to unauthenticated after onboarding completion');
     state = const StartupState.unauthenticated();
   }
 

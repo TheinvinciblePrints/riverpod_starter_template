@@ -24,7 +24,8 @@ abstract class Env {
   /// The base API URL for the current environment.
   ///
   /// This value is populated during [setEnv] call, based on the selected flavor.
-  static late String apiUrl;
+  static late String dummyJsonApiUrl;
+  static late String newsApiUrl;
 
   /// Sets the current environment and loads the appropriate config values.
   ///
@@ -35,13 +36,17 @@ abstract class Env {
     envName = env;
     switch (env) {
       case 'dev':
-        apiUrl = DevEnv.apiUrl;
+        dummyJsonApiUrl = DevEnv.dummyJsonApiUrl;
+        newsApiUrl = DevEnv.newsApiUrl;
         break;
       case 'staging':
-        apiUrl = StagingEnv.apiUrl;
+        dummyJsonApiUrl = StagingEnv.dummyJsonApiUrl;
+        newsApiUrl = StagingEnv.newsApiUrl;
         break;
       case 'prod':
-        apiUrl = ProdEnv.apiUrl;
+        dummyJsonApiUrl = ProdEnv.dummyJsonApiUrl;
+        newsApiUrl = StagingEnv.newsApiUrl;
+       
         break;
       default:
         throw Exception('Unknown environment: $env');

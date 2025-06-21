@@ -177,7 +177,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 }
 
-class _UsernameInput extends StatelessWidget {
+class _UsernameInput extends ConsumerWidget {
   const _UsernameInput({
     required this.controller,
     required this.errorText,
@@ -189,14 +189,16 @@ class _UsernameInput extends StatelessWidget {
   final ValueChanged<String> onChanged;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(authenticationNotifierProvider);
+    final isLoading = state is AuthenticationLoading;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TextFieldTitleText(title: LocaleKeys.auth_username, isRequired: true),
         CustomTextField(
+          enabled: !isLoading,
           controller: controller,
-
           errorText:
               errorText == LocaleKeys.auth_invalideUsername.tr()
                   ? LocaleKeys.auth_pleaseEnterValidUsername.tr()
@@ -212,7 +214,7 @@ class _UsernameInput extends StatelessWidget {
   }
 }
 
-class _PasswordInput extends StatelessWidget {
+class _PasswordInput extends ConsumerWidget {
   const _PasswordInput({
     required this.controller,
     required this.errorText,
@@ -224,14 +226,16 @@ class _PasswordInput extends StatelessWidget {
   final ValueChanged<String> onChanged;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(authenticationNotifierProvider);
+    final isLoading = state is AuthenticationLoading;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TextFieldTitleText(title: LocaleKeys.auth_password, isRequired: true),
         PasswordTextField(
+          enabled: !isLoading,
           controller: controller,
-
           errorText:
               errorText == LocaleKeys.auth_invalidPassword.tr()
                   ? LocaleKeys.auth_pleaseEnterValidPassword.tr()
