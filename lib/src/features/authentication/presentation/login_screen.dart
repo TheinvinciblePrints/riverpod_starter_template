@@ -136,6 +136,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         }
         // Validation errors are displayed inline in the form fields
       }
+
+      // Show success message when authenticated
+      if (current is AuthenticationAuthenticated) {
+        // Update the startup state to reflect successful login
+        // This will trigger the GoRouter's redirection logic
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+
+          final startupNotifier = ref.read(startupNotifierProvider.notifier);
+          startupNotifier.updateLoginState(true);
+        });
+      }
     });
 
     return Scaffold(
