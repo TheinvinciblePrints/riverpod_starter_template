@@ -1,58 +1,39 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod_starter_template/src/network/api_client.dart';
 import 'package:flutter_riverpod_starter_template/src/network/api_result.dart';
-import 'package:flutter_riverpod_starter_template/src/network/error_handler.dart';
-import 'package:flutter_riverpod_starter_template/src/providers/error_handler_provider.dart';
+import 'package:flutter_riverpod_starter_template/src/network/network_error_handler.dart';
 import 'package:flutter_riverpod_starter_template/src/storage/storage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../config/env/env.dart';
-import '../../../providers/storage_providers.dart';
+import '../../../network/network_failures.dart';
+import '../../../providers/global_providers.dart';
 import '../domain/app_user.dart';
 import '../domain/login_request.dart';
 
 part 'auth_repository.g.dart';
 
-abstract class AuthRepository {
-  Future<ApiResult<User>> login({required LoginRequest request});
-  Future<void> logout();
-  Future<User?> getCurrentUser();
-}
-
-class AuthRepositoryImpl implements AuthRepository {
+class AuthRepository with NetworkErrorHandler {
   final IPreferenceStorage _preferenceStorage;
   final ISecureStorage _secureStorage;
   final ApiClient _apiClient;
-  final ErrorHandler _errorHandler;
 
-  AuthRepositoryImpl(
-    this._preferenceStorage,
-    this._secureStorage,
-    this._apiClient,
-    this._errorHandler,
-  );
+  AuthRepository(this._preferenceStorage, this._secureStorage, this._apiClient);
 
-  @override
-  Future<User?> getCurrentUser() async {
-    return await _preferenceStorage.getUser();
-  }
-
-  @override
-  Future<ApiResult<User>> login({required LoginRequest request}) async {
+  Future<ApiResult<User>> getCurrentUser() async {
     try {
-      final response = await _apiClient.post(
-        '${Env.dummyJsonApiUrl}/auth/login',
-        body: request.toJson(),
-      );
+      final response = await _apiClient.get('${Env.dummyJsonApiUrl}/user/me');
 
       // Parse user from response
       final userData = response.data;
 
       if (userData == null) {
         // Directly return an error result instead of throwing an exception
-        return _errorHandler.error<User>(
-          message: 'Failed to login: Empty response',
-          statusCode: response.statusCode,
+        return ApiResult.error(
+          error: DefaultErrorNetworkFailure(
+            message: 'Failed to get user data, no user data returned',
+            statusCode: response.statusCode,
+          ),
         );
       }
 
@@ -71,15 +52,53 @@ class AuthRepositoryImpl implements AuthRepository {
       await _preferenceStorage.saveUser(user);
 
       return ApiResult.success(data: user);
-    } catch (e, stackTrace) {
-      // Handle exceptions and convert them to ApiResult.error
-      return ApiResult.error(
-        error: _errorHandler.handleException(e, stackTrace),
-      );
+    } catch (error, stackTrace) {
+      final failure = handleException(error, stackTrace);
+      return ApiResult.error(error: failure);
     }
   }
 
-  @override
+  Future<ApiResult<User>> login({required LoginRequest request}) async {
+    try {
+      final response = await _apiClient.post(
+        '${Env.dummyJsonApiUrl}/auth/login',
+        body: request.toJson(),
+      );
+
+      // Parse user from response
+      final userData = response.data;
+
+      if (userData == null) {
+        // Directly return an error result instead of throwing an exception
+        return ApiResult.error(
+          error: DefaultErrorNetworkFailure(
+            message: 'Login failed, no user data returned',
+            statusCode: response.statusCode,
+          ),
+        );
+      }
+
+      final user = User.fromJson(userData);
+
+      // Store tokens securely
+      if (user.accessToken != null) {
+        await _secureStorage.saveAccessToken(user.accessToken!);
+      }
+
+      if (user.refreshToken != null) {
+        await _secureStorage.saveRefreshToken(user.refreshToken!);
+      }
+
+      // Save user data
+      await _preferenceStorage.saveUser(user);
+
+      return ApiResult.success(data: user);
+    } catch (error, stackTrace) {
+      final failure = handleException(error, stackTrace);
+      return ApiResult.error(error: failure);
+    }
+  }
+
   Future<void> logout() async {
     Future.wait([_secureStorage.clearAll(), _preferenceStorage.clearAll()]);
   }
@@ -92,12 +111,6 @@ Future<AuthRepository> authRepository(Ref ref) async {
   );
   final secureStorage = ref.watch(secureStorageServiceProvider);
   final apiClient = ref.watch(apiClientProvider);
-  final errorHandler = ref.watch(errorHandlerProvider);
 
-  return AuthRepositoryImpl(
-    preferenceStorage,
-    secureStorage,
-    apiClient,
-    errorHandler,
-  );
+  return AuthRepository(preferenceStorage, secureStorage, apiClient);
 }

@@ -64,7 +64,12 @@ class AppStartupErrorWidget extends StatelessWidget with NetworkErrorHandler {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Text(
+          context.tr(LocaleKeys.error),
+          style: context.textTheme.linkMedium,
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -72,12 +77,12 @@ class AppStartupErrorWidget extends StatelessWidget with NetworkErrorHandler {
           children: [
             AppAssets.lottie.errorLottie.lottie(),
             Text(
-              _getDisplayTitleMessage(),
+              context.tr(_getDisplayTitleMessage(), args: [message]),
               textAlign: TextAlign.center,
               style: context.textTheme.appStartUpErrorTitle,
             ),
             Text(
-              _getDisplayMessage(),
+              context.tr(_getDisplayMessage(), args: [message]),
               textAlign: TextAlign.center,
               style: context.textTheme.appStartUpErrorSubTitle,
             ),
@@ -95,7 +100,7 @@ class AppStartupErrorWidget extends StatelessWidget with NetworkErrorHandler {
   String _getDisplayMessage() {
     if (error is NetworkExceptions) {
       final key = NetworkExceptions.getErrorMessage(error as NetworkExceptions);
-      return key.tr();
+      return key;
     }
     return message;
   }
@@ -108,9 +113,9 @@ class AppStartupErrorWidget extends StatelessWidget with NetworkErrorHandler {
       if (networkFailure is NoInternetConnectionNetworkFailure) {
         return LocaleKeys.noInternetConnectionTitle.tr();
       } else {
-        return networkFailure.message.tr();
+        return networkFailure.message;
       }
     }
-    return LocaleKeys.error.tr();
+    return LocaleKeys.error;
   }
 }

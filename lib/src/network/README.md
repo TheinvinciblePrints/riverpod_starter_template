@@ -21,19 +21,7 @@ The `NetworkErrorHandler` mixin provides utility methods for handling network-re
 - `parseApiErrorResponse`: Parses error responses from APIs to extract meaningful error messages.
 - `unHandledError`: Handles unexpected errors and converts them to NetworkFailures.
 
-### 4. ErrorHandler Class
-
-The `ErrorHandler` class builds on top of the `NetworkErrorHandler` mixin, providing additional utility methods:
-
-- `execute<T>`: Safely executes an API call and wraps the result in an ApiResult.
-- `executeWithApiResult<T>`: Safely executes an API call that already returns an ApiResult.
-- `error<T>`: Creates an ApiResult.error with the given message and status code.
-- `isUnauthorized`: Checks if a failure is of unauthorized type.
-- `isNetworkError`: Checks if a failure is due to network connectivity issues.
-- `safeParse<T>`: Safely parses a response to extract data.
-- `createErrorMessage`: Creates a user-friendly error message from a NetworkFailure.
-
-### 5. ApiResult
+### 4. ApiResult
 
 `ApiResult<T>` is a freezed sealed class representing the result of an API operation:
 

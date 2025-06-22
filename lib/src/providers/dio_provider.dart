@@ -3,10 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod_starter_template/src/network/interceptors/auth_interceptor.dart';
 import 'package:flutter_riverpod_starter_template/src/network/interceptors/refresh_token_interceptor.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:talker_dio_logger/talker_dio_logger_interceptor.dart';
-import 'package:talker_dio_logger/talker_dio_logger_settings.dart';
 
 import '../../flavors.dart';
+import '../network/interceptors/dio_logger_interceptor.dart';
 import 'storage_providers.dart';
 
 part 'dio_provider.g.dart';
@@ -28,15 +27,16 @@ Dio dio(Ref ref) {
   dio.interceptors.addAll([
     AuthInterceptor(secureStorage),
     RefreshTokenInterceptor(secureStorage),
-    TalkerDioLogger(
-      settings: TalkerDioLoggerSettings(
-        printRequestHeaders:
-            !F.isProduction, // Print request headers in non-production environments
-        printResponseHeaders:
-            !F.isProduction, // Print request headers in non-production environments
-        printResponseMessage:
-            !F.isProduction, // Print request headers in non-production environments
-      ),
+    DioLoggerInterceptor(
+      requestHeader:
+          !F.isProduction, // print requestHeader if only on DEV or UAT environment
+      requestBody: true,
+      responseBody:
+          !F.isProduction, // print responseBody if only on DEV or UAT environment
+      responseHeader: !F.isProduction,
+      error: true,
+      compact: true,
+      maxWidth: 90,
     ),
   ]);
 

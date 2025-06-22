@@ -38,7 +38,7 @@ class _GoRouterListenerState extends ConsumerState<GoRouterDelegateListener> {
     final screenName = config.last.route.name;
     if (screenName != null) {
       final pathParams = config.pathParameters;
-      // TODO: Add your own logging or analytics screen tracking code
+      // Add your own logging or analytics screen tracking code
       log('screenName: $screenName, pathParams: $pathParams');
     }
   }

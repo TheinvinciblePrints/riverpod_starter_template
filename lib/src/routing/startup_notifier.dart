@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../features/authentication/data/auth_repository.dart';
+import '../features/authentication/application/auth_service.dart';
 import '../features/onboarding/data/onboarding_repository.dart';
+import '../network/network.dart';
 import '../shared/base/base_state_notifier.dart';
 import 'startup_state.dart';
 
@@ -15,7 +16,7 @@ class StartupNotifier extends BaseStateNotifier<StartupState> {
 
   Future<void> _handleStartUpLogic() async {
     try {
-      // Simulate splash delay for UX/testing
+      // Simulate splash delay for UX/testing (this can be removed if your apis is not fast)
       await Future.delayed(const Duration(seconds: 2));
 
       // Onboarding
@@ -23,17 +24,35 @@ class StartupNotifier extends BaseStateNotifier<StartupState> {
         onboardingRepositoryProvider.future,
       );
       final didCompleteOnboarding = onboardingRepo.isOnboardingComplete();
-      // Auth
-      final authRepo = await ref.read(authRepositoryProvider.future);
-      final isLoggedIn = await authRepo.getCurrentUser() != null;
 
-      state = StartupState.completed(
-        didCompleteOnboarding: didCompleteOnboarding,
-        isLoggedIn: isLoggedIn,
-      );
-      logger.i(
-        'Startup completed: onboarding=$didCompleteOnboarding, loggedIn=$isLoggedIn',
-      );
+      // Auth - use the authService instead of directly accessing repository (this is why we have the application layer)
+      final authService = await ref.read(authServiceProvider.future);
+      final userResult = await authService.getCurrentUser();
+
+      state = switch (userResult) {
+        Success(data: final user) =>
+          (() {
+            logger.i(
+              'Startup completed successfully: onboarding=$didCompleteOnboarding, user=${user.username}',
+            );
+            return StartupState.completed(
+              didCompleteOnboarding: didCompleteOnboarding,
+              isLoggedIn: true,
+            );
+          })(),
+        Error(error: final error) =>
+          (() {
+            logger.w('Startup completed with error: $error', error: error);
+            if (error is UnauthorisedRequestNetworkFailure) {
+              // If unauthorised, we assume the user is not logged in
+              return StartupState.completed(
+                didCompleteOnboarding: didCompleteOnboarding,
+                isLoggedIn: false,
+              );
+            }
+            return StartupState.error(userResult.error.message, error);
+          })(),
+      };
     } catch (e, st) {
       state = StartupState.error(e.toString(), e);
       logger.f('Startup failed', error: e, stackTrace: st);
@@ -53,6 +72,7 @@ class StartupNotifier extends BaseStateNotifier<StartupState> {
   void disposeStartupAndDependents(WidgetRef ref) {
     ref.invalidate(startupNotifierProvider);
     ref.invalidate(onboardingRepositoryProvider);
+    ref.invalidate(authServiceProvider);
     // Add any other dependent providers here if needed
   }
 }

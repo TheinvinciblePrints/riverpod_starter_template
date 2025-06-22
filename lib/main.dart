@@ -4,12 +4,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:talker_riverpod_logger/talker_riverpod_logger.dart';
 
 import 'flavors.dart';
 import 'src/app.dart';
 import 'src/config/config.dart';
 import 'src/localization/localization.dart';
+import 'src/providers/riverpod_logger_observer.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +19,12 @@ Future<void> main() async {
   // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(
     ProviderScope(
-      observers: [TalkerRiverpodObserver()],
+      observers: [
+        // // Use both observers for comprehensive logging
+        // TalkerRiverpodObserver(), // Keep the existing Talker observer
+        // Create a custom LoggerProviderObserver that will get the logger from the provider
+        RiverpodLoggerObserver(),
+      ],
       child: EasyLocalization(
         supportedLocales: supportedLocales.keys.toList(),
         path: 'assets/translations',
