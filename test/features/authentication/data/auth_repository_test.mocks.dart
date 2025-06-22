@@ -10,7 +10,7 @@ import 'package:flutter_riverpod_starter_template/src/features/authentication/au
     as _i6;
 import 'package:flutter_riverpod_starter_template/src/network/api_client.dart'
     as _i8;
-import 'package:flutter_riverpod_starter_template/src/network/api_result_freezed.dart'
+import 'package:flutter_riverpod_starter_template/src/network/api_result.dart'
     as _i10;
 import 'package:flutter_riverpod_starter_template/src/network/error_handler.dart'
     as _i9;

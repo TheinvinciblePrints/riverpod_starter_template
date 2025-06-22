@@ -1,7 +1,7 @@
 // Example usage of the ApiResult sealed class with pattern matching
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod_starter_template/src/network/api_result_freezed.dart';
+import 'package:flutter_riverpod_starter_template/src/network/api_result.dart';
 import 'package:flutter_riverpod_starter_template/src/network/network_failures.dart';
 
 /// This is an example of how to use the ApiResult sealed class in your code

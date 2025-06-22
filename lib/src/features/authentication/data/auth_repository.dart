@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod_starter_template/src/network/api_client.dart';
-import 'package:flutter_riverpod_starter_template/src/network/api_result_freezed.dart';
+import 'package:flutter_riverpod_starter_template/src/network/api_result.dart';
 import 'package:flutter_riverpod_starter_template/src/network/error_handler.dart';
 import 'package:flutter_riverpod_starter_template/src/providers/error_handler_provider.dart';
 import 'package:flutter_riverpod_starter_template/src/storage/storage.dart';

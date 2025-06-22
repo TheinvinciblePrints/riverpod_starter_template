@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod_starter_template/src/network/api_result_freezed.dart';
+import 'package:flutter_riverpod_starter_template/src/network/api_result.dart';
 import 'package:flutter_riverpod_starter_template/src/network/network_error_handler.dart';
 import 'package:flutter_riverpod_starter_template/src/network/network_exception.dart';
 import 'package:flutter_riverpod_starter_template/src/network/network_failures.dart';

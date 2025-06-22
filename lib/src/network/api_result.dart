@@ -1,47 +1,39 @@
-import 'network_failures.dart';
+import 'package:flutter_riverpod_starter_template/src/network/network_failures.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-/// Utility class to wrap result data
-sealed class ApiResult<T> {
-  const ApiResult();
+part 'api_result.freezed.dart';
+
+/// Represents the result of an API operation, which can be either successful with data
+/// or an error with failure details.
+@freezed
+sealed class ApiResult<T> with _$ApiResult<T> {
+  const ApiResult._();
 
   /// Creates a successful [ApiResult], completed with the specified [data].
-  const factory ApiResult.success({required T data}) = Success._;
+  const factory ApiResult.success({required T data}) = Success<T>;
 
   /// Creates an error [ApiResult], completed with the specified [error].
-  const factory ApiResult.error({required NetworkFailure error}) = Error._;
+  const factory ApiResult.error({required NetworkFailure error}) = Error<T>;
 
-  /// Pattern matching method
-  R when<R>({
-    required R Function(T value) onSuccess,
-    required R Function(NetworkFailure error) onError,
-  }) {
-    if (this is Success<T>) {
-      return onSuccess((this as Success<T>).data);
-    } else if (this is Error<T>) {
-      return onError((this as Error<T>).error);
-    }
-    throw DefaultErrorNetworkFailure(message: 'Unhandled Result type');
+  /// Maps this [ApiResult] to a new [ApiResult] with a new data type.
+  ApiResult<R> mapData<R>(R Function(T) mapper) {
+    return switch (this) {
+      Success(data: final data) => ApiResult.success(data: mapper(data)),
+      Error(error: final error) => ApiResult.error(error: error),
+    };
   }
-}
 
-/// Subclass of Result for values
-final class Success<T> extends ApiResult<T> {
-  const Success._({required this.data});
+  /// Returns the data if this is a [Success], otherwise returns null.
+  T? get dataOrNull {
+    return switch (this) {
+      Success(data: final data) => data,
+      Error() => null,
+    };
+  }
 
-  /// Returned value in result
-  final T data;
+  /// Returns true if this result is a [Success].
+  bool get isSuccess => this is Success<T>;
 
-  @override
-  String toString() => 'Result<$T>.ok($data)';
-}
-
-/// Subclass of Result for errors
-final class Error<T> extends ApiResult<T> {
-  const Error._({required this.error});
-
-  /// Returned error in result
-  final NetworkFailure error;
-
-  @override
-  String toString() => 'Result<$T>.error($error)';
+  /// Returns true if this result is an [Error].
+  bool get isError => this is Error<T>;
 }

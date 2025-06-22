@@ -3,7 +3,7 @@ import 'package:flutter_riverpod_starter_template/src/features/authentication/da
 import 'package:flutter_riverpod_starter_template/src/features/authentication/domain/app_user.dart';
 import 'package:flutter_riverpod_starter_template/src/features/authentication/domain/login_request.dart';
 import 'package:flutter_riverpod_starter_template/src/network/api_client.dart';
-import 'package:flutter_riverpod_starter_template/src/network/api_result_freezed.dart';
+import 'package:flutter_riverpod_starter_template/src/network/api_result.dart';
 import 'package:flutter_riverpod_starter_template/src/network/error_handler.dart';
 import 'package:flutter_riverpod_starter_template/src/network/network_failures.dart';
 import 'package:flutter_riverpod_starter_template/src/storage/storage.dart';

@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod_starter_template/src/localization/locale_keys.g.dart';
 
-import '../../../network/api_result_freezed.dart';
+import '../../../network/api_result.dart';
 import '../../../providers/error_handler_provider.dart';
 import '../../../shared/base/base_state_notifier.dart';
 import '../data/auth_repository.dart';
