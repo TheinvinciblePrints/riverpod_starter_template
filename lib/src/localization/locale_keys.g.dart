@@ -45,10 +45,14 @@ abstract class  LocaleKeys {
   static const auth_facebook = 'auth.facebook';
   static const auth_google = 'auth.google';
   static const auth_welcomeBack = 'auth.welcomeBack';
+  static const auth_usernameEmpty = 'auth.usernameEmpty';
+  static const auth_passwordEmpty = 'auth.passwordEmpty';
+  static const auth_invalidCredentials = 'auth.invalidCredentials';
   static const auth_invalideUsername = 'auth.invalideUsername';
   static const auth_pleaseEnterValidUsername = 'auth.pleaseEnterValidUsername';
   static const auth_invalidPassword = 'auth.invalidPassword';
   static const auth_pleaseEnterValidPassword = 'auth.pleaseEnterValidPassword';
   static const auth = 'auth';
+  static const dismiss = 'dismiss';
 
 }

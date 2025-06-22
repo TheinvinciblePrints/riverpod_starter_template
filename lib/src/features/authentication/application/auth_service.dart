@@ -39,9 +39,8 @@ class AuthService {
 }
 
 /// Provider for the AuthService as a FutureProvider to properly handle async repository initialization
-final authServiceProvider = FutureProvider.autoDispose<AuthService>((
-  ref,
-) async {
+/// This is a cached provider (not autoDispose) to prevent disposal between screens
+final authServiceProvider = FutureProvider<AuthService>((ref) async {
   // Wait for the repository to be fully initialized
   final authRepo = await ref.watch(authRepositoryProvider.future);
 

@@ -82,10 +82,14 @@ class AuthenticationController extends BaseStateNotifier<AuthenticationState> {
 }
 
 /// The controller provider now depends on authServiceProvider being ready
+/// Using keepAlive to prevent the provider from being disposed between screens
 final authenticationNotifierProvider =
     StateNotifierProvider<AuthenticationController, AuthenticationState>((ref) {
       // Access the authService async value
       final authServiceAsync = ref.watch(authServiceProvider);
+
+      // Keep the provider alive while in login flow
+      ref.keepAlive();
 
       // Use valueOrNull to handle loading state
       final authService =

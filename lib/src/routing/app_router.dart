@@ -22,10 +22,10 @@ extension AppRoutePath on AppRoute {
 ///
 /// Listens to changes in [AuthRepository] to redirect the user
 /// to /login when the user logs out.
-@riverpod
+@Riverpod(keepAlive: true)
 GoRouter goRouter(Ref ref) {
   return GoRouter(
-    initialLocation: AppRoute.login.path,
+    initialLocation: AppRoute.splash.path,
     navigatorKey: _rootNavigatorKey,
     redirect: (context, state) => _handleRedirection(context, state, ref),
     routes: [
@@ -77,7 +77,10 @@ FutureOr<String?> _handleRedirection(
       return AppRoute.splash.path;
     case StartupUnauthenticated():
       return path == AppRoute.login.path ? null : AppRoute.login.path;
-    case StartupCompleted(didCompleteOnboarding: final didCompleteOnboarding, isLoggedIn: final isLoggedIn):
+    case StartupCompleted(
+      didCompleteOnboarding: final didCompleteOnboarding,
+      isLoggedIn: final isLoggedIn,
+    ):
       // If onboarding not complete, redirect to onboarding
       if (!didCompleteOnboarding && path != AppRoute.onboarding.path) {
         return AppRoute.onboarding.path;

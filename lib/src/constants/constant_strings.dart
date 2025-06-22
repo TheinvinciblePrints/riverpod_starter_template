@@ -3,5 +3,5 @@ class ConstantStrings {
   static const String refreshToken = 'refreshToken';
   static const String onboardingCompleted = 'onboardingCompleted';
   static const String themeMode = 'themeMode';
-  
+  static const String storageHasRunBefore = 'storageHasRunBefore';
 }

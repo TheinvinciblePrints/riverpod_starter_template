@@ -43,9 +43,13 @@
     "facebook": "Facebook",
     "google": "Google",
     "welcomeBack": "Welcome back you've been missed",
+    "usernameEmpty": "Username cannot be empty",
+    "passwordEmpty": "Password cannot be empty",
+    "invalidCredentials": "Invalid credentials",
     "invalideUsername": "Invalid username",
     "pleaseEnterValidUsername": "Please enter a valid username",
     "invalidPassword": "Invalid Password",
     "pleaseEnterValidPassword": "Please enter a valid password"
-  }
+  },
+  "dismiss": "Dismiss"
 }

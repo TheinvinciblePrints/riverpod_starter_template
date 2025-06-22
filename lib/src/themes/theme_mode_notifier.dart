@@ -6,7 +6,7 @@ import '../storage/storage.dart';
 
 part 'theme_mode_notifier.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class ThemeModeNotifier extends _$ThemeModeNotifier {
   late IPreferenceStorage _prefs;
 

@@ -1,3 +1,4 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 
 class AnotherSnackbar {
@@ -5,82 +6,71 @@ class AnotherSnackbar {
   static void showError(
     BuildContext context, {
     required String message,
-    Duration duration = const Duration(seconds: 4),
+    Duration duration = const Duration(seconds: 10),
   }) {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message, style: const TextStyle(color: Colors.white)),
-        backgroundColor: Colors.red.shade800,
-        behavior: SnackBarBehavior.floating,
-        duration: duration,
-        action: SnackBarAction(
-          label: 'Dismiss',
-          textColor: Colors.white,
-          onPressed: () {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          },
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      ),
-    );
+    Flushbar(
+      message: message,
+      duration: duration,
+      flushbarPosition: FlushbarPosition.BOTTOM,
+      dismissDirection: FlushbarDismissDirection.HORIZONTAL,
+      backgroundColor: Colors.red,
+      messageColor: Colors.white,
+      margin: const EdgeInsets.all(16),
+      borderRadius: BorderRadius.circular(8),
+    ).show(context);
   }
 
   /// Shows a custom snackbar with success styling
   static void showSuccess(
     BuildContext context, {
     required String message,
-    Duration duration = const Duration(seconds: 4),
+    Duration duration = const Duration(seconds: 10),
   }) {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message, style: const TextStyle(color: Colors.white)),
-        backgroundColor: Colors.green.shade700,
-        behavior: SnackBarBehavior.floating,
-        duration: duration,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      ),
-    );
+    Flushbar(
+      message: message,
+      duration: duration,
+      flushbarPosition: FlushbarPosition.BOTTOM,
+      dismissDirection: FlushbarDismissDirection.HORIZONTAL,
+      backgroundColor: Colors.green, // Fixed color for success
+      messageColor: Colors.white,
+      margin: const EdgeInsets.all(16),
+      borderRadius: BorderRadius.circular(8),
+    ).show(context);
   }
 
   /// Shows a custom snackbar with info styling
   static void showInfo(
     BuildContext context, {
     required String message,
-    Duration duration = const Duration(seconds: 4),
+    Duration duration = const Duration(seconds: 10),
   }) {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message, style: const TextStyle(color: Colors.white)),
-        backgroundColor: Colors.blue.shade700,
-        behavior: SnackBarBehavior.floating,
-        duration: duration,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      ),
-    );
+    Flushbar(
+      message: message,
+      duration: duration,
+      flushbarPosition: FlushbarPosition.BOTTOM,
+      dismissDirection: FlushbarDismissDirection.HORIZONTAL,
+      backgroundColor: Colors.blue,
+      messageColor: Colors.white,
+      margin: const EdgeInsets.all(16),
+      borderRadius: BorderRadius.circular(8),
+    ).show(context);
   }
 
   /// Shows a custom snackbar with warning styling
   static void showWarning(
     BuildContext context, {
     required String message,
-    Duration duration = const Duration(seconds: 4),
+    Duration duration = const Duration(seconds: 10),
   }) {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message, style: const TextStyle(color: Colors.black87)),
-        backgroundColor: Colors.amber.shade300,
-        behavior: SnackBarBehavior.floating,
-        duration: duration,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      ),
-    );
+    Flushbar(
+      message: message,
+      duration: duration,
+      flushbarPosition: FlushbarPosition.BOTTOM,
+      dismissDirection: FlushbarDismissDirection.HORIZONTAL,
+      backgroundColor: Colors.amber,
+      messageColor: Colors.white,
+      margin: const EdgeInsets.all(16),
+      borderRadius: BorderRadius.circular(8),
+    ).show(context);
   }
 }

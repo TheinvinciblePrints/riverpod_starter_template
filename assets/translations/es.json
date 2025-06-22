@@ -42,6 +42,14 @@
     "continueWith": "o continúa con",
     "facebook": "Facebook",
     "google": "Google",
-    "welcomeBack": "Bienvenido de nuevo, te hemos extrañado"
-  }
+    "welcomeBack": "Bienvenido de nuevo, te hemos extrañado",
+    "usernameEmpty": "El nombre de usuario no puede estar vacío",
+    "passwordEmpty": "La contraseña no puede estar vacía",
+    "invalidCredentials": "Credenciales inválidas",
+    "invalideUsername": "Nombre de usuario inválido",
+    "pleaseEnterValidUsername": "Por favor, ingresa un nombre de usuario válido",
+    "invalidPassword": "Contraseña inválida",
+    "pleaseEnterValidPassword": "Por favor, ingresa una contraseña válida"
+  },
+  "dismiss": "Descartar"
 }
