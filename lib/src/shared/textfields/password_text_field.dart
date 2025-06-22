@@ -10,7 +10,6 @@ class PasswordTextField extends StatefulWidget {
   final bool enabled;
   final CustomTextFieldState state;
   final ValueChanged<String>? onChanged;
-  final bool isDarkMode;
 
   const PasswordTextField({
     super.key,
@@ -20,7 +19,6 @@ class PasswordTextField extends StatefulWidget {
     this.enabled = true,
     this.state = CustomTextFieldState.initial,
     this.onChanged,
-    this.isDarkMode = false,
   });
 
   @override
@@ -44,6 +42,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return ValueListenableBuilder<bool>(
       valueListenable: _obscureNotifier,
       builder: (context, obscure, _) {
@@ -54,7 +53,6 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
           enabled: widget.enabled,
           obscureText: obscure,
           state: widget.state,
-          isDarkMode: widget.isDarkMode,
           onChanged: widget.onChanged,
           type: CustomTextFieldType.primary,
           icon: null,
@@ -62,8 +60,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
           suffixIcon: IconButton(
             icon: Icon(
               obscure ? Icons.visibility_off : Icons.visibility,
-              color:
-                  widget.isDarkMode ? AppColors.darkBody : AppColors.bodyText,
+              color: isDarkMode ? AppColors.darkBody : AppColors.bodyText,
             ),
             onPressed: () => _obscureNotifier.value = !obscure,
           ),

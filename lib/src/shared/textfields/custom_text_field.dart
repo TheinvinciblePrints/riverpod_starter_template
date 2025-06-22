@@ -22,7 +22,6 @@ class CustomTextField extends StatelessWidget {
   final TextEditingController? controller;
   final Widget? icon;
   final VoidCallback? onClear;
-  final bool isDarkMode;
   final Widget? suffixIcon;
 
   const CustomTextField({
@@ -38,71 +37,73 @@ class CustomTextField extends StatelessWidget {
     this.controller,
     this.icon,
     this.onClear,
-    this.isDarkMode = false,
     this.suffixIcon,
   });
 
-  Color get _backgroundColor {
-    if (!enabled) {
-      return isDarkMode
-          ? AppColors.darkInputBackground
-          : AppColors.disableInput;
-    }
-    if (state == CustomTextFieldState.error) {
-      return AppColors.errorLight;
-    }
-    return isDarkMode ? AppColors.darkInputBackground : AppColors.white;
-  }
-
-  Color get _borderColor {
-    if (state == CustomTextFieldState.error) {
-      return isDarkMode ? AppColors.errorDarkMode : AppColors.error;
-    }
-    if (!enabled) {
-      return isDarkMode
-          ? AppColors.darkInputBackground
-          : AppColors.disableInput;
-    }
-    if (state == CustomTextFieldState.active ||
-        state == CustomTextFieldState.typing) {
-      return AppColors.primary;
-    }
-    return isDarkMode ? AppColors.darkInputBackground : AppColors.bodyText;
-  }
-
-  Color get _textColor {
-    if (!enabled) {
-      return isDarkMode ? AppColors.darkBody : AppColors.placeholder;
-    }
-    if (state == CustomTextFieldState.error) {
-      return isDarkMode ? AppColors.errorDarkMode : AppColors.error;
-    }
-    return isDarkMode ? AppColors.darkTitle : AppColors.titleActive;
-  }
-
-  Color get _iconColor {
-    if (!enabled) {
-      return isDarkMode ? AppColors.darkBody : AppColors.placeholder;
-    }
-    if (state == CustomTextFieldState.error) {
-      return isDarkMode ? AppColors.errorDarkMode : AppColors.error;
-    }
-    return isDarkMode ? AppColors.darkBody : AppColors.placeholder;
-  }
-
-  InputBorder get _border => OutlineInputBorder(
-    borderRadius: BorderRadius.circular(6),
-    borderSide: BorderSide(color: _borderColor, width: 1),
-  );
-
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    Color backgroundColor() {
+      if (!enabled) {
+        return isDarkMode
+            ? AppColors.darkInputBackground
+            : AppColors.disableInput;
+      }
+      if (state == CustomTextFieldState.error) {
+        return AppColors.errorLight;
+      }
+      return isDarkMode ? AppColors.darkInputBackground : AppColors.white;
+    }
+
+    Color borderColor() {
+      if (state == CustomTextFieldState.error) {
+        return isDarkMode ? AppColors.errorDarkMode : AppColors.error;
+      }
+      if (!enabled) {
+        return isDarkMode
+            ? AppColors.darkInputBackground
+            : AppColors.disableInput;
+      }
+      if (state == CustomTextFieldState.active ||
+          state == CustomTextFieldState.typing) {
+        return AppColors.primary;
+      }
+      return isDarkMode ? AppColors.darkInputBackground : AppColors.bodyText;
+    }
+
+    Color textColor() {
+      if (!enabled) {
+        return isDarkMode ? AppColors.darkBody : AppColors.placeholder;
+      }
+      if (state == CustomTextFieldState.error) {
+        return isDarkMode ? AppColors.errorDarkMode : AppColors.error;
+      }
+      return isDarkMode ? AppColors.darkTitle : AppColors.titleActive;
+    }
+
+    Color iconColor() {
+      if (!enabled) {
+        return isDarkMode ? AppColors.darkBody : AppColors.placeholder;
+      }
+      if (state == CustomTextFieldState.error) {
+        return isDarkMode ? AppColors.errorDarkMode : AppColors.error;
+      }
+      return isDarkMode ? AppColors.darkBody : AppColors.placeholder;
+    }
+
+    InputBorder border() => OutlineInputBorder(
+      borderRadius: BorderRadius.circular(6),
+      borderSide: BorderSide(color: borderColor(), width: 1),
+    );
+
     final showClear =
         (state == CustomTextFieldState.active ||
             state == CustomTextFieldState.typing ||
             state == CustomTextFieldState.error) &&
         enabled &&
         (onClear != null);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -115,34 +116,34 @@ class CustomTextField extends StatelessWidget {
               FocusManager.instance.primaryFocus?.unfocus();
             },
             obscureText: obscureText,
-            style: TextStyle(color: _textColor, fontWeight: FontWeight.w500),
+            style: TextStyle(color: textColor(), fontWeight: FontWeight.w500),
             decoration: InputDecoration(
               filled: true,
-              fillColor: _backgroundColor,
+              fillColor: backgroundColor(),
               labelText: labelText,
-              labelStyle: TextStyle(color: _iconColor),
+              labelStyle: TextStyle(color: iconColor()),
               hintText:
                   state == CustomTextFieldState.disabled
                       ? 'Placeholder Text'
                       : null,
-              hintStyle: TextStyle(color: _iconColor),
+              hintStyle: TextStyle(color: iconColor()),
               prefixIcon:
                   type == CustomTextFieldType.icon
-                      ? Icon(Icons.search, color: _iconColor)
+                      ? Icon(Icons.search, color: iconColor())
                       : null,
               suffixIcon:
                   suffixIcon ??
                   (showClear
                       ? IconButton(
-                        icon: Icon(Icons.close, color: _iconColor),
+                        icon: Icon(Icons.close, color: iconColor()),
                         onPressed: onClear,
                       )
                       : null),
-              enabledBorder: _border,
-              focusedBorder: _border,
-              disabledBorder: _border,
-              errorBorder: _border,
-              focusedErrorBorder: _border,
+              enabledBorder: border(),
+              focusedBorder: border(),
+              disabledBorder: border(),
+              errorBorder: border(),
+              focusedErrorBorder: border(),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 16,
