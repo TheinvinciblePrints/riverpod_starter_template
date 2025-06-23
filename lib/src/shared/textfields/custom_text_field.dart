@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod_starter_template/src/utils/extensions/context_extensions.dart';
 
 import '../../themes/app_colors.dart';
+import '../../themes/themes.dart';
 
 /// CustomTextFieldState defines the visual state of the text field
 enum CustomTextFieldState { initial, active, typing, filled, disabled, error }
@@ -23,6 +24,7 @@ class CustomTextField extends StatelessWidget {
   final Widget? icon;
   final VoidCallback? onClear;
   final Widget? suffixIcon;
+  final Color? labelTextColor;
 
   const CustomTextField({
     super.key,
@@ -38,6 +40,7 @@ class CustomTextField extends StatelessWidget {
     this.icon,
     this.onClear,
     this.suffixIcon,
+    this.labelTextColor,
   });
 
   @override
@@ -121,7 +124,9 @@ class CustomTextField extends StatelessWidget {
               filled: true,
               fillColor: backgroundColor(),
               labelText: labelText,
-              labelStyle: TextStyle(color: iconColor()),
+              labelStyle: AppTextStyles.textSmall.copyWith(
+                color: labelTextColor ?? textColor(),
+              ),
               hintText:
                   state == CustomTextFieldState.disabled
                       ? 'Placeholder Text'

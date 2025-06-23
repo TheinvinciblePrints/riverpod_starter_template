@@ -5,7 +5,86 @@ import 'package:flutter_riverpod_starter_template/src/gen/assets.gen.dart';
 import '../../../shared/textfields/custom_text_field.dart';
 import '../../../utils/extensions/context_extensions.dart';
 import '../domain/article_model.dart';
-import 'real_trending_articles_widget.dart';
+import 'trending_articles_widget.dart';
+
+class HomeScreen extends ConsumerWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Mock data for other UI components
+    final latestArticles = [
+      ArticleModel(
+        title:
+            'Ukraine\'s President Zelensky to BBC: Blood money being paid for Russian oil',
+        category: 'Europe',
+        source: 'BBC News',
+        timeAgo: '14m ago',
+        imageUrl: 'https://picsum.photos/200/150?random=2',
+      ),
+      ArticleModel(
+        title:
+            'Her train broke down. Her phone died. And then she met her future husband',
+        category: 'Travel',
+        source: 'CNN',
+        timeAgo: '1h ago',
+        imageUrl: 'https://picsum.photos/200/150?random=3',
+      ),
+    ];
+
+    final categories = [
+      'All',
+      'Sports',
+      'Politics',
+      'Business',
+      'Health',
+      'Travel',
+      'Science',
+    ];
+
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leadingWidth: 120,
+        elevation: 0,
+        leading: Container(
+          margin: const EdgeInsets.only(left: 24.0),
+          child: AppAssets.images.appLogo.image(height: 30, width: 99),
+        ),
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 24.0),
+            child: AppAssets.icons.settingIcon.svg(),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: ListView(
+            children: [
+              const SizedBox(height: 16),
+              const _SearchBar(),
+              const SizedBox(height: 24),
+              _SectionHeader(title: 'Trending', onSeeAllPressed: () {}),
+              const SizedBox(height: 12),
+              // Using our real API trending articles widget
+              const TrendingArticlesWidget(),
+              const SizedBox(height: 24),
+              _SectionHeader(title: 'Latest', onSeeAllPressed: () {}),
+              const SizedBox(height: 8),
+              _CategoryFilter(categories: categories),
+              const SizedBox(height: 16),
+              ...latestArticles.map(
+                (article) => _ArticleItem(article: article),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 // Private widget for displaying the search bar
 class _SearchBar extends StatelessWidget {
@@ -17,9 +96,25 @@ class _SearchBar extends StatelessWidget {
       type: CustomTextFieldType.icon,
       state: CustomTextFieldState.initial,
       labelText: 'Search',
+      labelTextColor: context.colorTheme.searchLabelColor,
       icon: Padding(
         padding: const EdgeInsets.all(12.0),
-        child: AppAssets.icons.searchIcon.svg(color: Colors.grey),
+        child: AppAssets.icons.searchIcon.svg(
+          colorFilter: ColorFilter.mode(
+            context.colorTheme.searchIconColor,
+            BlendMode.srcIn,
+          ),
+        ),
+      ),
+      suffixIcon: IconButton(
+        padding: const EdgeInsets.only(right: 12.0),
+        icon: AppAssets.icons.filterIcon.svg(
+          colorFilter: ColorFilter.mode(
+            context.colorTheme.searchIconColor,
+            BlendMode.srcIn,
+          ),
+        ),
+        onPressed: () {},
       ),
       onClear: () {},
     );
@@ -174,85 +269,6 @@ class _ArticleItem extends StatelessWidget {
           ),
           IconButton(icon: const Icon(Icons.more_horiz), onPressed: () {}),
         ],
-      ),
-    );
-  }
-}
-
-class HomeScreen extends ConsumerWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Mock data for other UI components
-    final latestArticles = [
-      ArticleModel(
-        title:
-            'Ukraine\'s President Zelensky to BBC: Blood money being paid for Russian oil',
-        category: 'Europe',
-        source: 'BBC News',
-        timeAgo: '14m ago',
-        imageUrl: 'https://picsum.photos/200/150?random=2',
-      ),
-      ArticleModel(
-        title:
-            'Her train broke down. Her phone died. And then she met her future husband',
-        category: 'Travel',
-        source: 'CNN',
-        timeAgo: '1h ago',
-        imageUrl: 'https://picsum.photos/200/150?random=3',
-      ),
-    ];
-
-    final categories = [
-      'All',
-      'Sports',
-      'Politics',
-      'Business',
-      'Health',
-      'Travel',
-      'Science',
-    ];
-
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        leadingWidth: 120,
-        elevation: 0,
-        leading: Container(
-          margin: const EdgeInsets.only(left: 24.0),
-          child: AppAssets.images.appLogo.image(height: 30, width: 99),
-        ),
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 24.0),
-            child: AppAssets.icons.settingIcon.svg(),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: ListView(
-            children: [
-              const SizedBox(height: 16),
-              const _SearchBar(),
-              const SizedBox(height: 24),
-              _SectionHeader(title: 'Trending', onSeeAllPressed: () {}),
-              const SizedBox(height: 12),
-              // Using our real API trending articles widget
-              const RealTrendingArticlesWidget(),
-              const SizedBox(height: 24),
-              _SectionHeader(title: 'Latest', onSeeAllPressed: () {}),
-              const SizedBox(height: 8),
-              _CategoryFilter(categories: categories),
-              const SizedBox(height: 16),
-              ...latestArticles.map(
-                (article) => _ArticleItem(article: article),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

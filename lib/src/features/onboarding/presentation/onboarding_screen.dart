@@ -12,7 +12,7 @@ import '../../../routing/routing.dart';
 import '../../../themes/themes.dart';
 import '../data/onboarding_page_data.dart';
 import 'onboarding_controller.dart';
-import 'widgets/onboarding_dot.dart';
+import 'onboarding_dot.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
