@@ -26,6 +26,7 @@ abstract class Env {
   /// This value is populated during [setEnv] call, based on the selected flavor.
   static late String dummyJsonApiUrl;
   static late String newsApiUrl;
+  static late String newsApiKey;
 
   /// Sets the current environment and loads the appropriate config values.
   ///
@@ -38,14 +39,17 @@ abstract class Env {
       case 'dev':
         dummyJsonApiUrl = DevEnv.dummyJsonApiUrl;
         newsApiUrl = DevEnv.newsApiUrl;
+        newsApiKey = DevEnv.apiKey;
         break;
       case 'staging':
         dummyJsonApiUrl = StagingEnv.dummyJsonApiUrl;
         newsApiUrl = StagingEnv.newsApiUrl;
+        newsApiKey = StagingEnv.apiKey;
         break;
       case 'prod':
         dummyJsonApiUrl = ProdEnv.dummyJsonApiUrl;
         newsApiUrl = StagingEnv.newsApiUrl;
+        newsApiKey = ProdEnv.apiKey;
        
         break;
       default:

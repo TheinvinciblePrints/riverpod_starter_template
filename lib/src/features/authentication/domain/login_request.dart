@@ -10,10 +10,11 @@ abstract class LoginRequest with _$LoginRequest {
   const factory LoginRequest({
     /// The user's username or email.
     required String username,
-    
+
     /// The user's password.
     required String password,
-    
+
+    int? expiresInMins, // Default to 1440 minutes (24 hours)
   }) = _LoginRequest;
 
   /// Creates a [LoginRequest] from JSON map.

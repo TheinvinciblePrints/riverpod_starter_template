@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod_starter_template/src/localization/locale_keys.g.dart';
 
 import 'network_exception.dart';
 import 'network_failures.dart';
@@ -250,15 +251,8 @@ mixin NetworkErrorHandler {
   NetworkFailure unHandledError(dynamic error, StackTrace? stackTrace) {
     debugPrint('Unhandled exception: $error\n$stackTrace');
 
-    String errorMessage;
-    if (error is Error) {
-      errorMessage = '${error.toString()}\n${error.stackTrace}';
-    } else {
-      errorMessage = error.toString();
-    }
-
     return UnexpectedErrorNetworkFailure(
-      message: errorMessage,
+      message: LocaleKeys.unexpectedError,
       statusCode: null,
     );
   }

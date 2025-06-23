@@ -24,8 +24,21 @@ class $AssetsIconsGen {
   SvgGenImage get googleIcon =>
       const SvgGenImage('assets/icons/google_icon.svg');
 
+  /// File path: assets/icons/search_icon.svg
+  SvgGenImage get searchIcon =>
+      const SvgGenImage('assets/icons/search_icon.svg');
+
+  /// File path: assets/icons/setting_icon.svg
+  SvgGenImage get settingIcon =>
+      const SvgGenImage('assets/icons/setting_icon.svg');
+
   /// List of all assets
-  List<SvgGenImage> get values => [facebookIcon, googleIcon];
+  List<SvgGenImage> get values => [
+    facebookIcon,
+    googleIcon,
+    searchIcon,
+    settingIcon,
+  ];
 }
 
 class $AssetsImagesGen {

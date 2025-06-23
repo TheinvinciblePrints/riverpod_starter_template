@@ -129,7 +129,7 @@ class CustomTextField extends StatelessWidget {
               hintStyle: TextStyle(color: iconColor()),
               prefixIcon:
                   type == CustomTextFieldType.icon
-                      ? Icon(Icons.search, color: iconColor())
+                      ? icon ?? Icon(Icons.search, color: iconColor())
                       : null,
               suffixIcon:
                   suffixIcon ??

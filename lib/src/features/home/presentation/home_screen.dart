@@ -1,284 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod_starter_template/src/gen/assets.gen.dart';
 
 import '../../../shared/textfields/custom_text_field.dart';
 import '../../../utils/extensions/context_extensions.dart';
+import '../domain/article_model.dart';
+import 'real_trending_articles_widget.dart';
 
-class NewsArticle {
-  final String title;
-  final String category;
-  final String source;
-  final String timeAgo;
-  final String? imageUrl;
-
-  const NewsArticle({
-    required this.title,
-    required this.category,
-    required this.source,
-    required this.timeAgo,
-    this.imageUrl,
-  });
-}
-
-class HomeScreen extends ConsumerWidget {
-  const HomeScreen({super.key});
+// Private widget for displaying the search bar
+class _SearchBar extends StatelessWidget {
+  const _SearchBar();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Sample data
-    final trendingArticles = [
-      NewsArticle(
-        title: 'Russian warship: Moskva sinks in Black Sea',
-        category: 'Europe',
-        source: 'BBC News',
-        timeAgo: '4h ago',
-        imageUrl: 'https://picsum.photos/400/300?random=1',
-      ),
-    ];
-
-    final latestArticles = [
-      NewsArticle(
-        title:
-            'Ukraine\'s President Zelensky to BBC: Blood money being paid for Russian oil',
-        category: 'Europe',
-        source: 'BBC News',
-        timeAgo: '14m ago',
-        imageUrl: 'https://picsum.photos/200/150?random=2',
-      ),
-      NewsArticle(
-        title:
-            'Her train broke down. Her phone died. And then she met her future husband',
-        category: 'Travel',
-        source: 'CNN',
-        timeAgo: '1h ago',
-        imageUrl: 'https://picsum.photos/200/150?random=3',
-      ),
-    ];
-
-    final categories = [
-      'All',
-      'Sports',
-      'Politics',
-      'Business',
-      'Health',
-      'Travel',
-      'Science',
-    ];
-
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: ListView(
-            children: [
-              const SizedBox(height: 8),
-              _buildHeader(),
-              const SizedBox(height: 16),
-              _buildSearchBar(),
-              const SizedBox(height: 24),
-              _buildSectionHeader('Trending', onSeeAllPressed: () {}),
-              const SizedBox(height: 12),
-              _buildTrendingArticles(trendingArticles),
-              const SizedBox(height: 24),
-              _buildSectionHeader('Latest', onSeeAllPressed: () {}),
-              const SizedBox(height: 8),
-              _buildCategoryFilter(categories),
-              const SizedBox(height: 16),
-              ...latestArticles.map((article) => _buildArticleItem(article)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Text(
-              'Ka',
-              style: TextStyle(
-                color: Colors.blue,
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                const Icon(Icons.crop_square, color: Colors.blue, size: 32),
-                const Text(
-                  'E',
-                  style: TextStyle(
-                    color: Colors.blue,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const Text(
-              'ar',
-              style: TextStyle(
-                color: Colors.blue,
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        const Icon(Icons.notifications_outlined, size: 28),
-      ],
-    );
-  }
-
-  Widget _buildSearchBar() {
+  Widget build(BuildContext context) {
     return CustomTextField(
       type: CustomTextFieldType.icon,
       state: CustomTextFieldState.initial,
       labelText: 'Search',
+      icon: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: AppAssets.icons.searchIcon.svg(color: Colors.grey),
+      ),
       onClear: () {},
     );
   }
+}
 
-  Widget _buildSectionHeader(
-    String title, {
-    required VoidCallback onSeeAllPressed,
-  }) {
+// Private widget for displaying section headers
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  final VoidCallback onSeeAllPressed;
+
+  const _SectionHeader({required this.title, required this.onSeeAllPressed});
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Builder(
-          builder:
-              (context) =>
-                  Text(title, style: context.textTheme.displayMediumBold),
-        ),
-        Builder(
-          builder:
-              (context) => TextButton(
-                onPressed: onSeeAllPressed,
-                child: Text('See all', style: context.textTheme.linkMedium),
-              ),
+        Text(title, style: context.textTheme.displayMediumBold),
+        TextButton(
+          onPressed: onSeeAllPressed,
+          child: Text('See all', style: context.textTheme.linkMedium),
         ),
       ],
     );
   }
+}
 
-  Widget _buildTrendingArticles(List<NewsArticle> articles) {
-    return SizedBox(
-      height: 220,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: articles.length,
-        itemBuilder: (context, index) {
-          final article = articles[index];
-          return Container(
-            width: 340,
-            margin: const EdgeInsets.only(right: 16),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              image: DecorationImage(
-                image: NetworkImage(
-                  article.imageUrl ?? 'https://picsum.photos/400/200',
-                ),
-                fit: BoxFit.cover,
-              ),
-            ),
-            child: Stack(
-              children: [
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(12),
-                        bottomRight: Radius.circular(12),
-                      ),
-                      color: Colors.black.withValues(alpha: 0.6),
-                    ),
-                    child: Builder(
-                      builder:
-                          (context) => Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                article.category,
-                                style: context.textTheme.textSmall.copyWith(
-                                  color: Colors.white70,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                article.title,
-                                style: context.textTheme.textLarge.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  CircleAvatar(
-                                    backgroundColor: Colors.red,
-                                    radius: 10,
-                                    child: Text(
-                                      article.source[0],
-                                      style: context.textTheme.textXSmall
-                                          .copyWith(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    article.source,
-                                    style: context.textTheme.textMedium
-                                        .copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    '•',
-                                    style: TextStyle(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.7,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    article.timeAgo,
-                                    style: context.textTheme.textSmall.copyWith(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.7,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
+// Private widget for displaying category filters
+class _CategoryFilter extends StatelessWidget {
+  final List<String> categories;
 
-  Widget _buildCategoryFilter(List<String> categories) {
+  const _CategoryFilter({required this.categories});
+
+  @override
+  Widget build(BuildContext context) {
     return SizedBox(
       height: 40,
       child: ListView.builder(
@@ -313,8 +90,16 @@ class HomeScreen extends ConsumerWidget {
       ),
     );
   }
+}
 
-  Widget _buildArticleItem(NewsArticle article) {
+// Private widget for displaying article items
+class _ArticleItem extends StatelessWidget {
+  final ArticleModel article;
+
+  const _ArticleItem({required this.article});
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Row(
@@ -331,67 +116,143 @@ class HomeScreen extends ConsumerWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Builder(
-              builder:
-                  (context) => Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        article.category,
-                        style: context.textTheme.textSmall.copyWith(
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        article.title,
-                        style: context.textTheme.textMedium.copyWith(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  article.category,
+                  style: context.textTheme.textSmall.copyWith(
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  article.title,
+                  style: context.textTheme.textMedium.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor:
+                          article.source == 'BBC News'
+                              ? Colors.red
+                              : Colors.red.shade700,
+                      radius: 10,
+                      child: Text(
+                        article.source[0],
+                        style: context.textTheme.textXSmall.copyWith(
+                          color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundColor:
-                                article.source == 'BBC News'
-                                    ? Colors.red
-                                    : Colors.red.shade700,
-                            radius: 10,
-                            child: Text(
-                              article.source[0],
-                              style: context.textTheme.textXSmall.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            article.source,
-                            style: context.textTheme.textMedium.copyWith(
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text('•', style: TextStyle(color: Colors.grey)),
-                          const SizedBox(width: 8),
-                          Text(
-                            article.timeAgo,
-                            style: context.textTheme.textSmall.copyWith(
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      article.source,
+                      style: context.textTheme.textMedium.copyWith(
+                        fontWeight: FontWeight.w500,
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text('•', style: TextStyle(color: Colors.grey)),
+                    const SizedBox(width: 8),
+                    Text(
+                      article.timeAgo,
+                      style: context.textTheme.textSmall.copyWith(
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
           IconButton(icon: const Icon(Icons.more_horiz), onPressed: () {}),
         ],
+      ),
+    );
+  }
+}
+
+class HomeScreen extends ConsumerWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Mock data for other UI components
+    final latestArticles = [
+      ArticleModel(
+        title:
+            'Ukraine\'s President Zelensky to BBC: Blood money being paid for Russian oil',
+        category: 'Europe',
+        source: 'BBC News',
+        timeAgo: '14m ago',
+        imageUrl: 'https://picsum.photos/200/150?random=2',
+      ),
+      ArticleModel(
+        title:
+            'Her train broke down. Her phone died. And then she met her future husband',
+        category: 'Travel',
+        source: 'CNN',
+        timeAgo: '1h ago',
+        imageUrl: 'https://picsum.photos/200/150?random=3',
+      ),
+    ];
+
+    final categories = [
+      'All',
+      'Sports',
+      'Politics',
+      'Business',
+      'Health',
+      'Travel',
+      'Science',
+    ];
+
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leadingWidth: 120,
+        elevation: 0,
+        leading: Container(
+          margin: const EdgeInsets.only(left: 24.0),
+          child: AppAssets.images.appLogo.image(height: 30, width: 99),
+        ),
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 24.0),
+            child: AppAssets.icons.settingIcon.svg(),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: ListView(
+            children: [
+              const SizedBox(height: 16),
+              const _SearchBar(),
+              const SizedBox(height: 24),
+              _SectionHeader(title: 'Trending', onSeeAllPressed: () {}),
+              const SizedBox(height: 12),
+              // Using our real API trending articles widget
+              const RealTrendingArticlesWidget(),
+              const SizedBox(height: 24),
+              _SectionHeader(title: 'Latest', onSeeAllPressed: () {}),
+              const SizedBox(height: 8),
+              _CategoryFilter(categories: categories),
+              const SizedBox(height: 16),
+              ...latestArticles.map(
+                (article) => _ArticleItem(article: article),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

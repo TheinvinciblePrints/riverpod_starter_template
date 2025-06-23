@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -25,6 +26,7 @@ extension AppRoutePath on AppRoute {
 @Riverpod(keepAlive: true)
 GoRouter goRouter(Ref ref) {
   return GoRouter(
+    debugLogDiagnostics: kDebugMode,
     initialLocation: AppRoute.splash.path,
     navigatorKey: _rootNavigatorKey,
     redirect: (context, state) => _handleRedirection(context, state, ref),

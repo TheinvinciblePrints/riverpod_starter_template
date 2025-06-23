@@ -20,8 +20,6 @@ Future<void> main() async {
   runApp(
     ProviderScope(
       observers: [
-        // // Use both observers for comprehensive logging
-        // TalkerRiverpodObserver(), // Keep the existing Talker observer
         // Create a custom LoggerProviderObserver that will get the logger from the provider
         RiverpodLoggerObserver(),
       ],

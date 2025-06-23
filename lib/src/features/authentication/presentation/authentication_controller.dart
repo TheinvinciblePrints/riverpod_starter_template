@@ -50,6 +50,7 @@ class AuthenticationController extends BaseStateNotifier<AuthenticationState> {
       final loginRequest = LoginRequest(
         username: _username,
         password: _password,
+        expiresInMins: 1440, // 24 hours
       );
 
       // Call login through the service layer
