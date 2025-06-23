@@ -16,46 +16,64 @@ class StartupNotifier extends BaseStateNotifier<StartupState> {
 
   Future<void> _handleStartUpLogic() async {
     try {
-      // Simulate splash delay for UX/testing (this can be removed if your apis is not fast)
-      await Future.delayed(const Duration(seconds: 2));
+      // Make sure we're in loading state
+      if (state is! StartupLoading) {
+        state = const StartupState.loading();
+      }
 
-      // Onboarding
+      // First get onboarding status since it's synchronous after the repo is available
       final onboardingRepo = await ref.read(
         onboardingRepositoryProvider.future,
       );
       final didCompleteOnboarding = onboardingRepo.isOnboardingComplete();
 
-      // Auth - use the authService instead of directly accessing repository (this is why we have the application layer)
-      final authService = await ref.read(authServiceProvider.future);
-      final userResult = await authService.getCurrentUser();
+      // Keep the app in loading state for at least 2 seconds for better UX
+      await Future.delayed(const Duration(seconds: 2));
 
-      state = switch (userResult) {
-        Success(data: final user) =>
-          (() {
-            logger.i(
-              'Startup completed successfully: onboarding=$didCompleteOnboarding, user=${user.username}',
-            );
-            return StartupState.completed(
-              didCompleteOnboarding: didCompleteOnboarding,
-              isLoggedIn: true,
-            );
-          })(),
-        Error(error: final error) =>
-          (() {
-            logger.w('Startup completed with error: $error', error: error);
-            if (error is UnauthorisedRequestNetworkFailure) {
-              // If unauthorised, we assume the user is not logged in
+      try {
+        // Auth service has a 5-second delay
+        final authService = await ref.read(authServiceProvider.future);
+        final userResult = await authService.getCurrentUser();
+
+        state = switch (userResult) {
+          Success(data: final user) =>
+            (() {
+              logger.i(
+                'Startup completed successfully: onboarding=$didCompleteOnboarding, user=${user.username}',
+              );
               return StartupState.completed(
                 didCompleteOnboarding: didCompleteOnboarding,
-                isLoggedIn: false,
+                isLoggedIn: true,
               );
-            }
-            return StartupState.error(userResult.error.message, error);
-          })(),
-      };
+            })(),
+          Error(error: final error) =>
+            (() {
+              logger.w('Startup completed with error: $error', error: error);
+              if (error is UnauthorisedRequestNetworkFailure) {
+                // If unauthorised, we assume the user is not logged in
+                return StartupState.completed(
+                  didCompleteOnboarding: didCompleteOnboarding,
+                  isLoggedIn: false,
+                );
+              }
+              return StartupState.error(userResult.error.message, error);
+            })(),
+        };
+      } catch (e, st) {
+        // If auth service fails, we'll complete startup but mark as not logged in
+        logger.w(
+          'Auth service error, continuing with unauthenticated state',
+          error: e,
+          stackTrace: st,
+        );
+        state = StartupState.completed(
+          didCompleteOnboarding: didCompleteOnboarding,
+          isLoggedIn: false,
+        );
+      }
     } catch (e, st) {
-      state = StartupState.error(e.toString(), e);
       logger.f('Startup failed', error: e, stackTrace: st);
+      state = StartupState.error(e.toString(), e);
     }
   }
 
@@ -65,14 +83,25 @@ class StartupNotifier extends BaseStateNotifier<StartupState> {
   }
 
   void completeOnboardingAndSetUnauthenticated() {
-    logger.i('Setting state to unauthenticated after onboarding completion');
-    state = const StartupState.unauthenticated();
+    logger.i(
+      'Setting state to completed with onboarding=true after onboarding completion',
+    );
+
+    // Instead of just setting to unauthenticated, set to completed with onboarding=true
+    // This is more precise than using the unauthenticated state and helps with routing logic
+    state = const StartupState.completed(
+      didCompleteOnboarding: true,
+      isLoggedIn: false,
+    );
   }
 
   /// Updates the login state in the startup state
   /// This is called after a successful login to trigger the router's redirection
   void updateLoginState(bool isLoggedIn) {
     logger.i('Updating login state: isLoggedIn=$isLoggedIn');
+
+    // Make sure to run this update synchronously to avoid race conditions
+    // with the router redirection
 
     // Handle different state types
     switch (state) {
@@ -82,6 +111,7 @@ class StartupNotifier extends BaseStateNotifier<StartupState> {
           didCompleteOnboarding: didCompleteOnboarding,
           isLoggedIn: isLoggedIn,
         );
+        break;
 
       case StartupUnauthenticated():
         // If in unauthenticated state, update to completed with login status
@@ -89,10 +119,16 @@ class StartupNotifier extends BaseStateNotifier<StartupState> {
           didCompleteOnboarding: true,
           isLoggedIn: isLoggedIn,
         );
+        break;
 
       case StartupLoading():
-        // If still loading, wait until loading completes
-        logger.w('Cannot update login state: app is still in loading state');
+        // If still loading, wait until loading completes but force it to complete
+        logger.w('Login state update while still loading, forcing completion');
+        state = StartupState.completed(
+          didCompleteOnboarding: true,
+          isLoggedIn: isLoggedIn,
+        );
+        break;
 
       case StartupError():
         // If in error state, transition to completed state
@@ -101,6 +137,7 @@ class StartupNotifier extends BaseStateNotifier<StartupState> {
           didCompleteOnboarding: true, // Assume onboarding is complete
           isLoggedIn: isLoggedIn,
         );
+        break;
     }
   }
 

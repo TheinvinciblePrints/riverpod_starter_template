@@ -157,7 +157,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           /// before attempting navigation
                           WidgetsBinding.instance.addPostFrameCallback((_) {
                             if (!mounted) return;
-                            context.goNamed(AppRoute.login.name);
+                            // Use GoRouter to navigate to login
+                            context.go(AppRoute.login.path);
                           });
                         }
                       },

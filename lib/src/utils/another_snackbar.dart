@@ -13,6 +13,7 @@ class AnotherSnackbar {
       duration: duration,
       flushbarPosition: FlushbarPosition.BOTTOM,
       dismissDirection: FlushbarDismissDirection.HORIZONTAL,
+      forwardAnimationCurve: Curves.fastEaseInToSlowEaseOut,
       backgroundColor: Colors.red,
       messageColor: Colors.white,
       margin: const EdgeInsets.all(16),

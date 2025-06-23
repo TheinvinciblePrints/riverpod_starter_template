@@ -20,7 +20,13 @@ import 'authentication_controller.dart';
 import 'authentication_state.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({super.key, this.redirectPath, this.message});
+
+  /// Optional path to redirect to after successful login
+  final String? redirectPath;
+
+  /// Optional message to display on the login screen
+  final String? message;
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
@@ -78,8 +84,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
-  } // Helper method to safely perform login
+  }
 
+  // Helper method to safely perform login
   void _handleLogin() {
     if (!mounted) return;
 
@@ -148,8 +155,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           final startupNotifier = ref.read(startupNotifierProvider.notifier);
           startupNotifier.updateLoginState(true);
 
-          // Then navigate to home screen
-          context.go(AppRoute.home.path);
+          // Then navigate using context.go for more control
+          final targetPath = widget.redirectPath ?? AppRoute.home.path;
+          context.go(targetPath);
         });
       }
     });
@@ -180,7 +188,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 SizedBox(
                   width: 222,
                   child: Text(
-                    context.tr(LocaleKeys.auth_welcomeBack),
+                    widget.message ?? context.tr(LocaleKeys.auth_welcomeBack),
                     style: context.textTheme.textLarge,
                   ),
                 ),
