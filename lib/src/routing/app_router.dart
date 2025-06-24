@@ -95,30 +95,28 @@ GoRouter goRouter(Ref ref) {
   );
 }
 
-/// Provider for checking if the user is logged in
-final isLoggedInProvider = Provider<bool>((ref) {
+@riverpod
+bool isLoggedIn(Ref ref) {
   final startup = ref.watch(startupNotifierProvider);
   return switch (startup) {
     StartupCompleted(isLoggedIn: final isLoggedIn) => isLoggedIn,
     _ => false,
   };
-});
+}
 
-/// Provider to check if onboarding is completed
-final didCompleteOnboardingProvider = Provider<bool>((ref) {
+@riverpod
+bool didCompleteOnboarding(Ref ref) {
   final startup = ref.watch(startupNotifierProvider);
   return switch (startup) {
     StartupCompleted(didCompleteOnboarding: final completed) => completed,
-    StartupLoading() => false, // Default to false while loading
-    StartupError() => false, // Default to false on error
-    StartupUnauthenticated() =>
-      true, // If unauthenticated, onboarding is complete
+    StartupLoading() => false,
+    StartupError() => false,
+    StartupUnauthenticated() => true,
   };
-});
+}
 
-/// Checks if the app is still in startup loading state
-final isLoadingProvider = Provider<bool>((ref) {
+@riverpod
+bool isLoading(Ref ref) {
   final startup = ref.watch(startupNotifierProvider);
-  // Consider both loading and error states to prevent immediate redirection
   return startup is StartupLoading || startup is StartupError;
-});
+}

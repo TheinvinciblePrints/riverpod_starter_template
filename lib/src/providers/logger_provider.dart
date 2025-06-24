@@ -1,11 +1,15 @@
 // logger_provider.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../flavors.dart';
 
+part 'logger_provider.g.dart';
+
 class _DummyLogger extends Logger {
   _DummyLogger() : super(printer: PrettyPrinter(methodCount: 0));
+
   @override
   void log(
     Level level,
@@ -14,24 +18,24 @@ class _DummyLogger extends Logger {
     StackTrace? stackTrace,
     DateTime? time,
   }) {
-    // Do nothing
+    // Do nothing in production
   }
 }
 
-final loggerProvider = Provider<Logger>((ref) {
+@riverpod
+Logger logger(Ref ref) {
   if (F.isDev) {
     return Logger(
       printer: PrettyPrinter(
-        methodCount: 2, // Number of method calls to be displayed
-        errorMethodCount: 8, // Number of method calls if stacktrace is provided
-        lineLength: 120, // Width of the output
-        colors: true, // Colorful log messages
-        printEmojis: true, // Print an emoji for each log message
-        // Should each log print contain a timestamp
+        methodCount: 2,
+        errorMethodCount: 8,
+        lineLength: 120,
+        colors: true,
+        printEmojis: true,
         dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart,
       ),
     );
   } else {
     return _DummyLogger();
   }
-});
+}

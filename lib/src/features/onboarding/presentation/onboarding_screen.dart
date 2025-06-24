@@ -152,14 +152,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               .read(startupNotifierProvider.notifier)
                               .completeOnboardingAndSetUnauthenticated();
 
-                          /// Navigate after a state update has been completed
-                          /// This ensures the redirect logic in GoRouter has the updated state
-                          /// before attempting navigation
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            if (!mounted) return;
-                            // Use GoRouter to navigate to login
+                          if (context.mounted) {
                             context.go(AppRoute.login.path);
-                          });
+                          }
                         }
                       },
                       label:

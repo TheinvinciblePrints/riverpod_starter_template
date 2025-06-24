@@ -1,22 +1,43 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod_starter_template/src/network/network_error_handler.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../network/api_result.dart';
 import '../../../network/network_failures.dart';
-import '../../../shared/base/base_state_notifier.dart';
 import '../application/auth_service.dart';
 import '../data/auth_repository.dart';
 import '../domain/app_user.dart';
 import '../domain/login_request.dart';
 import 'authentication_state.dart';
 
-class AuthenticationController extends BaseStateNotifier<AuthenticationState> {
-  AuthenticationController(Ref ref, this._authService)
-    : super(ref, const AuthenticationState.initial());
+part 'authentication_controller.g.dart';
 
-  final AuthService _authService;
+@riverpod
+class Authentication extends _$Authentication {
+  // Don't use late final here - it causes issues when the controller rebuilds
+  AuthService? _authService;
   String _username = '';
   String _password = '';
+
+  @override
+  AuthenticationState build() {
+    // Listen to auth service changes, but handle the assignment carefully
+    ref.listen(authServiceProvider, (previous, next) {
+      if (next.hasValue) {
+        _authService = next.value;
+      } else {
+        _authService ??= _createEmptyAuthService(ref);
+      }
+    });
+
+    // Initial setup
+    final authServiceAsync = ref.watch(authServiceProvider);
+    _authService ??=
+        authServiceAsync.valueOrNull ?? _createEmptyAuthService(ref);
+
+    // Initial state
+    return const AuthenticationState.initial();
+  }
 
   void setUsername(String username) {
     _username = username;
@@ -36,25 +57,28 @@ class AuthenticationController extends BaseStateNotifier<AuthenticationState> {
     state = const AuthenticationState.loading();
 
     try {
-      // Validate inputs using service's validation method
-      final validationError = _authService.validateCredentials(
-        _username,
-        _password,
-      );
+      // Ensure auth service is available
+      if (_authService == null) {
+        final authServiceAsync = await ref.read(authServiceProvider.future);
+        _authService = authServiceAsync;
+      }
+
+      final service = _authService!; // Non-null assertion is safe here
+
+      final validationError = service.validateCredentials(_username, _password);
+
       if (validationError != null) {
         state = AuthenticationState.unauthenticated(validationError);
         return;
       }
 
-      // Create login request
       final loginRequest = LoginRequest(
         username: _username,
         password: _password,
-        expiresInMins: 1440, // 24 hours
+        expiresInMins: 1440,
       );
 
-      // Call login through the service layer
-      final result = await _authService.login(request: loginRequest);
+      final result = await service.login(request: loginRequest);
 
       state = switch (result) {
         Success(data: final user) => AuthenticationState.authenticated(
@@ -71,40 +95,28 @@ class AuthenticationController extends BaseStateNotifier<AuthenticationState> {
 
   Future<void> logout() async {
     try {
-      await _authService.logout();
+      // Ensure auth service is available
+      if (_authService == null) {
+        final authServiceAsync = await ref.read(authServiceProvider.future);
+        _authService = authServiceAsync;
+      }
+
+      await _authService!.logout();
       state = const AuthenticationState.unauthenticated();
     } catch (e) {
-      // Handle any errors during logout
       state = AuthenticationState.unauthenticated(
         'Error during logout: ${e.toString()}',
       );
     }
   }
+
+  /// Helper for placeholder AuthService while loading
+  AuthService _createEmptyAuthService(Ref ref) {
+    return AuthService(_EmptyAuthRepository());
+  }
 }
 
-/// The controller provider now depends on authServiceProvider being ready
-/// Using keepAlive to prevent the provider from being disposed between screens
-final authenticationNotifierProvider =
-    StateNotifierProvider<AuthenticationController, AuthenticationState>((ref) {
-      // Access the authService async value
-      final authServiceAsync = ref.watch(authServiceProvider);
-
-      // Keep the provider alive while in login flow
-      ref.keepAlive();
-
-      // Use valueOrNull to handle loading state
-      final authService =
-          authServiceAsync.valueOrNull ?? _createEmptyAuthService(ref);
-
-      return AuthenticationController(ref, authService);
-    });
-
-/// Creates a placeholder auth service that will be used until the real one is loaded
-AuthService _createEmptyAuthService(Ref ref) {
-  return AuthService(_EmptyAuthRepository());
-}
-
-/// A placeholder auth repository implementation for use until the real one is loaded
+/// Placeholder for fallback AuthRepository
 class _EmptyAuthRepository with NetworkErrorHandler implements AuthRepository {
   @override
   Future<ApiResult<User>> getCurrentUser() async => ApiResult.error(
@@ -114,17 +126,13 @@ class _EmptyAuthRepository with NetworkErrorHandler implements AuthRepository {
   );
 
   @override
-  Future<ApiResult<User>> login({required LoginRequest request}) async {
-    // This will only be called if someone tries to login before the repository is fully initialized
-    return ApiResult.error(
-      error: BadRequestNetworkFailure(
-        message: 'Authentication service is initializing, please wait...',
-      ),
-    );
-  }
+  Future<ApiResult<User>> login({required LoginRequest request}) async =>
+      ApiResult.error(
+        error: BadRequestNetworkFailure(
+          message: 'Authentication service is initializing, please wait...',
+        ),
+      );
 
   @override
-  Future<void> logout() async {
-    // No-op implementation
-  }
+  Future<void> logout() async {}
 }

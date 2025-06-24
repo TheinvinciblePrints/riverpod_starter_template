@@ -56,7 +56,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     // Use ref.read inside the callback to get the latest notifier instance
     ref
-        .read(authenticationNotifierProvider.notifier)
+        .read(authenticationProvider.notifier)
         .setUsername(_usernameController.text);
   }
 
@@ -65,7 +65,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     // Use ref.read inside the callback to get the latest notifier instance
     ref
-        .read(authenticationNotifierProvider.notifier)
+        .read(authenticationProvider.notifier)
         .setPassword(_passwordController.text);
   }
 
@@ -84,7 +84,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!mounted) return;
 
     // Get the current notifier instance
-    final authNotifier = ref.read(authenticationNotifierProvider.notifier);
+    final authNotifier = ref.read(authenticationProvider.notifier);
 
     // Trim input values to ensure no extra whitespace
     final username = _usernameController.text.trim();
@@ -105,13 +105,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(authenticationNotifierProvider);
+    final state = ref.watch(authenticationProvider);
     final isLoading = state is AuthenticationLoading;
     final errorText =
         state is AuthenticationUnauthenticated ? state.errorMessage : null;
 
     // Listen for state changes to show snackbars for errors
-    ref.listen<AuthenticationState>(authenticationNotifierProvider, (
+    ref.listen<AuthenticationState>(authenticationProvider, (
       previous,
       current,
     ) {
@@ -192,7 +192,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   onChanged: (value) {
                     if (mounted) {
                       ref
-                          .read(authenticationNotifierProvider.notifier)
+                          .read(authenticationProvider.notifier)
                           .setUsername(value);
                     }
                   },
@@ -205,7 +205,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   onChanged: (value) {
                     if (mounted) {
                       ref
-                          .read(authenticationNotifierProvider.notifier)
+                          .read(authenticationProvider.notifier)
                           .setPassword(value);
                     }
                   },

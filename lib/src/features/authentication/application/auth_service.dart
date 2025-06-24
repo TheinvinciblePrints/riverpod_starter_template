@@ -44,8 +44,8 @@ class AuthService {
 }
 
 /// Provider for the AuthService as a FutureProvider to properly handle async repository initialization
-/// This is a cached provider (not autoDispose) to prevent disposal between screens
-@riverpod
+/// This is a keepAlive provider to prevent disposal between screens
+@Riverpod(keepAlive: true)
 Future<AuthService> authService(Ref ref) async {
   // Wait for the repository to be fully initialized
   final authRepository = await ref.watch(authRepositoryProvider.future);
