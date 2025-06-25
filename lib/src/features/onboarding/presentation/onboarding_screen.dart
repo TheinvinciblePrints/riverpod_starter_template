@@ -144,17 +144,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             curve: Curves.easeInOut,
                           );
                         } else {
+                          ref
+                              .read(startupNotifierProvider.notifier)
+                              .completeOnboardingAndSetUnauthenticated();
                           // Mark onboarding as complete in shared preferences
                           await ref
                               .read(onboardingProvider.notifier)
                               .completeOnboarding();
-                          ref
-                              .read(startupNotifierProvider.notifier)
-                              .completeOnboardingAndSetUnauthenticated();
-
-                          if (context.mounted) {
-                            context.go(AppRoute.login.path);
-                          }
+                          if (!context.mounted) return;
+                          // Use GoRouter to navigate to login
+                          context.go(AppRoute.login.path);
                         }
                       },
                       label:
