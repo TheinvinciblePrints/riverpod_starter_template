@@ -54,5 +54,6 @@ abstract class  LocaleKeys {
   static const auth_pleaseEnterValidPassword = 'auth.pleaseEnterValidPassword';
   static const auth = 'auth';
   static const dismiss = 'dismiss';
+  static const forbidden = 'forbidden';
 
 }

@@ -4,10 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod_starter_template/src/network/network_error_handler.dart';
 import 'package:flutter_riverpod_starter_template/src/shared/shared.dart';
 import 'package:flutter_riverpod_starter_template/src/utils/extensions/context_extensions.dart';
+import 'package:flutter_riverpod_starter_template/src/utils/network_exception_utils.dart';
 
 import '../gen/assets.gen.dart';
 import '../localization/locale_keys.g.dart';
-import '../network/network_exception.dart';
+import '../network/network_exceptions.dart';
 import '../network/network_failures.dart';
 import 'routing.dart';
 
@@ -99,7 +100,7 @@ class AppStartupErrorWidget extends StatelessWidget with NetworkErrorHandler {
 
   String _getDisplayMessage() {
     if (error is NetworkExceptions) {
-      final key = NetworkExceptions.getErrorMessage(error as NetworkExceptions);
+      final key = NetworkExceptionUtils.getErrorMessage(error as NetworkExceptions);
       return key;
     }
     return message;

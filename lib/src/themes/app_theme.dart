@@ -6,7 +6,11 @@ abstract final class AppTheme {
     brightness: Brightness.light,
     primaryColor: AppColors.primary,
     scaffoldBackgroundColor: AppColors.white,
-    // textTheme: AppTextTheme.lightTextTheme,
+    appBarTheme: const AppBarTheme(
+      backgroundColor: AppColors.white,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+    ),
     colorScheme: const ColorScheme.light().copyWith(
       primary: AppColors.primary,
       error: AppColors.error,
@@ -43,7 +47,11 @@ abstract final class AppTheme {
     brightness: Brightness.dark,
     primaryColor: AppColors.primary,
     scaffoldBackgroundColor: AppColors.darkBackground,
-    // textTheme: AppTextTheme.darkTextTheme,
+    appBarTheme: const AppBarTheme(
+      backgroundColor: AppColors.darkBackground,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+    ),
     colorScheme: const ColorScheme.dark().copyWith(
       primary: AppColors.primary,
       error: AppColors.errorDarkMode,

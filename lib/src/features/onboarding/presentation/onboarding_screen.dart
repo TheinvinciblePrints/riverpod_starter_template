@@ -5,7 +5,6 @@ import 'package:flutter_riverpod_starter_template/src/gen/assets.gen.dart';
 import 'package:flutter_riverpod_starter_template/src/localization/locale_keys.g.dart';
 import 'package:flutter_riverpod_starter_template/src/shared/shared.dart';
 import 'package:flutter_riverpod_starter_template/src/utils/extensions/context_extensions.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../routing/routing.dart';
@@ -89,9 +88,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     Image.asset(
                       page.image,
                       width: double.infinity,
-                      height: 544.h,
-                      cacheHeight: 544.h.toInt(),
-                      cacheWidth: 428.w.toInt(),
+                      height: context.screenHeight * 0.58,
+                      cacheHeight: (context.screenHeight * 0.58).toInt(),
+                      cacheWidth: (context.screenHeight * 0.46).toInt(),
                       fit: BoxFit.cover,
                     ),
 
@@ -106,13 +105,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 32),
-            margin: EdgeInsets.only(bottom: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 20),
+            margin: EdgeInsets.only(bottom: 30),
             decoration: const BoxDecoration(color: Colors.white),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Gap(24),
                 Row(
                   children: [
                     ...List.generate(
