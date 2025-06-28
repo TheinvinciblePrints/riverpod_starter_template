@@ -88,7 +88,10 @@ class ServiceUnavailableNetworkFailure extends NetworkFailure {
 }
 
 class NoInternetConnectionNetworkFailure extends NetworkFailure {
-  NoInternetConnectionNetworkFailure({required super.message, super.statusCode});
+  NoInternetConnectionNetworkFailure({
+    required super.message,
+    super.statusCode,
+  });
   @override
   String get detailedMessage => message;
 }
@@ -120,6 +123,12 @@ class UnexpectedErrorNetworkFailure extends NetworkFailure {
 class CustomNetworkFailure extends NetworkFailure {
   CustomNetworkFailure({required super.message, super.statusCode});
 
+  @override
+  String get detailedMessage => message;
+}
+
+class ForbiddenErrorNetworkFailure extends NetworkFailure {
+  ForbiddenErrorNetworkFailure({required super.message, super.statusCode});
   @override
   String get detailedMessage => message;
 }

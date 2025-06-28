@@ -51,5 +51,6 @@
     "invalidPassword": "Invalid Password",
     "pleaseEnterValidPassword": "Please enter a valid password"
   },
-  "dismiss": "Dismiss"
+  "dismiss": "Dismiss",
+  "forbidden": "You do not have permission to access this resource. Please contact support if you believe this is a mistake."
 }

@@ -3,8 +3,9 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod_starter_template/src/localization/locale_keys.g.dart';
+import 'package:flutter_riverpod_starter_template/src/utils/network_exception_utils.dart';
 
-import 'network_exception.dart';
+import 'network_exceptions.dart';
 import 'network_failures.dart';
 
 /// A mixin that provides utility methods for handling network-related errors.
@@ -20,91 +21,85 @@ mixin NetworkErrorHandler {
     String? errorMessage,
   }) {
     final message =
-        errorMessage ?? NetworkExceptions.getErrorMessage(exception);
+        errorMessage ?? NetworkExceptionUtils.getErrorMessage(exception);
 
-    return exception.when(
-      notImplemented:
-          () => NotImplementedNetworkFailure(
-            message: message,
-            statusCode: statusCode,
-          ),
-      requestCancelled:
-          () => RequestCancelledNetworkFailure(
-            message: message,
-            statusCode: statusCode,
-          ),
-      internalServerError:
-          () => InternalServerErrorNetworkFailure(
-            message: message,
-            statusCode: statusCode,
-          ),
-      notFound:
-          () =>
-              NotFoundNetworkFailure(message: message, statusCode: statusCode),
-      serviceUnavailable:
-          () => ServiceUnavailableNetworkFailure(
-            message: message,
-            statusCode: statusCode,
-          ),
-      methodNotAllowed:
-          () => MethodNotAllowedNetworkFailure(
-            message: message,
-            statusCode: statusCode,
-          ),
-      badRequest:
-          () => BadRequestNetworkFailure(
-            message: message,
-            statusCode: statusCode,
-          ),
-      unauthorisedRequest:
-          () => UnauthorisedRequestNetworkFailure(
-            message: message,
-            statusCode: statusCode,
-          ),
-      unexpectedError:
-          () => UnexpectedErrorNetworkFailure(
-            message: message,
-            statusCode: statusCode,
-          ),
-      requestTimeout:
-          () => RequestTimeoutNetworkFailure(
-            message: message,
-            statusCode: statusCode,
-          ),
-      noInternetConnection:
-          () => NoInternetConnectionNetworkFailure(
-            message: message,
-            statusCode: statusCode,
-          ),
-      conflict:
-          () =>
-              ConflictNetworkFailure(message: message, statusCode: statusCode),
-      sendTimeout:
-          () => SendTimeoutNetworkFailure(
-            message: message,
-            statusCode: statusCode,
-          ),
-      unableToProcess:
-          () => UnableToProcessNetworkFailure(
-            message: message,
-            statusCode: statusCode,
-          ),
-      defaultError:
-          () => DefaultErrorNetworkFailure(
-            message: message,
-            statusCode: statusCode,
-          ),
-      formatException:
-          () => FormatExceptionNetworkFailure(
-            message: message,
-            statusCode: statusCode,
-          ),
-      notAcceptable:
-          () => NotAcceptableNetworkFailure(
-            message: message,
-            statusCode: statusCode,
-          ),
-    );
+    return switch (exception) {
+      NotImplemented() => NotImplementedNetworkFailure(
+        message: message,
+        statusCode: statusCode,
+      ),
+      RequestCancelled() => RequestCancelledNetworkFailure(
+        message: message,
+        statusCode: statusCode,
+      ),
+      InternalServerError() => InternalServerErrorNetworkFailure(
+        message: message,
+        statusCode: statusCode,
+      ),
+      NotFound() => NotFoundNetworkFailure(
+        message: message,
+        statusCode: statusCode,
+      ),
+      ServiceUnavailable() => ServiceUnavailableNetworkFailure(
+        message: message,
+        statusCode: statusCode,
+      ),
+      MethodNotAllowed() => MethodNotAllowedNetworkFailure(
+        message: message,
+        statusCode: statusCode,
+      ),
+      BadRequest() => BadRequestNetworkFailure(
+        message: message,
+        statusCode: statusCode,
+      ),
+      UnauthorisedRequest() => UnauthorisedRequestNetworkFailure(
+        message: message,
+        statusCode: statusCode,
+      ),
+      UnexpectedError() => UnexpectedErrorNetworkFailure(
+        message: message,
+        statusCode: statusCode,
+      ),
+      RequestTimeout() => RequestTimeoutNetworkFailure(
+        message: message,
+        statusCode: statusCode,
+      ),
+      NoInternetConnection() => NoInternetConnectionNetworkFailure(
+        message: message,
+        statusCode: statusCode,
+      ),
+      Conflict() => ConflictNetworkFailure(
+        message: message,
+        statusCode: statusCode,
+      ),
+      SendTimeout() => SendTimeoutNetworkFailure(
+        message: message,
+        statusCode: statusCode,
+      ),
+      UnableToProcess() => UnableToProcessNetworkFailure(
+        message: message,
+        statusCode: statusCode,
+      ),
+      DefaultError() => DefaultErrorNetworkFailure(
+        message: message,
+        statusCode: statusCode,
+      ),
+      FormatException() => FormatExceptionNetworkFailure(
+        message: message,
+        statusCode: statusCode,
+      ),
+      NotAcceptable() => NotAcceptableNetworkFailure(
+        message: message,
+        statusCode: statusCode,
+      ),
+      ForbiddenError() => ForbiddenErrorNetworkFailure(
+        message: message,
+        statusCode: statusCode,
+      ),
+      BadRequestError() => BadRequestNetworkFailure(
+        message: message,
+      ), // no statusCode
+    };
   }
 
   /// Handles Dio or other errors and returns a NetworkFailure
@@ -113,8 +108,21 @@ mixin NetworkErrorHandler {
     debugPrint('dioError: ${dioError.toString()}');
     debugPrint('stackTrace: $stackTrace');
 
-    final exception = NetworkExceptions.getDioException(dioError);
+    final exception = NetworkExceptionUtils.fromDioException(dioError);
     final statusCode = dioError.response?.statusCode;
+
+    if (exception is ForbiddenError) {
+      return ForbiddenErrorNetworkFailure(
+        message: LocaleKeys.forbidden,
+        statusCode: statusCode,
+      );
+    }
+    if (exception is NotFound) {
+      return NotFoundNetworkFailure(
+        message: LocaleKeys.notFound,
+        statusCode: statusCode,
+      );
+    }
 
     // Extract error message from the API response if available
     final errorMessage = parseApiErrorResponse(dioError.response);

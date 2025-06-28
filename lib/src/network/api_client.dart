@@ -6,7 +6,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../providers/dio_provider.dart';
 import 'connection_checker.dart';
-import 'network_exception.dart';
+import 'network_exceptions.dart';
 
 part 'api_client.g.dart';
 

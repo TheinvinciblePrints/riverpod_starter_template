@@ -51,5 +51,6 @@
     "invalidPassword": "Contraseña inválida",
     "pleaseEnterValidPassword": "Por favor, ingresa una contraseña válida"
   },
-  "dismiss": "Descartar"
+  "dismiss": "Descartar",
+  "forbidden": "No tienes permiso para acceder a este recurso. Por favor, contacta con soporte si crees que esto es un error."
 }
