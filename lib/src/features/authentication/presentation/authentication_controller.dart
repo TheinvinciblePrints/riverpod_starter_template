@@ -4,6 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../network/api_result.dart';
 import '../../../network/network_failures.dart';
+import '../../../routing/startup_notifier.dart';
 import '../application/auth_service.dart';
 import '../data/auth_repository.dart';
 import '../domain/app_user.dart';
@@ -81,9 +82,11 @@ class Authentication extends _$Authentication {
       final result = await service.login(request: loginRequest);
 
       state = switch (result) {
-        Success(data: final user) => AuthenticationState.authenticated(
-          user: user,
-        ),
+        Success(data: final user) => () {
+          // Update startup notifier to trigger router redirection
+          ref.read(startupNotifierProvider.notifier).updateLoginState(true);
+          return AuthenticationState.authenticated(user: user);
+        }(),
         Error(error: final error) => AuthenticationState.unauthenticated(
           error.message,
         ),
@@ -102,7 +105,12 @@ class Authentication extends _$Authentication {
       }
 
       await _authService!.logout();
+
+      // Update authentication controller state
       state = const AuthenticationState.unauthenticated();
+
+      // Update startup notifier to trigger router redirection
+      ref.read(startupNotifierProvider.notifier).updateLoginState(false);
     } catch (e) {
       state = AuthenticationState.unauthenticated(
         'Error during logout: ${e.toString()}',

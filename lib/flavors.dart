@@ -1,6 +1,6 @@
 enum Flavor { dev, staging, prod }
 
-class F {
+class FlavorConfig {
   static late final Flavor appFlavor;
 
   static String get name => appFlavor.name;

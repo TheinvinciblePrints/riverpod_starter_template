@@ -35,10 +35,10 @@ Future<void> main() async {
 }
 
 void _initializeAppFlavor() {
-  F.appFlavor = Flavor.values.firstWhere(
+  FlavorConfig.appFlavor = Flavor.values.firstWhere(
     (element) => element.name == appFlavor,
   );
-  Env.setEnv(F.name); // Maps enum name to env string
+  Env.setEnv(FlavorConfig.name); // Maps enum name to env string
 }
 
 void registerErrorHandlers() {

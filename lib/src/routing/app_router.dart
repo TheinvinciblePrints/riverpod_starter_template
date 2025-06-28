@@ -22,52 +22,17 @@ extension AppRoutePath on AppRoute {
 /// Top go_router entry point with more explicit navigation control.
 @Riverpod(keepAlive: true)
 GoRouter goRouter(Ref ref) {
-  final isLoggedIn = ref.watch(isLoggedInProvider);
-  final didCompleteOnboarding = ref.watch(didCompleteOnboardingProvider);
-  final isLoading = ref.watch(isLoadingProvider);
+  // Use the RouterNotifier to handle navigation logic and state changes
+  final notifier = ref.watch(routerNotifierProvider);
 
   return GoRouter(
     debugLogDiagnostics: kDebugMode,
     initialLocation: AppRoute.splash.path,
     navigatorKey: _rootNavigatorKey,
-    redirect: (context, state) {
-      // Get the current path
-      final path = state.uri.path;
-
-      // Always show splash screen when loading
-      if (isLoading) {
-        // Only redirect to splash if not already there to avoid redirection loops
-        return path == AppRoute.splash.path ? null : AppRoute.splash.path;
-      }
-
-      // After loading completes, handle redirection based on state
-      // If onboarding is not complete, show onboarding
-      if (!didCompleteOnboarding &&
-          !path.startsWith(AppRoute.onboarding.path)) {
-        return AppRoute.onboarding.path;
-      }
-
-      // If user is not logged in and trying to access protected routes
-      if (!isLoggedIn && path.startsWith(AppRoute.home.path)) {
-        return AppRoute.login.path;
-      }
-
-      // If user is logged in and trying to access login/onboarding
-      if (isLoggedIn &&
-          (path.startsWith(AppRoute.login.path) ||
-              path.startsWith(AppRoute.onboarding.path))) {
-        return AppRoute.home.path;
-      }
-
-      // Handle splash redirects when loading is complete
-      if (path == AppRoute.splash.path) {
-        if (!didCompleteOnboarding) return AppRoute.onboarding.path;
-        if (!isLoggedIn) return AppRoute.login.path;
-        return AppRoute.home.path;
-      }
-
-      return null;
-    },
+    // Pass the RouterNotifier as a refresh listenable to react to auth changes
+    refreshListenable: notifier,
+    // Use the RouterNotifier's redirect logic
+    redirect: notifier.redirectLogic,
     routes: [
       GoRoute(
         path: AppRoute.splash.path,

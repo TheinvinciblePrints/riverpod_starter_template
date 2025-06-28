@@ -26,14 +26,16 @@ Dio dio(Ref ref) {
 
   dio.interceptors.addAll([
     AuthInterceptor(secureStorage),
-    RefreshTokenInterceptor(secureStorage),
+    RefreshTokenInterceptor(secureStorage, ref),
     DioLoggerInterceptor(
       requestHeader:
-          !F.isProduction, // print requestHeader if only on DEV or UAT environment
+          !FlavorConfig
+              .isProduction, // print requestHeader if only on DEV or UAT environment
       requestBody: true,
       responseBody:
-          !F.isProduction, // print responseBody if only on DEV or UAT environment
-      responseHeader: !F.isProduction,
+          !FlavorConfig
+              .isProduction, // print responseBody if only on DEV or UAT environment
+      responseHeader: !FlavorConfig.isProduction,
       error: true,
       compact: true,
       maxWidth: 90,

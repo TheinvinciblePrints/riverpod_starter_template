@@ -16,6 +16,26 @@ import 'package:vector_graphics/vector_graphics.dart' as _vg;
 class $AssetsIconsGen {
   const $AssetsIconsGen();
 
+  /// File path: assets/icons/bbc.png
+  AssetGenImage get bbc => const AssetGenImage('assets/icons/bbc.png');
+
+  /// File path: assets/icons/buzz_feed.png
+  AssetGenImage get buzzFeed =>
+      const AssetGenImage('assets/icons/buzz_feed.png');
+
+  /// File path: assets/icons/cnbc.png
+  AssetGenImage get cnbc => const AssetGenImage('assets/icons/cnbc.png');
+
+  /// File path: assets/icons/cnet.png
+  AssetGenImage get cnet => const AssetGenImage('assets/icons/cnet.png');
+
+  /// File path: assets/icons/cnn.png
+  AssetGenImage get cnn => const AssetGenImage('assets/icons/cnn.png');
+
+  /// File path: assets/icons/daily_mail.png
+  AssetGenImage get dailyMail =>
+      const AssetGenImage('assets/icons/daily_mail.png');
+
   /// File path: assets/icons/facebook_icon.svg
   SvgGenImage get facebookIcon =>
       const SvgGenImage('assets/icons/facebook_icon.svg');
@@ -28,6 +48,12 @@ class $AssetsIconsGen {
   SvgGenImage get googleIcon =>
       const SvgGenImage('assets/icons/google_icon.svg');
 
+  /// File path: assets/icons/msn.png
+  AssetGenImage get msn => const AssetGenImage('assets/icons/msn.png');
+
+  /// File path: assets/icons/scmp.png
+  AssetGenImage get scmp => const AssetGenImage('assets/icons/scmp.png');
+
   /// File path: assets/icons/search_icon.svg
   SvgGenImage get searchIcon =>
       const SvgGenImage('assets/icons/search_icon.svg');
@@ -36,13 +62,38 @@ class $AssetsIconsGen {
   SvgGenImage get settingIcon =>
       const SvgGenImage('assets/icons/setting_icon.svg');
 
+  /// File path: assets/icons/time.png
+  AssetGenImage get time => const AssetGenImage('assets/icons/time.png');
+
+  /// File path: assets/icons/usa_today.png
+  AssetGenImage get usaToday =>
+      const AssetGenImage('assets/icons/usa_today.png');
+
+  /// File path: assets/icons/vice.png
+  AssetGenImage get vice => const AssetGenImage('assets/icons/vice.png');
+
+  /// File path: assets/icons/vox.png
+  AssetGenImage get vox => const AssetGenImage('assets/icons/vox.png');
+
   /// List of all assets
-  List<SvgGenImage> get values => [
+  List<dynamic> get values => [
+    bbc,
+    buzzFeed,
+    cnbc,
+    cnet,
+    cnn,
+    dailyMail,
     facebookIcon,
     filterIcon,
     googleIcon,
+    msn,
+    scmp,
     searchIcon,
     settingIcon,
+    time,
+    usaToday,
+    vice,
+    vox,
   ];
 }
 

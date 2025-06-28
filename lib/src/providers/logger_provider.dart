@@ -24,7 +24,7 @@ class _DummyLogger extends Logger {
 
 @riverpod
 Logger logger(Ref ref) {
-  if (F.isDev) {
+  if (FlavorConfig.isDev) {
     return Logger(
       printer: PrettyPrinter(
         methodCount: 2,

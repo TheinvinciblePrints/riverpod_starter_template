@@ -1,12 +1,16 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../features/authentication/presentation/authentication_controller.dart';
+import '../../routing/startup_notifier.dart';
 import '../../storage/interface/i_secure_storage.dart';
 
 class RefreshTokenInterceptor extends Interceptor {
   final ISecureStorage _secureStorage;
+  final Ref? _ref;
   final Dio _refreshDio = Dio(); // Use separate dio instance
 
-  RefreshTokenInterceptor(this._secureStorage);
+  RefreshTokenInterceptor(this._secureStorage, [this._ref]);
 
   bool _isRefreshing = false;
   final List<Function()> _queue = [];
@@ -36,8 +40,10 @@ class RefreshTokenInterceptor extends Interceptor {
         } catch (e) {
           _isRefreshing = false;
           _queue.clear();
-          // Optional: logout or clear session
-          await _secureStorage.clearAll();
+
+          // Log out user when token refresh fails
+          await _logoutUser();
+
           return handler.reject(err);
         }
       } else {
@@ -102,5 +108,29 @@ class RefreshTokenInterceptor extends Interceptor {
       queryParameters: options.queryParameters,
       options: newOptions,
     );
+  }
+
+  /// Handles user logout when token refresh fails
+  /// Clears tokens and updates authentication state if Ref is available
+  Future<void> _logoutUser() async {
+    // Always clear tokens from storage
+    await _secureStorage.clearAll();
+
+    // If we have access to Riverpod ref, update auth state
+    if (_ref != null) {
+      try {
+        // Update startup notifier to trigger router redirection
+        _ref.read(startupNotifierProvider.notifier).updateLoginState(false);
+
+        // Also update authentication controller state if needed
+        // This is optional as the startup notifier should handle navigation
+        if (_ref.exists(authenticationProvider)) {
+          await _ref.read(authenticationProvider.notifier).logout();
+        }
+      } catch (e) {
+        // Log error but don't rethrow - we've already cleared tokens
+        print('Error updating auth state during token refresh logout: $e');
+      }
+    }
   }
 }
