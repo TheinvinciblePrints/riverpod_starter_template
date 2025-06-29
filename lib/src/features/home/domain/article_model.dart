@@ -11,12 +11,14 @@ class ArticleModel {
   final String? imageUrl;
   final String? sourceIcon;
   final String? sourceId;
+  final String? country;
 
   ArticleModel({
     required this.title,
     required this.category,
     required this.source,
     required this.timeAgo,
+    required this.country,
     this.imageUrl,
     this.sourceIcon,
     this.sourceId,
@@ -31,13 +33,10 @@ class ArticleModel {
     if (article.source?.icon != null) {
       sourceIcon = article.source!.icon;
     }
-    // If not, use our mapper as fallback
+    // If not, try the mapper (but don't use default icon)
     else if (sourceId != null && sourceId.isNotEmpty) {
-      sourceIcon =
-          SourceIconMapper.mapSourceIdToIcon(sourceId) ??
-          SourceIconMapper.getDefaultIcon();
-    } else {
-      sourceIcon = SourceIconMapper.getDefaultIcon();
+      sourceIcon = SourceIconMapper.mapSourceIdToIcon(sourceId);
+      // Note: No fallback to default icon, we'll use sourceInitials instead
     }
 
     return ArticleModel(
@@ -54,6 +53,8 @@ class ArticleModel {
       sourceIcon: sourceIcon,
       // Store source ID for future reference
       sourceId: sourceId,
+      // Get country information from the source
+      country: article.source?.country ?? 'Unknown',
     );
   }
 

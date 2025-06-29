@@ -36,6 +36,7 @@ _NewsSource _$NewsSourceFromJson(Map<String, dynamic> json) => _NewsSource(
   id: json['id'] as String?,
   name: json['name'] as String,
   icon: json['icon'] as String?,
+  country: json['country'] as String?,
 );
 
 Map<String, dynamic> _$NewsSourceToJson(_NewsSource instance) =>
@@ -43,4 +44,5 @@ Map<String, dynamic> _$NewsSourceToJson(_NewsSource instance) =>
       'id': instance.id,
       'name': instance.name,
       'icon': instance.icon,
+      'country': instance.country,
     };

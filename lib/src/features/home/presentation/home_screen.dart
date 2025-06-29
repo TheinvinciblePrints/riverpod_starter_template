@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod_starter_template/src/gen/assets.gen.dart';
+import 'package:flutter_riverpod_starter_template/src/shared/gap.dart';
+import 'package:flutter_riverpod_starter_template/src/themes/themes.dart';
 
 import '../../../shared/textfields/custom_text_field.dart';
 import '../../../utils/extensions/context_extensions.dart';
@@ -21,6 +23,7 @@ class HomeScreen extends ConsumerWidget {
         source: 'BBC News',
         timeAgo: '14m ago',
         imageUrl: 'https://picsum.photos/200/150?random=2',
+        country: 'Ukraine',
       ),
       ArticleModel(
         title:
@@ -29,6 +32,7 @@ class HomeScreen extends ConsumerWidget {
         source: 'CNN',
         timeAgo: '1h ago',
         imageUrl: 'https://picsum.photos/200/150?random=3',
+        country: 'USA',
       ),
     ];
 
@@ -65,7 +69,7 @@ class HomeScreen extends ConsumerWidget {
             children: [
               const SizedBox(height: 16),
               const _SearchBar(),
-              const SizedBox(height: 24),
+              const Gap(5),
               _SectionHeader(title: 'Trending', onSeeAllPressed: () {}),
               const SizedBox(height: 12),
               // Using our real API trending articles widget
@@ -133,10 +137,15 @@ class _SectionHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: context.textTheme.linkMedium),
+        Text(
+          title,
+          style: context.textTheme.linkMedium.copyWith(
+            color: context.isDarkMode ? AppColors.darkTitle : Colors.black,
+          ),
+        ),
         TextButton(
           onPressed: onSeeAllPressed,
-          child: Text('See all', style: context.textTheme.linkMedium),
+          child: Text('See all', style: context.textTheme.textSmall),
         ),
       ],
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../network/network.dart';
+import '../../../shared/widgets/app_error_widget.dart';
 import '../../../utils/extensions/context_extensions.dart';
 import '../domain/article_model.dart';
 import 'trending_news_controller.dart';
@@ -14,11 +15,22 @@ class TrendingArticlesWidget extends ConsumerWidget {
     final trendingNews = ref.watch(trendingNewsProvider);
 
     return trendingNews.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading:
+          () => SizedBox(
+            height: context.screenHeight * 0.3,
+            width: double.infinity,
+            // Show a loader while fetching trending news
+            child: const Center(child: CircularProgressIndicator()),
+          ),
       error: (error, _) {
         final message =
             (error is NetworkFailure) ? error.message : 'Something went wrong';
-        return Center(child: Text(message));
+        return AppErrorWidget(
+          title: 'Error Loading Sources',
+          message: message,
+          onRetry:
+              () => ref.read(trendingNewsProvider.notifier).fetchTrendingNews(),
+        );
       },
       data: (articles) {
         if (articles.isEmpty) {

@@ -22,8 +22,12 @@ abstract class NewsArticle with _$NewsArticle {
 
 @freezed
 abstract class NewsSource with _$NewsSource {
-  const factory NewsSource({String? id, required String name, String? icon}) =
-      _NewsSource;
+  const factory NewsSource({
+    String? id,
+    required String name,
+    String? icon,
+    String? country,
+  }) = _NewsSource;
 
   factory NewsSource.fromJson(Map<String, dynamic> json) =>
       _$NewsSourceFromJson(json);
