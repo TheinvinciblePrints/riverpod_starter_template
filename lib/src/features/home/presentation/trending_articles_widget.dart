@@ -34,8 +34,6 @@ class TrendingArticlesWidget extends ConsumerWidget {
 
   // Method to build the trending article card
   Widget _buildTrendingArticleCard(BuildContext context, ArticleModel article) {
-    final sourceInitial = article.source.isNotEmpty ? article.source[0] : 'N';
-
     return SizedBox(
       height: 220,
       child: Container(
@@ -89,17 +87,22 @@ class TrendingArticlesWidget extends ConsumerWidget {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        CircleAvatar(
-                          backgroundColor: Colors.red,
-                          radius: 10,
-                          child: Text(
-                            sourceInitial,
-                            style: context.textTheme.textXSmall.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
+                        article.sourceIcon != null
+                            ? CircleAvatar(
+                              backgroundImage: AssetImage(article.sourceIcon!),
+                              radius: 10,
+                            )
+                            : CircleAvatar(
+                              backgroundColor: Colors.red,
+                              radius: 10,
+                              child: Text(
+                                article.sourceInitials,
+                                style: context.textTheme.textXSmall.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
                         const SizedBox(width: 8),
                         Text(
                           article.source,

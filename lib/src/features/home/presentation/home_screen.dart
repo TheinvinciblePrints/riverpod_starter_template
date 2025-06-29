@@ -133,7 +133,7 @@ class _SectionHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: context.textTheme.displayMediumBold),
+        Text(title, style: context.textTheme.linkMedium),
         TextButton(
           onPressed: onSeeAllPressed,
           child: Text('See all', style: context.textTheme.linkMedium),
@@ -232,20 +232,25 @@ class _ArticleItem extends StatelessWidget {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    CircleAvatar(
-                      backgroundColor:
-                          article.source == 'BBC News'
-                              ? Colors.red
-                              : Colors.red.shade700,
-                      radius: 10,
-                      child: Text(
-                        article.source[0],
-                        style: context.textTheme.textXSmall.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                    article.sourceIcon != null
+                        ? CircleAvatar(
+                          backgroundImage: AssetImage(article.sourceIcon!),
+                          radius: 10,
+                        )
+                        : CircleAvatar(
+                          backgroundColor:
+                              article.source == 'BBC News'
+                                  ? Colors.red
+                                  : Colors.red.shade700,
+                          radius: 10,
+                          child: Text(
+                            article.sourceInitials,
+                            style: context.textTheme.textXSmall.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
                     const SizedBox(width: 8),
                     Text(
                       article.source,

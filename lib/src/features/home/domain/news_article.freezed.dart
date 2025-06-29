@@ -194,7 +194,7 @@ $NewsSourceCopyWith<$Res>? get source {
 /// @nodoc
 mixin _$NewsSource {
 
- String? get id; String get name;
+ String? get id; String get name; String? get icon;
 /// Create a copy of NewsSource
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -207,16 +207,16 @@ $NewsSourceCopyWith<NewsSource> get copyWith => _$NewsSourceCopyWithImpl<NewsSou
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NewsSource&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NewsSource&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.icon, icon) || other.icon == icon));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name);
+int get hashCode => Object.hash(runtimeType,id,name,icon);
 
 @override
 String toString() {
-  return 'NewsSource(id: $id, name: $name)';
+  return 'NewsSource(id: $id, name: $name, icon: $icon)';
 }
 
 
@@ -227,7 +227,7 @@ abstract mixin class $NewsSourceCopyWith<$Res>  {
   factory $NewsSourceCopyWith(NewsSource value, $Res Function(NewsSource) _then) = _$NewsSourceCopyWithImpl;
 @useResult
 $Res call({
- String? id, String name
+ String? id, String name, String? icon
 });
 
 
@@ -244,11 +244,12 @@ class _$NewsSourceCopyWithImpl<$Res>
 
 /// Create a copy of NewsSource
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? name = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? name = null,Object? icon = freezed,}) {
   return _then(_self.copyWith(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String?,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String,
+as String,icon: freezed == icon ? _self.icon : icon // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -259,11 +260,12 @@ as String,
 @JsonSerializable()
 
 class _NewsSource implements NewsSource {
-  const _NewsSource({this.id, required this.name});
+  const _NewsSource({this.id, required this.name, this.icon});
   factory _NewsSource.fromJson(Map<String, dynamic> json) => _$NewsSourceFromJson(json);
 
 @override final  String? id;
 @override final  String name;
+@override final  String? icon;
 
 /// Create a copy of NewsSource
 /// with the given fields replaced by the non-null parameter values.
@@ -278,16 +280,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NewsSource&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NewsSource&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.icon, icon) || other.icon == icon));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name);
+int get hashCode => Object.hash(runtimeType,id,name,icon);
 
 @override
 String toString() {
-  return 'NewsSource(id: $id, name: $name)';
+  return 'NewsSource(id: $id, name: $name, icon: $icon)';
 }
 
 
@@ -298,7 +300,7 @@ abstract mixin class _$NewsSourceCopyWith<$Res> implements $NewsSourceCopyWith<$
   factory _$NewsSourceCopyWith(_NewsSource value, $Res Function(_NewsSource) _then) = __$NewsSourceCopyWithImpl;
 @override @useResult
 $Res call({
- String? id, String name
+ String? id, String name, String? icon
 });
 
 
@@ -315,11 +317,12 @@ class __$NewsSourceCopyWithImpl<$Res>
 
 /// Create a copy of NewsSource
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? name = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? name = null,Object? icon = freezed,}) {
   return _then(_NewsSource(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String?,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String,
+as String,icon: freezed == icon ? _self.icon : icon // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

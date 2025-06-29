@@ -40,6 +40,7 @@ abstract final class AppTheme {
       DesignSystemExtension.light,
       AppTextThemeExtension.light,
       AppColorThemeExtension.light,
+      const ThemeModeExtension(isDarkMode: false),
     ],
   );
 
@@ -81,6 +82,7 @@ abstract final class AppTheme {
       DesignSystemExtension.dark,
       AppTextThemeExtension.dark,
       AppColorThemeExtension.dark,
+      const ThemeModeExtension(isDarkMode: true),
     ],
   );
 }

@@ -32,8 +32,15 @@ Map<String, dynamic> _$NewsArticleToJson(_NewsArticle instance) =>
       'content': instance.content,
     };
 
-_NewsSource _$NewsSourceFromJson(Map<String, dynamic> json) =>
-    _NewsSource(id: json['id'] as String?, name: json['name'] as String);
+_NewsSource _$NewsSourceFromJson(Map<String, dynamic> json) => _NewsSource(
+  id: json['id'] as String?,
+  name: json['name'] as String,
+  icon: json['icon'] as String?,
+);
 
 Map<String, dynamic> _$NewsSourceToJson(_NewsSource instance) =>
-    <String, dynamic>{'id': instance.id, 'name': instance.name};
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'icon': instance.icon,
+    };

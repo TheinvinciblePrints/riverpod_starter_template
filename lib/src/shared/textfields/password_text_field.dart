@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod_starter_template/src/themes/themes.dart';
+import 'package:flutter_riverpod_starter_template/src/utils/extensions/context_extensions.dart';
 
 import 'custom_text_field.dart';
 
@@ -42,7 +43,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDarkMode = context.isDarkMode;
     return ValueListenableBuilder<bool>(
       valueListenable: _obscureNotifier,
       builder: (context, obscure, _) {

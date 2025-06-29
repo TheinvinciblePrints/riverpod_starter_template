@@ -1,3 +1,4 @@
+import '../utils/source_icon_mapper.dart';
 import 'news_article.dart';
 
 /// A view model that adapts the API NewsArticle model to
@@ -8,6 +9,8 @@ class ArticleModel {
   final String source;
   final String timeAgo;
   final String? imageUrl;
+  final String? sourceIcon;
+  final String? sourceId;
 
   ArticleModel({
     required this.title,
@@ -15,10 +18,28 @@ class ArticleModel {
     required this.source,
     required this.timeAgo,
     this.imageUrl,
+    this.sourceIcon,
+    this.sourceId,
   });
 
   /// Factory to create an ArticleViewModel from a NewsArticle
   factory ArticleModel.fromNewsArticle(NewsArticle article) {
+    final sourceId = article.source?.id;
+    String? sourceIcon;
+
+    // First check if the source already has an icon from our repository enhancement
+    if (article.source?.icon != null) {
+      sourceIcon = article.source!.icon;
+    }
+    // If not, use our mapper as fallback
+    else if (sourceId != null && sourceId.isNotEmpty) {
+      sourceIcon =
+          SourceIconMapper.mapSourceIdToIcon(sourceId) ??
+          SourceIconMapper.getDefaultIcon();
+    } else {
+      sourceIcon = SourceIconMapper.getDefaultIcon();
+    }
+
     return ArticleModel(
       title: article.title,
       // Derive category from title content since API doesn't provide it
@@ -29,7 +50,22 @@ class ArticleModel {
       timeAgo: _formatTimeAgo(article.publishedAt),
       // Use URL to image if available
       imageUrl: article.imageUrl?.isNotEmpty == true ? article.imageUrl : null,
+      // Add source icon
+      sourceIcon: sourceIcon,
+      // Store source ID for future reference
+      sourceId: sourceId,
     );
+  }
+
+  /// Returns initials for the source, e.g., "Business Insider" -> "BI"
+  String get sourceInitials {
+    if (source.isEmpty) return '?';
+    final words = source.trim().split(RegExp(r'\s+'));
+    if (words.length == 1) {
+      return words[0][0].toUpperCase();
+    } else {
+      return (words[0][0] + words[1][0]).toUpperCase();
+    }
   }
 
   /// Helper method to determine a category from the article title
