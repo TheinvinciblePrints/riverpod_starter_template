@@ -3,6 +3,7 @@ import 'package:flutter_riverpod_starter_template/src/providers/logger_provider.
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../features/authentication/application/auth_service.dart';
+import '../features/onboarding/application/onboarding_logic.dart';
 import '../features/onboarding/data/onboarding_repository.dart';
 import '../network/network.dart';
 import 'startup_state.dart';
@@ -25,10 +26,8 @@ class StartupNotifier extends _$StartupNotifier {
       // No need to check state here as we're already initialized in loading state
       // and using Future.microtask ensures this runs after build() completes
 
-      final onboardingRepo = await ref.read(
-        onboardingRepositoryProvider.future,
-      );
-      final didCompleteOnboarding = onboardingRepo.isOnboardingComplete();
+      final didCompleteOnboarding =
+          await ref.read(isOnboardingCompleteProvider.future);
 
       await Future.delayed(const Duration(seconds: 2));
 
