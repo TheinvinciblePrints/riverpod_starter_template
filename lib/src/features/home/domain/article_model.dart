@@ -54,7 +54,7 @@ class ArticleModel {
       // Store source ID for future reference
       sourceId: sourceId,
       // Get country information from the source
-      country: article.source?.country ?? 'Unknown',
+      country: article.source?.country,
     );
   }
 

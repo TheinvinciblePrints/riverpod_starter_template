@@ -25,41 +25,45 @@ class RouterNotifier extends ChangeNotifier {
     final isLoading = _ref.read(isLoadingProvider);
     final isLoggedIn = _ref.read(isLoggedInProvider);
     final didCompleteOnboarding = _ref.read(didCompleteOnboardingProvider);
-
-    // Get the current path
     final path = state.uri.path;
 
-    // Always show splash screen when loading
+    debugPrint('====================================================');
+    debugPrint('path: $path');
+    debugPrint('isLoggedIn: $isLoggedIn');
+    debugPrint('didCompleteOnboarding: $didCompleteOnboarding');
+    debugPrint('====================================================');
+
+    // 1. While loading, stay on splash
     if (isLoading) {
-      // Only redirect to splash if not already there to avoid redirection loops
       return path == AppRoute.splash.path ? null : AppRoute.splash.path;
     }
 
-    // After loading completes, handle redirection based on state
-    // If onboarding is not complete, show onboarding
-    if (!didCompleteOnboarding && !path.startsWith(AppRoute.onboarding.path)) {
-      return AppRoute.onboarding.path;
-    }
-
-    // If user is not logged in and trying to access protected routes
-    if (!isLoggedIn && path.startsWith(AppRoute.home.path)) {
-      return AppRoute.login.path;
-    }
-
-    // If user is logged in and trying to access login/onboarding
-    if (isLoggedIn &&
-        (path.startsWith(AppRoute.login.path) ||
-            path.startsWith(AppRoute.onboarding.path))) {
-      return AppRoute.home.path;
-    }
-
-    // Handle splash redirects when loading is complete
+    // 2. Handle splash redirects when loading is done
     if (path == AppRoute.splash.path) {
       if (!didCompleteOnboarding) return AppRoute.onboarding.path;
       if (!isLoggedIn) return AppRoute.login.path;
       return AppRoute.home.path;
     }
 
+    // 3. If logged in, skip onboarding and login
+    if (isLoggedIn) {
+      if (path == AppRoute.login.path || path == AppRoute.onboarding.path) {
+        return AppRoute.home.path;
+      }
+      return null; // allow other routes
+    }
+
+    // 4. If not logged in and onboarding not completed, force onboarding
+    if (!didCompleteOnboarding && path != AppRoute.onboarding.path) {
+      return AppRoute.onboarding.path;
+    }
+
+    // 5. If not logged in and accessing home → redirect to login
+    if (!isLoggedIn && path == AppRoute.home.path) {
+      return AppRoute.login.path;
+    }
+
+    // 6. Allow access to login or onboarding if not logged in
     return null;
   }
 }

@@ -46,6 +46,7 @@ class TrendingArticlesWidget extends ConsumerWidget {
 
   // Method to build the trending article card
   Widget _buildTrendingArticleCard(BuildContext context, ArticleModel article) {
+    debugPrint('TrendingArticle: ${article.country}');
     return SizedBox(
       height: 220,
       child: Container(
