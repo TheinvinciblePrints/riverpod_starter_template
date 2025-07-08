@@ -36,7 +36,7 @@ class SourcesService {
 }
 
 @riverpod
-SourcesService sourcesService(Ref ref) {
-  final repository = ref.watch(sourcesRepositoryProvider);
+Future<SourcesService> sourcesService(Ref ref) async {
+  final repository = await ref.watch(sourcesRepositoryProvider.future);
   return SourcesService(repository);
 }

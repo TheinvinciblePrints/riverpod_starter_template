@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'flavors.dart';
@@ -35,10 +34,20 @@ Future<void> main() async {
 }
 
 void _initializeAppFlavor() {
+  // Default to dev flavor if not specified
+  const String defaultFlavor = 'dev';
+  const String appFlavor = String.fromEnvironment(
+    'FLAVOR',
+    defaultValue: defaultFlavor,
+  );
+
   FlavorConfig.appFlavor = Flavor.values.firstWhere(
     (element) => element.name == appFlavor,
+    orElse: () => Flavor.dev, // Default to dev if not found
   );
-  Env.setEnv(FlavorConfig.name); // Maps enum name to env string
+
+  // Maps enum name to env string
+  Env.setEnv(FlavorConfig.name);
 }
 
 void registerErrorHandlers() {

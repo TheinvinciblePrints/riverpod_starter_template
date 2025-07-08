@@ -24,7 +24,8 @@ class TrendingNews extends _$TrendingNews {
     state = const AsyncValue.loading();
 
     try {
-      final result = await ref.read(newsRepositoryProvider).getTopHeadlines();
+      final repository = await ref.read(newsRepositoryProvider.future);
+      final result = await repository.getTopHeadlines();
 
       return switch (result) {
         Success(:final data) => _mapToArticleModels(data),

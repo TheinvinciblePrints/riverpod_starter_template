@@ -6,13 +6,15 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../flavors.dart';
 import '../network/interceptors/dio_logger_interceptor.dart';
+import 'cache_provider.dart';
 import 'storage_providers.dart';
 
 part 'dio_provider.g.dart';
 
 @Riverpod(keepAlive: true)
-Dio dio(Ref ref) {
+Future<Dio> dio(Ref ref) async {
   final secureStorage = ref.watch(secureStorageServiceProvider);
+  final cacheInterceptor = await ref.watch(cacheInterceptorProvider.future);
 
   final dio = Dio(
     BaseOptions(
@@ -25,6 +27,7 @@ Dio dio(Ref ref) {
   );
 
   dio.interceptors.addAll([
+    cacheInterceptor, // Add selective cache interceptor
     AuthInterceptor(secureStorage),
     RefreshTokenInterceptor(secureStorage, ref),
     DioLoggerInterceptor(

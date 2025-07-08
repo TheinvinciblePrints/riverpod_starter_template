@@ -6,7 +6,7 @@ part of 'trending_news_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$trendingNewsHash() => r'a5849bab58aaf4d329a8235bd5e132e2df6c50bf';
+String _$trendingNewsHash() => r'583c9aabf4fd7b94bef3a7ea174b2d8c058a7004';
 
 /// See also [TrendingNews].
 @ProviderFor(TrendingNews)

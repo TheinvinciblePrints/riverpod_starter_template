@@ -27,12 +27,6 @@ class RouterNotifier extends ChangeNotifier {
     final didCompleteOnboarding = _ref.read(didCompleteOnboardingProvider);
     final path = state.uri.path;
 
-    debugPrint('====================================================');
-    debugPrint('path: $path');
-    debugPrint('isLoggedIn: $isLoggedIn');
-    debugPrint('didCompleteOnboarding: $didCompleteOnboarding');
-    debugPrint('====================================================');
-
     // 1. While loading, stay on splash
     if (isLoading) {
       return path == AppRoute.splash.path ? null : AppRoute.splash.path;

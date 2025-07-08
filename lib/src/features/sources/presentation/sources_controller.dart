@@ -42,7 +42,8 @@ class SourcesController extends _$SourcesController {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      final sources = await ref.read(sourcesServiceProvider).getSources();
+      final sourcesService = await ref.read(sourcesServiceProvider.future);
+      final sources = await sourcesService.getSources();
       state = state.copyWith(isLoading: false, sources: sources);
     } catch (e) {
       state = state.copyWith(
@@ -54,12 +55,26 @@ class SourcesController extends _$SourcesController {
 
   /// Get a source icon for a given source ID
   String? getSourceIcon(String sourceId) {
-    return ref.read(sourcesServiceProvider).getSourceIcon(sourceId);
+    final sourcesService = ref.read(sourcesServiceProvider).valueOrNull;
+    return sourcesService?.getSourceIcon(sourceId);
   }
 
   /// Get source initials for a given source name
   String getSourceInitials(String sourceName) {
-    return ref.read(sourcesServiceProvider).getSourceInitials(sourceName);
+    final sourcesService = ref.read(sourcesServiceProvider).valueOrNull;
+    return sourcesService?.getSourceInitials(sourceName) ??
+        _getSourceInitialsFromName(sourceName);
+  }
+
+  /// Fallback method to get source initials from name
+  String _getSourceInitialsFromName(String sourceName) {
+    if (sourceName.isEmpty) return '?';
+    final words = sourceName.trim().split(RegExp(r'\s+'));
+    if (words.length == 1) {
+      return words[0][0].toUpperCase();
+    } else {
+      return (words[0][0] + words[1][0]).toUpperCase();
+    }
   }
 }
 

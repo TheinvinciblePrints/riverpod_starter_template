@@ -6,11 +6,11 @@ part of 'api_client.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$apiClientHash() => r'5ae4f121b3cb6c0f6b51f6321661846c141121ac';
+String _$apiClientHash() => r'e9f3dbc96c4fb00de57ee06524454895a053edc8';
 
 /// See also [apiClient].
 @ProviderFor(apiClient)
-final apiClientProvider = AutoDisposeProvider<ApiClient>.internal(
+final apiClientProvider = AutoDisposeFutureProvider<ApiClient>.internal(
   apiClient,
   name: r'apiClientProvider',
   debugGetCreateSourceHash:
@@ -21,6 +21,24 @@ final apiClientProvider = AutoDisposeProvider<ApiClient>.internal(
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef ApiClientRef = AutoDisposeProviderRef<ApiClient>;
+typedef ApiClientRef = AutoDisposeFutureProviderRef<ApiClient>;
+String _$cachedApiClientHash() => r'9b94223c9fafb697e23d33663086e49162924c83';
+
+/// See also [cachedApiClient].
+@ProviderFor(cachedApiClient)
+final cachedApiClientProvider = AutoDisposeFutureProvider<ApiClient>.internal(
+  cachedApiClient,
+  name: r'cachedApiClientProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$cachedApiClientHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef CachedApiClientRef = AutoDisposeFutureProviderRef<ApiClient>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

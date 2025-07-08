@@ -110,7 +110,7 @@ Future<AuthRepository> authRepository(Ref ref) async {
     preferenceStorageServiceProvider.future,
   );
   final secureStorage = ref.watch(secureStorageServiceProvider);
-  final apiClient = ref.watch(apiClientProvider);
+  final apiClient = await ref.watch(apiClientProvider.future);
 
   return AuthRepository(preferenceStorage, secureStorage, apiClient);
 }

@@ -1,16 +1,18 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod_starter_template/src/config/env/env.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../features/sources/application/sources_service.dart';
 import '../../../network/network.dart';
+import '../../../providers/cache_provider.dart';
 import '../domain/news_article.dart';
 
 part 'news_repository.g.dart';
 
 class NewsRepository with NetworkErrorHandler {
   final ApiClient _apiClient;
-  final SourcesService _sourcesService;
+  final SourcesService? _sourcesService;
 
   NewsRepository(this._apiClient, this._sourcesService);
 
@@ -28,6 +30,9 @@ class NewsRepository with NetworkErrorHandler {
           'apiKey': Env.newsApiKey,
         },
       );
+
+      // Debug cache info
+      CacheDebugger.logCacheInfo(response);
 
       // Extract articles from the response
       if (response.data != null) {
@@ -49,12 +54,12 @@ class NewsRepository with NetworkErrorHandler {
                           sourceJson['id'] != null) {
                         // Get source info from our sources service
                         String sourceId = sourceJson['id'] as String;
-                        String? iconPath = _sourcesService.getSourceIcon(
+                        String? iconPath = _sourcesService?.getSourceIcon(
                           sourceId,
                         );
 
                         // Get source details if available
-                        final sourceDetails = _sourcesService.getSource(
+                        final sourceDetails = _sourcesService?.getSource(
                           sourceId,
                         );
 
@@ -72,7 +77,7 @@ class NewsRepository with NetworkErrorHandler {
 
                     return NewsArticle.fromJson(articleJson);
                   } catch (e) {
-                    print('Error parsing article: $e');
+                    debugPrint('Error parsing article: $e');
                     return null;
                   }
                 })
@@ -98,6 +103,9 @@ class NewsRepository with NetworkErrorHandler {
         queryParameters: {'country': country, 'apiKey': Env.newsApiKey},
       );
 
+      // Debug cache info
+      CacheDebugger.logCacheInfo(response);
+
       // Extract articles from the response
       final articlesJson = response.data!['articles'] as List;
       final articles =
@@ -117,12 +125,14 @@ class NewsRepository with NetworkErrorHandler {
                         sourceJson['id'] != null) {
                       // Get the source icon from the sources service
                       String sourceId = sourceJson['id'] as String;
-                      String? iconPath = _sourcesService.getSourceIcon(
+                      String? iconPath = _sourcesService?.getSourceIcon(
                         sourceId,
                       );
 
                       // Get source details if available
-                      final sourceDetails = _sourcesService.getSource(sourceId);
+                      final sourceDetails = _sourcesService?.getSource(
+                        sourceId,
+                      );
 
                       // Add country information if available
                       if (sourceDetails != null) {
@@ -138,7 +148,7 @@ class NewsRepository with NetworkErrorHandler {
 
                   return NewsArticle.fromJson(articleJson);
                 } catch (e) {
-                  print('Error parsing article: $e');
+                  debugPrint('Error parsing article: $e');
                   return null;
                 }
               })
@@ -153,9 +163,9 @@ class NewsRepository with NetworkErrorHandler {
 }
 
 @riverpod
-NewsRepository newsRepository(Ref ref) {
-  return NewsRepository(
-    ref.watch(apiClientProvider),
-    ref.watch(sourcesServiceProvider),
-  );
+Future<NewsRepository> newsRepository(Ref ref) async {
+  final apiClient = await ref.watch(apiClientProvider.future);
+  final sourcesService = ref.watch(sourcesServiceProvider).valueOrNull;
+
+  return NewsRepository(apiClient, sourcesService);
 }

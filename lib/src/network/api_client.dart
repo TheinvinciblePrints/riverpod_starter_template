@@ -11,9 +11,16 @@ import 'network_exceptions.dart';
 part 'api_client.g.dart';
 
 @riverpod
-ApiClient apiClient(Ref ref) {
+Future<ApiClient> apiClient(Ref ref) async {
   final checker = ref.watch(connectionCheckerProvider);
-  final dio = ref.watch(dioProvider);
+  final dio = await ref.watch(dioProvider.future);
+  return ApiClientImpl(dio: dio, connectionChecker: checker);
+}
+
+@riverpod
+Future<ApiClient> cachedApiClient(Ref ref) async {
+  final checker = ref.watch(connectionCheckerProvider);
+  final dio = await ref.watch(dioProvider.future);
   return ApiClientImpl(dio: dio, connectionChecker: checker);
 }
 

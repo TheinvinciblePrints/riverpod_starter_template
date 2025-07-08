@@ -7,7 +7,7 @@ part of 'onboarding_logic.dart';
 // **************************************************************************
 
 String _$completeOnboardingHash() =>
-    r'0343edd47dd710735c4e1cf871638c18a65753c6';
+    r'e7ac2f61586cf08e7e78d96bd1c823a1193f05cd';
 
 /// See also [completeOnboarding].
 @ProviderFor(completeOnboarding)
@@ -26,7 +26,7 @@ final completeOnboardingProvider = AutoDisposeFutureProvider<void>.internal(
 // ignore: unused_element
 typedef CompleteOnboardingRef = AutoDisposeFutureProviderRef<void>;
 String _$isOnboardingCompleteHash() =>
-    r'217d1dafc4b6664d39490f53faf4cb68dab4cfb6';
+    r'ddd42f8603ecdc8b133717b0cbaeda793e77310a';
 
 /// See also [isOnboardingComplete].
 @ProviderFor(isOnboardingComplete)

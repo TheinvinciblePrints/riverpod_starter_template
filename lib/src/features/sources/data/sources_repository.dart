@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod_starter_template/src/config/env/env.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../network/network.dart';
+import '../../../providers/cache_provider.dart';
 import '../domain/news_source.dart';
 import '../utils/source_icon_mapper.dart';
 
@@ -38,6 +41,9 @@ class SourcesRepository with NetworkErrorHandler {
         '${Env.newsApiUrl}/top-headlines/sources',
         queryParameters: {'apiKey': Env.newsApiKey},
       );
+
+      // Debug cache info
+      CacheDebugger.logCacheInfo(response);
 
       if (response.data != null && response.data['status'] == 'ok') {
         final sourcesResponse = SourcesResponse.fromJson(response.data);
@@ -82,15 +88,20 @@ class SourcesRepository with NetworkErrorHandler {
 }
 
 @riverpod
-SourcesRepository sourcesRepository(Ref ref) {
-  return SourcesRepository(ref.watch(apiClientProvider));
+Future<SourcesRepository> sourcesRepository(Ref ref) async {
+  final apiClient = await ref.watch(cachedApiClientProvider.future);
+  return SourcesRepository(apiClient);
 }
 
-/// Provider that gives access to all sources
-@riverpod
+/// Provider that gives access to all sources with caching
+@Riverpod(keepAlive: true)
 Future<List<NewsSource>> newsSources(Ref ref) async {
-  final repository = ref.watch(sourcesRepositoryProvider);
+  final repository = await ref.watch(sourcesRepositoryProvider.future);
   final result = await repository.getSources();
+
+  // Schedule cache invalidation after 1 hour
+  Timer(const Duration(hours: 1), () => ref.invalidateSelf());
+
   return switch (result) {
     Success(data: final data) => data,
     Error() => [], // Return empty list on error

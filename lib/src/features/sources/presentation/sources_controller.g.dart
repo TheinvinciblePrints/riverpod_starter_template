@@ -286,7 +286,7 @@ class _SourceInitialsProviderElement extends AutoDisposeProviderElement<String>
   String get sourceName => (origin as SourceInitialsProvider).sourceName;
 }
 
-String _$sourcesControllerHash() => r'c22e924dff109de88ff0f25b95d9a3eae9c2bc9c';
+String _$sourcesControllerHash() => r'506b3874a672063f6cc9a4f9da6a9c800d98bed8';
 
 /// See also [SourcesController].
 @ProviderFor(SourcesController)
