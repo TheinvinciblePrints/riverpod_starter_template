@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod_starter_template/src/utils/extensions/context_extensions.dart';
 
-import '../../themes/app_colors.dart';
 import '../../themes/themes.dart';
 
 /// CustomTextFieldState defines the visual state of the text field

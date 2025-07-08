@@ -1,11 +1,11 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod_starter_template/src/config/env/env.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../network/network.dart';
-import '../../../providers/cache_provider.dart';
 import '../domain/news_source.dart';
 import '../utils/source_icon_mapper.dart';
 
@@ -43,7 +43,7 @@ class SourcesRepository with NetworkErrorHandler {
       );
 
       // Debug cache info
-      CacheDebugger.logCacheInfo(response);
+      debugPrint('📰 [SOURCES] Fetched news sources');
 
       if (response.data != null && response.data['status'] == 'ok') {
         final sourcesResponse = SourcesResponse.fromJson(response.data);

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/authentication/presentation/authentication_controller.dart';
@@ -129,7 +130,7 @@ class RefreshTokenInterceptor extends Interceptor {
         }
       } catch (e) {
         // Log error but don't rethrow - we've already cleared tokens
-        print('Error updating auth state during token refresh logout: $e');
+        debugPrint('Error updating auth state during token refresh logout: $e');
       }
     }
   }

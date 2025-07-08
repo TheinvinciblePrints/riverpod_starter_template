@@ -6,7 +6,7 @@ part of 'cache_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$cacheStoreHash() => r'fb15cbfbca5f8d6668fcd0e4947527e1218fc605';
+String _$cacheStoreHash() => r'd5cebb957d11d987316655dd5c1241afb0fcaed2';
 
 /// See also [cacheStore].
 @ProviderFor(cacheStore)
@@ -38,7 +38,7 @@ final cacheOptionsProvider = FutureProvider<CacheOptions>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef CacheOptionsRef = FutureProviderRef<CacheOptions>;
-String _$cacheInterceptorHash() => r'af361e31be12b9c5ef54a89f407c074298b018a0';
+String _$cacheInterceptorHash() => r'072cee341ddd3741aef83dc5ce0d4eec847cdd70';
 
 /// See also [cacheInterceptor].
 @ProviderFor(cacheInterceptor)

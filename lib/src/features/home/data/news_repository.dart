@@ -5,7 +5,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../features/sources/application/sources_service.dart';
 import '../../../network/network.dart';
-import '../../../providers/cache_provider.dart';
 import '../domain/news_article.dart';
 
 part 'news_repository.g.dart';
@@ -32,7 +31,9 @@ class NewsRepository with NetworkErrorHandler {
       );
 
       // Debug cache info
-      CacheDebugger.logCacheInfo(response);
+      debugPrint(
+        '📰 [NEWS] Fetched ${response.data?['articles']?.length ?? 0} articles',
+      );
 
       // Extract articles from the response
       if (response.data != null) {
@@ -104,7 +105,7 @@ class NewsRepository with NetworkErrorHandler {
       );
 
       // Debug cache info
-      CacheDebugger.logCacheInfo(response);
+      debugPrint('📰 [NEWS] Fetched top headlines for country: $country');
 
       // Extract articles from the response
       final articlesJson = response.data!['articles'] as List;

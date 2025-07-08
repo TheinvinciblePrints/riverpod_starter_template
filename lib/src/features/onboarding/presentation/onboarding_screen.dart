@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod_starter_template/src/gen/assets.gen.dart';
 import 'package:flutter_riverpod_starter_template/src/localization/locale_keys.g.dart';
 import 'package:flutter_riverpod_starter_template/src/shared/shared.dart';
@@ -53,7 +52,7 @@ class OnboardingScreen extends HookConsumerWidget {
       return () => pageController.removeListener(listener);
     }, [pageController]);
 
-     void onBack() {
+    void onBack() {
       if (currentPage.value > 0) {
         pageController.previousPage(
           duration: const Duration(milliseconds: 300),
