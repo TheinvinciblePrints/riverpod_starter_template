@@ -21,8 +21,8 @@ A production-ready Flutter starter template built with [Riverpod](https://riverp
 
 ### Prerequisites
 
-- Flutter 3.7.0 or higher
-- Dart 3.0.0 or higher
+- Flutter 3.29.0 or higher
+- Dart 3.7.0 or higher
 
 ### Installation
 
