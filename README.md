@@ -28,7 +28,7 @@ A production-ready Flutter starter template built with [Riverpod](https://riverp
 
 1. Clone this repository:
 ```bash
-git clone https://github.com/yourusername/flutter_riverpod_starter_template.git
+git clone https://github.com/TheinvinciblePrints/riverpod_starter_template.git
 cd flutter_riverpod_starter_template
 ```
 
