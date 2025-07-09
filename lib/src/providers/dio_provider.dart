@@ -2,11 +2,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod_starter_template/src/network/interceptors/auth_interceptor.dart';
 import 'package:flutter_riverpod_starter_template/src/network/interceptors/refresh_token_interceptor.dart';
+import 'package:flutter_riverpod_starter_template/src/providers/cache_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../flavors.dart';
 import '../network/interceptors/dio_logger_interceptor.dart';
-import 'cache_provider.dart';
 import 'storage_providers.dart';
 
 part 'dio_provider.g.dart';
@@ -27,7 +27,7 @@ Future<Dio> dio(Ref ref) async {
   );
 
   dio.interceptors.addAll([
-    cacheInterceptor, // Add selective cache interceptor
+    cacheInterceptor, 
     AuthInterceptor(secureStorage),
     RefreshTokenInterceptor(secureStorage, ref),
     DioLoggerInterceptor(

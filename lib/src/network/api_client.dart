@@ -17,12 +17,6 @@ Future<ApiClient> apiClient(Ref ref) async {
   return ApiClientImpl(dio: dio, connectionChecker: checker);
 }
 
-@riverpod
-Future<ApiClient> cachedApiClient(Ref ref) async {
-  final checker = ref.watch(connectionCheckerProvider);
-  final dio = await ref.watch(dioProvider.future);
-  return ApiClientImpl(dio: dio, connectionChecker: checker);
-}
 
 abstract class ApiClient {
   Future<Response<dynamic>> get(

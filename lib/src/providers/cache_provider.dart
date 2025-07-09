@@ -1,42 +1,39 @@
-import 'dart:convert';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'cache_provider.g.dart';
 
+/// Official dio_cache_interceptor approach based on the examples
+/// https://github.com/llfbandit/dart_http_cache/blob/master/dio_cache_interceptor/example/lib/main.dart
+/// https://github.com/llfbandit/dart_http_cache/blob/master/dio_cache_interceptor/example/lib/caller.dart
+
 @Riverpod(keepAlive: true)
 Future<CacheStore> cacheStore(Ref ref) async {
-  debugPrint('🔧 [CACHE] Initializing persistent cache store with Hive...');
+  debugPrint('🔧 [CACHE] Initializing cache store...');
 
   try {
-    final Directory appDocDir = await getApplicationDocumentsDirectory();
-    final String cachePath = '${appDocDir.path}/dio_cache';
-    debugPrint('🔧 [CACHE] Cache path: $cachePath');
+    // Use a larger memory cache with longer retention
+    // This will help with caching during the app session
+    final store = MemCacheStore(
+      maxSize: 50 * 1024 * 1024, // 50MB instead of 10MB
+      maxEntrySize: 10 * 1024 * 1024, // 10MB per entry instead of 1MB
+    );
 
-    // Initialize Hive for persistent storage
-    await Hive.initFlutter(cachePath);
-
-    // Create persistent cache store using Hive
-    final store = HivePersistentCacheStore();
-    await store.initialize();
-
-    debugPrint('✅ [CACHE] HivePersistentCacheStore initialized successfully');
-    debugPrint('🔧 [CACHE] Using custom Hive-based persistent storage');
+    debugPrint('✅ [CACHE] MemCacheStore initialized successfully');
+    debugPrint('🔧 [CACHE] Cache size: 50MB, Max entry: 10MB');
+    debugPrint('⚠️ [CACHE] Cache will NOT persist across app restarts');
+    debugPrint('💡 [CACHE] But will work well during app session');
 
     return store;
   } catch (e, stackTrace) {
-    debugPrint('❌ [CACHE] Error initializing HivePersistentCacheStore: $e');
+    debugPrint('❌ [CACHE] Error initializing MemCacheStore: $e');
     debugPrint('❌ [CACHE] Stack trace: $stackTrace');
-
-    // Fallback to memory cache if persistent storage fails
-    debugPrint('🔧 [CACHE] Falling back to MemCacheStore for this session');
-    return MemCacheStore();
+    rethrow;
   }
 }
 
@@ -46,13 +43,16 @@ Future<CacheOptions> cacheOptions(Ref ref) async {
 
   return CacheOptions(
     store: store,
-    policy: CachePolicy.forceCache, // Use cache aggressively
-    hitCacheOnErrorExcept: [401, 403],
-    maxStale: const Duration(days: 7), // Cache is valid for 7 days
+    policy:
+        CachePolicy
+            .request, // Default policy - respect server headers but use cache
+    hitCacheOnErrorExcept: [401, 403], // Don't cache auth errors
+    maxStale: const Duration(days: 7), // Cache is valid for 7 days when stale
     priority: CachePriority.normal,
     cipher: null,
     allowPostMethod: false,
     keyBuilder: CacheOptions.defaultCacheKeyBuilder,
+    // Custom cache settings for better news app performance
   );
 }
 
@@ -62,272 +62,90 @@ Future<DioCacheInterceptor> cacheInterceptor(Ref ref) async {
   return DioCacheInterceptor(options: options);
 }
 
-/// Custom persistent cache store implementation using Hive
-class HivePersistentCacheStore extends CacheStore {
-  late Box<String> _cacheBox;
-  bool _initialized = false;
-
-  Future<void> initialize() async {
-    if (_initialized) return;
-
-    try {
-      // Open Hive box for serialized cache responses
-      _cacheBox = await Hive.openBox<String>('dio_cache_responses');
-      _initialized = true;
-      debugPrint('✅ [HIVE] Cache box opened successfully');
-    } catch (e) {
-      debugPrint('❌ [HIVE] Failed to open cache box: $e');
-      rethrow;
-    }
+/// Helper methods for different cache policies
+/// Based on the official example patterns from caller.dart
+class CacheHelper {
+  /// No cache - skip cache entirely (equivalent to noCacheCall)
+  static CacheOptions noCache(CacheOptions baseOptions) {
+    return baseOptions.copyWith(policy: CachePolicy.noCache);
   }
 
-  @override
-  Future<void> clean({
-    CachePriority priorityOrBelow = CachePriority.high,
-    bool staleOnly = false,
-  }) async {
-    if (!_initialized) return;
-
-    final keysToDelete = <String>[];
-
-    for (final key in _cacheBox.keys) {
-      try {
-        final cachedResponse = await get(key.toString());
-        if (cachedResponse != null) {
-          final isStale = DateTime.now().isAfter(
-            cachedResponse.expires ?? DateTime.now(),
-          );
-
-          if (staleOnly && !isStale) continue;
-
-          // For now, we'll clean based on staleness only
-          // Priority-based cleaning would require more complex metadata
-          if (isStale) {
-            keysToDelete.add(key.toString());
-          }
-        }
-      } catch (e) {
-        // If cache entry is corrupted, mark for deletion
-        keysToDelete.add(key.toString());
-      }
-    }
-
-    for (final key in keysToDelete) {
-      await _cacheBox.delete(key);
-    }
-
-    debugPrint('🗑️ [HIVE] Cleaned ${keysToDelete.length} cache entries');
+  /// Request policy - default behavior, respect server headers (equivalent to requestCall)
+  static CacheOptions request(CacheOptions baseOptions) {
+    return baseOptions.copyWith(policy: CachePolicy.request);
   }
 
-  @override
-  Future<void> delete(String key, {bool staleOnly = false}) async {
-    if (!_initialized) return;
-
-    if (staleOnly) {
-      // Check if stale before deleting
-      final response = await get(key);
-      if (response != null) {
-        final isStale = DateTime.now().isAfter(
-          response.expires ?? DateTime.now(),
-        );
-        if (!isStale) {
-          return; // Don't delete if not stale
-        }
-      }
-    }
-
-    await _cacheBox.delete(key);
+  /// Refresh cache - always hit network but update cache (equivalent to refreshCall)
+  static CacheOptions refresh(CacheOptions baseOptions) {
+    return baseOptions.copyWith(policy: CachePolicy.refresh);
   }
 
-  @override
-  Future<void> deleteFromPath(
-    RegExp pathPattern, {
-    Map<String, String?>? queryParams,
-  }) async {
-    if (!_initialized) return;
-
-    final keysToDelete = <String>[];
-
-    for (final key in _cacheBox.keys) {
-      if (pathPattern.hasMatch(key.toString())) {
-        keysToDelete.add(key.toString());
-      }
-    }
-
-    for (final key in keysToDelete) {
-      await _cacheBox.delete(key);
-    }
+  /// Force cache - use cache even if stale (equivalent to forceCacheCall)
+  static CacheOptions forceCache(CacheOptions baseOptions) {
+    return baseOptions.copyWith(policy: CachePolicy.forceCache);
   }
 
-  @override
-  Future<bool> exists(String key) async {
-    if (!_initialized) return false;
-    return _cacheBox.containsKey(key);
+  /// Refresh force cache - refresh if possible, otherwise use cache (equivalent to refreshForceCacheCall)
+  static CacheOptions refreshForceCache(CacheOptions baseOptions) {
+    return baseOptions.copyWith(policy: CachePolicy.refreshForceCache);
   }
 
-  @override
-  Future<CacheResponse?> get(String key) async {
-    if (!_initialized) return null;
-
-    try {
-      final cachedJson = _cacheBox.get(key);
-      if (cachedJson == null) {
-        debugPrint(
-          '❌ [CACHE MISS] No cached data found for key: ${key.substring(0, 8)}...',
-        );
-        return null;
-      }
-
-      final cachedData = jsonDecode(cachedJson) as Map<String, dynamic>;
-      final url = cachedData['url'] as String;
-      final cacheDate = DateTime.fromMillisecondsSinceEpoch(
-        cachedData['date'] as int,
-      );
-      final expiresDate =
-          cachedData['expires'] != null
-              ? DateTime.fromMillisecondsSinceEpoch(
-                cachedData['expires'] as int,
-              )
-              : null;
-
-      final isExpired =
-          expiresDate != null && DateTime.now().isAfter(expiresDate);
-      final age = DateTime.now().difference(cacheDate);
-
-      debugPrint('✅ [CACHE HIT] Found cached data for: $url');
-      debugPrint('📊 [CACHE] Age: ${age.inMinutes}min, Expired: $isExpired');
-
-      // Deserialize CacheResponse from stored JSON
-      return CacheResponse(
-        key: cachedData['key'] as String,
-        url: url,
-        eTag: cachedData['eTag'] as String?,
-        lastModified: cachedData['lastModified'] as String?,
-        maxStale:
-            cachedData['expires'] != null
-                ? DateTime.fromMillisecondsSinceEpoch(
-                  cachedData['expires'] as int,
-                )
-                : null,
-        content:
-            cachedData['content'] != null
-                ? (cachedData['content'] as List).cast<int>()
-                : <int>[],
-        date: cacheDate,
-        expires: expiresDate,
-        headers: (cachedData['headers'] as List?)?.cast<int>(),
-        priority: CachePriority.values[cachedData['priority'] as int? ?? 0],
-        requestDate: DateTime.fromMillisecondsSinceEpoch(
-          cachedData['requestDate'] as int,
-        ),
-        responseDate: DateTime.fromMillisecondsSinceEpoch(
-          cachedData['responseDate'] as int,
-        ),
-        cacheControl: CacheControl(
-          maxAge: cachedData['maxAge'] as int? ?? 0,
-          maxStale: cachedData['maxStaleControl'] as int? ?? 0,
-        ),
-      );
-    } catch (e) {
-      debugPrint('❌ [HIVE] Error retrieving cache for key $key: $e');
-      // Clean up corrupted cache entry
-      await delete(key);
-      return null;
-    }
+  /// Clear cache for a specific URL (equivalent to deleteEntry)
+  static Future<void> clearCacheForUrl(CacheStore store, String url) async {
+    final key = CacheOptions.defaultCacheKeyBuilder(RequestOptions(path: url));
+    await store.delete(key);
+    debugPrint('🗑️ [CACHE] Cleared cache for: $url');
   }
 
-  @override
-  Future<void> set(CacheResponse response) async {
-    if (!_initialized) return;
-
-    try {
-      // Override server expiration with our own 7-day expiration
-      final now = DateTime.now();
-      final customExpires = now.add(const Duration(days: 7));
-
-      // Create an updated response with our custom expiration
-      final updatedResponse = CacheResponse(
-        key: response.key,
-        url: response.url,
-        eTag: response.eTag,
-        lastModified: response.lastModified,
-        maxStale: null,
-        content: response.content,
-        date: response.date ?? now,
-        expires: customExpires, // Force 7-day expiration
-        headers: response.headers,
-        requestDate: response.requestDate,
-        responseDate: response.responseDate,
-        cacheControl: CacheControl(
-          maxAge: 604800, // 7 days in seconds
-          maxStale: 604800,
-        ),
-        priority: response.priority,
-      );
-
-      // Serialize CacheResponse to JSON
-      final cacheData = {
-        'key': updatedResponse.key,
-        'url': updatedResponse.url,
-        'eTag': updatedResponse.eTag,
-        'lastModified': updatedResponse.lastModified,
-        'content': updatedResponse.content,
-        'date':
-            updatedResponse.date?.millisecondsSinceEpoch ??
-            now.millisecondsSinceEpoch,
-        'expires': updatedResponse.expires?.millisecondsSinceEpoch,
-        'headers': updatedResponse.headers,
-        'priority': updatedResponse.priority.index,
-        'requestDate': updatedResponse.requestDate.millisecondsSinceEpoch,
-        'responseDate': updatedResponse.responseDate.millisecondsSinceEpoch,
-        'maxAge': updatedResponse.cacheControl.maxAge,
-        'maxStaleControl': updatedResponse.cacheControl.maxStale,
-      };
-
-      await _cacheBox.put(updatedResponse.key, jsonEncode(cacheData));
-
-      final expiresIn = customExpires.difference(now);
-
-      debugPrint('💾 [CACHE STORE] Cached: ${updatedResponse.url}');
-      debugPrint(
-        '⏰ [CACHE] Expires in: ${expiresIn.inDays}d ${expiresIn.inHours % 24}h ${expiresIn.inMinutes % 60}m',
-      );
-    } catch (e) {
-      debugPrint('❌ [HIVE] Error storing cache for key ${response.key}: $e');
-    }
+  /// Clear all cache (equivalent to cleanStore)
+  static Future<void> clearAllCache(CacheStore store) async {
+    await store.clean();
+    debugPrint('🗑️ [CACHE] Cleared all cache');
   }
+}
 
-  @override
-  Future<void> close() async {
-    if (!_initialized) return;
+/// Cache debugging helper similar to the official examples
+class CacheDebugger {
+  /// Get cache information from response (equivalent to _getResponseContent)
+  static String getCacheInfo(Response response) {
+    final buffer = StringBuffer();
 
-    try {
-      await _cacheBox.close();
-      _initialized = false;
-      debugPrint('🔒 [HIVE] Cache box closed');
-    } catch (e) {
-      debugPrint('❌ [HIVE] Error closing cache box: $e');
+    buffer.writeln('🔍 [CACHE DEBUG] Response Info:');
+    buffer.writeln('Status: ${response.statusCode}');
+
+    // Check if it came from cache (304 = Not Modified, typically from cache)
+    final fromCache = response.statusCode == 304;
+    buffer.writeln(fromCache ? '✅ From Cache' : '🌐 From Network');
+
+    final headers = response.headers;
+    final date = headers[HttpHeaders.dateHeader]?.first;
+    final etag = headers[HttpHeaders.etagHeader]?.first;
+    final expires = headers[HttpHeaders.expiresHeader]?.first;
+    final lastModified = headers[HttpHeaders.lastModifiedHeader]?.first;
+    final cacheControl = headers[HttpHeaders.cacheControlHeader]?.first;
+
+    buffer.writeln('');
+    buffer.writeln('Request headers:');
+    buffer.writeln(response.requestOptions.headers.toString());
+
+    buffer.writeln('');
+    buffer.writeln('Response headers (cache related):');
+    if (date != null) {
+      buffer.writeln('${HttpHeaders.dateHeader}: $date');
     }
-  }
-
-  @override
-  Future<List<CacheResponse>> getFromPath(
-    RegExp pathPattern, {
-    Map<String, String?>? queryParams,
-  }) async {
-    if (!_initialized) return [];
-
-    final responses = <CacheResponse>[];
-
-    for (final key in _cacheBox.keys) {
-      if (pathPattern.hasMatch(key.toString())) {
-        final response = await get(key.toString());
-        if (response != null) {
-          responses.add(response);
-        }
-      }
+    if (etag != null) {
+      buffer.writeln('${HttpHeaders.etagHeader}: $etag');
+    }
+    if (expires != null) {
+      buffer.writeln('${HttpHeaders.expiresHeader}: $expires');
+    }
+    if (lastModified != null) {
+      buffer.writeln('${HttpHeaders.lastModifiedHeader}: $lastModified');
+    }
+    if (cacheControl != null) {
+      buffer.writeln('${HttpHeaders.cacheControlHeader}: $cacheControl');
     }
 
-    return responses;
+    return buffer.toString();
   }
 }

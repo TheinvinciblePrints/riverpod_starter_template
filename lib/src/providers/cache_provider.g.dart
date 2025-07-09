@@ -6,9 +6,13 @@ part of 'cache_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$cacheStoreHash() => r'd5cebb957d11d987316655dd5c1241afb0fcaed2';
+String _$cacheStoreHash() => r'aa9297737ba2778d0849b436d5dadd1d45fafd16';
 
-/// See also [cacheStore].
+/// Official dio_cache_interceptor approach based on the examples
+/// https://github.com/llfbandit/dart_http_cache/blob/master/dio_cache_interceptor/example/lib/main.dart
+/// https://github.com/llfbandit/dart_http_cache/blob/master/dio_cache_interceptor/example/lib/caller.dart
+///
+/// Copied from [cacheStore].
 @ProviderFor(cacheStore)
 final cacheStoreProvider = FutureProvider<CacheStore>.internal(
   cacheStore,
@@ -22,7 +26,7 @@ final cacheStoreProvider = FutureProvider<CacheStore>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef CacheStoreRef = FutureProviderRef<CacheStore>;
-String _$cacheOptionsHash() => r'665e0b6522b75c27a7eeac674953017b6f770e3e';
+String _$cacheOptionsHash() => r'e8d646a0fecdfb196a25dfb7bd3ebbeb75853338';
 
 /// See also [cacheOptions].
 @ProviderFor(cacheOptions)

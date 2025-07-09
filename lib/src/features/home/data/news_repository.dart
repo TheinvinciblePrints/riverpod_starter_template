@@ -10,17 +10,23 @@ import '../domain/news_article.dart';
 part 'news_repository.g.dart';
 
 class NewsRepository with NetworkErrorHandler {
-  final ApiClient _apiClient;
-  final SourcesService? _sourcesService;
+  final Ref _ref;
 
-  NewsRepository(this._apiClient, this._sourcesService);
+  NewsRepository(this._ref);
 
   Future<ApiResult<List<NewsArticle>>> getTopHeadlines({
     int page = 1,
     int pageSize = 1,
   }) async {
     try {
-      final response = await _apiClient.get(
+      // Ensure sources are loaded first for proper mapping
+
+      final sourcesService = await _ref.read(sourcesServiceProvider.future);
+      final apiClient = await _ref.read(apiClientProvider.future);
+
+      await sourcesService.getSources();
+
+      final response = await apiClient.get(
         '${Env.newsApiUrl}/everything',
         queryParameters: {
           'q': 'trending',
@@ -28,11 +34,6 @@ class NewsRepository with NetworkErrorHandler {
           'pageSize': pageSize,
           'apiKey': Env.newsApiKey,
         },
-      );
-
-      // Debug cache info
-      debugPrint(
-        '📰 [NEWS] Fetched ${response.data?['articles']?.length ?? 0} articles',
       );
 
       // Extract articles from the response
@@ -55,12 +56,12 @@ class NewsRepository with NetworkErrorHandler {
                           sourceJson['id'] != null) {
                         // Get source info from our sources service
                         String sourceId = sourceJson['id'] as String;
-                        String? iconPath = _sourcesService?.getSourceIcon(
+                        String? iconPath = sourcesService.getSourceIcon(
                           sourceId,
                         );
 
                         // Get source details if available
-                        final sourceDetails = _sourcesService?.getSource(
+                        final sourceDetails = sourcesService.getSource(
                           sourceId,
                         );
 
@@ -99,7 +100,14 @@ class NewsRepository with NetworkErrorHandler {
     String country = 'us',
   }) async {
     try {
-      final response = await _apiClient.get(
+      final sourcesService = await _ref.read(sourcesServiceProvider.future);
+      final apiClient = await _ref.read(apiClientProvider.future);
+      // Ensure sources are loaded first for proper mapping
+
+      await sourcesService.getSources();
+      debugPrint('📰 [NEWS] Sources loaded for mapping');
+
+      final response = await apiClient.get(
         '${Env.newsApiUrl}/top-headlines',
         queryParameters: {'country': country, 'apiKey': Env.newsApiKey},
       );
@@ -126,14 +134,10 @@ class NewsRepository with NetworkErrorHandler {
                         sourceJson['id'] != null) {
                       // Get the source icon from the sources service
                       String sourceId = sourceJson['id'] as String;
-                      String? iconPath = _sourcesService?.getSourceIcon(
-                        sourceId,
-                      );
+                      String? iconPath = sourcesService.getSourceIcon(sourceId);
 
                       // Get source details if available
-                      final sourceDetails = _sourcesService?.getSource(
-                        sourceId,
-                      );
+                      final sourceDetails = sourcesService.getSource(sourceId);
 
                       // Add country information if available
                       if (sourceDetails != null) {
@@ -141,9 +145,7 @@ class NewsRepository with NetworkErrorHandler {
                       }
 
                       // Only add icon if available
-                      if (iconPath != null) {
-                        sourceJson['icon'] = iconPath;
-                      }
+                      sourceJson['icon'] = iconPath;
                     }
                   }
 
@@ -165,8 +167,8 @@ class NewsRepository with NetworkErrorHandler {
 
 @riverpod
 Future<NewsRepository> newsRepository(Ref ref) async {
-  final apiClient = await ref.watch(apiClientProvider.future);
-  final sourcesService = ref.watch(sourcesServiceProvider).valueOrNull;
+  // final apiClient = await ref.watch(apiClientProvider.future);
+  // final sourcesService = ref.watch(sourcesServiceProvider).valueOrNull;
 
-  return NewsRepository(apiClient, sourcesService);
+  return NewsRepository(ref);
 }

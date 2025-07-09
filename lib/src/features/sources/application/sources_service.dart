@@ -13,6 +13,7 @@ class SourcesService {
 
   /// Fetch all available sources
   Future<List<NewsSource>> getSources() async {
+    // Use default caching policy (respect server headers) instead of forcing cache
     final result = await _repository.getSources();
     if (result.isSuccess) {
       return result.dataOrNull ?? [];
