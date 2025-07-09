@@ -12,6 +12,7 @@ A production-ready Flutter starter template built with [Riverpod](https://riverp
 - **Localization** using Easy Localization
 - **Robust Error Handling** with graceful degradation
 - **Network Layer** with Dio, interceptors, and result types
+- **Dual Cache Strategy** with persistent (Hive) and memory caching
 - **Clean Architecture** with presentation, application, domain, and data layers
 - **Theme Management** with light and dark mode support
 - **Logger** with custom Riverpod observer for debugging
@@ -36,12 +37,61 @@ cd flutter_riverpod_starter_template
 flutter pub get
 ```
 
-3. Run code generation for Riverpod, JSON serialization, and more:
+3. **Set up environment files** (Required):
+
+   **Quick Setup (Recommended):**
+   ```bash
+   # Run the automated setup script
+   ./setup.sh
+   ```
+   This will create all environment files and install dependencies automatically.
+
+   **Manual Setup:**
+   Create three environment files in the root directory. You can use the provided template:
+
+   ```bash
+   # Copy the template to create your environment files
+   cp .env.template .env.dev
+   cp .env.template .env.staging  
+   cp .env.template .env.prod
+   ```
+
+   Then edit each file and replace `your_news_api_key_here` with your actual API key:
+
+   **`.env.dev`** (Development environment):
+   ```env
+   DUMMY_JSON_API_URL=https://dummyjson.com
+   NEWS_API_URL=https://newsapi.org/v2
+   API_KEY=your_news_api_key_here
+   ```
+
+   **`.env.staging`** (Staging environment):
+   ```env
+   DUMMY_JSON_API_URL=https://dummyjson.com
+   NEWS_API_URL=https://newsapi.org/v2
+   API_KEY=your_news_api_key_here
+   ```
+
+   **`.env.prod`** (Production environment):
+   ```env
+   DUMMY_JSON_API_URL=https://dummyjson.com
+   NEWS_API_URL=https://newsapi.org/v2
+   API_KEY=your_news_api_key_here
+   ```
+
+   **Getting API Keys:**
+   - **News API Key**: Get your free API key from [newsapi.org](https://newsapi.org/register)
+   - **Test Login Credentials**: For testing authentication, you can use:
+     - Username: `emilys`
+     - Password: `emilyspassword`
+     - Or get test users from: [https://dummyjson.com/users](https://dummyjson.com/users)
+
+4. Run code generation for Riverpod, JSON serialization, and more:
 ```bash
 dart run build_runner build --delete-conflicting-outputs
 ```
 
-4. Run the app in your preferred flavor:
+5. Run the app in your preferred flavor:
 ```bash
 # Development flavor
 flutter run --flavor dev -t lib/main.dart
@@ -68,6 +118,11 @@ lib/
     │   │   ├── data/          # Auth repositories
     │   │   ├── domain/        # Auth models
     │   │   └── presentation/  # Auth UI
+    │   ├── countries/         # Countries feature with persistent cache
+    │   │   ├── application/   # Countries service
+    │   │   ├── data/          # Countries repository
+    │   │   ├── domain/        # Country models
+    │   │   └── presentation/  # Countries demo UI
     │   ├── home/              # Home feature
     │   └── onboarding/        # Onboarding feature
     ├── localization/          # Translations
@@ -114,6 +169,31 @@ class Authentication extends _$Authentication {
 // Using the provider
 final authState = ref.watch(authenticationProvider);
 ```
+
+### Caching Strategy
+
+This template implements a dual caching strategy for optimal performance:
+
+**Memory Cache (MemCacheStore)**:
+- Used for dynamic data like news articles
+- Fast access during app session
+- Automatically cleared on app restart
+
+**Persistent Cache (HiveCacheStore)**:
+- Used for static data like countries and news sources
+- Survives app restarts
+- Powered by Hive for efficient storage
+
+```dart
+// Using persistent cache for countries
+final countriesService = await ref.read(countriesServiceProvider.future);
+final countries = await countriesService.getCountries(); // From cache if available
+
+// Force refresh from network
+final freshCountries = await countriesService.getCountriesFresh();
+```
+
+See [PERSISTENT_CACHE_IMPLEMENTATION.md](./PERSISTENT_CACHE_IMPLEMENTATION.md) for detailed implementation guide.
 
 ### Navigation
 
@@ -170,6 +250,45 @@ flutter test
 # Run specific tests
 flutter test test/features/authentication/
 ```
+
+## Troubleshooting
+
+### Common Setup Issues
+
+1. **Missing Environment Files**:
+   ```
+   Error: No such file or directory '.env.dev'
+   ```
+   Solution: Create the three environment files as described in step 3 of installation.
+
+2. **Missing News API Key**:
+   ```
+   HTTP 401: Unauthorized
+   ```
+   Solution: Add your valid News API key to all three `.env` files.
+
+3. **Code Generation Errors**:
+   ```
+   Error: Could not find part file
+   ```
+   Solution: Run the build runner command:
+   ```bash
+   dart run build_runner build --delete-conflicting-outputs
+   ```
+
+4. **Hive Cache Initialization Issues**:
+   ```
+   Error: HiveError: Box not found
+   ```
+   Solution: The app will automatically initialize Hive. If issues persist, clear app data.
+
+### API Endpoints Used
+
+- **Authentication**: DummyJSON API (`https://dummyjson.com`)
+- **News**: NewsAPI.org (`https://newsapi.org/v2`)
+- **Countries**: REST Countries API (`https://restcountries.com/v3.1/all`)
+
+The Countries API is free and doesn't require authentication.
 
 ## Best Practices and Tips
 
