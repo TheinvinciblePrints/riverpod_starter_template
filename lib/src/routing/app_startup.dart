@@ -3,14 +3,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod_starter_template/src/network/network_error_handler.dart';
 import 'package:flutter_riverpod_starter_template/src/shared/shared.dart';
+import 'package:flutter_riverpod_starter_template/src/themes/themes.dart';
 import 'package:flutter_riverpod_starter_template/src/utils/extensions/context_extensions.dart';
 import 'package:flutter_riverpod_starter_template/src/utils/network_exception_utils.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../gen/assets.gen.dart';
 import '../localization/locale_keys.g.dart';
 import '../network/network_exceptions.dart';
 import '../network/network_failures.dart';
 import 'routing.dart';
+
+part 'app_startup.g.dart';
+
+@riverpod
+class RetryLoading extends _$RetryLoading {
+  @override
+  bool build() => false;
+
+  void setLoading(bool loading) {
+    state = loading;
+  }
+}
 
 class AppStartupWidget extends ConsumerWidget {
   const AppStartupWidget({super.key});
@@ -26,12 +40,15 @@ class AppStartupWidget extends ConsumerWidget {
         AppStartupErrorWidget(
           message: message ?? 'Unknown error',
           error: error,
-          onRetry: () => notifier.retry(),
+          onRetry:
+              () => notifier.retry(
+                setRetryLoading:
+                    ref.read(retryLoadingProvider.notifier).setLoading,
+              ),
         ),
       StartupUnauthenticated() =>
         const SizedBox.shrink(), // Let router handle navigation
-      StartupCompleted(didCompleteOnboarding: final _, isLoggedIn: final _) =>
-        const SizedBox.shrink(),
+      StartupCompleted() => const SizedBox.shrink(),
     };
   }
 }
@@ -51,7 +68,7 @@ class AppStartupLoadingWidget extends StatelessWidget {
 }
 
 /// Widget to show if initialization fails
-class AppStartupErrorWidget extends StatelessWidget with NetworkErrorHandler {
+class AppStartupErrorWidget extends ConsumerWidget with NetworkErrorHandler {
   const AppStartupErrorWidget({
     super.key,
     required this.message,
@@ -62,8 +79,15 @@ class AppStartupErrorWidget extends StatelessWidget with NetworkErrorHandler {
   final VoidCallback onRetry;
   final Object? error;
 
+  void _handleRetry(WidgetRef ref) {
+    if (ref.read(retryLoadingProvider)) return;
+    onRetry();
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isRetrying = ref.watch(retryLoadingProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -90,7 +114,45 @@ class AppStartupErrorWidget extends StatelessWidget with NetworkErrorHandler {
             Gap(50),
             Padding(
               padding: const EdgeInsets.all(15.0),
-              child: PrimaryButton(label: LocaleKeys.retry, onPressed: onRetry),
+              child: SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: TextButton(
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all(
+                      isRetrying ? Colors.grey : AppColors.primary,
+                    ),
+                    foregroundColor: WidgetStateProperty.all(AppColors.primary),
+                    padding: WidgetStateProperty.all(
+                      const EdgeInsets.symmetric(vertical: 3, horizontal: 18),
+                    ),
+                    shape: WidgetStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                  onPressed: isRetrying ? null : () => _handleRetry(ref),
+                  child:
+                      isRetrying
+                          ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                          : Text(
+                            context.tr(LocaleKeys.retry),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                ),
+              ),
             ),
           ],
         ),
@@ -100,7 +162,9 @@ class AppStartupErrorWidget extends StatelessWidget with NetworkErrorHandler {
 
   String _getDisplayMessage() {
     if (error is NetworkExceptions) {
-      final key = NetworkExceptionUtils.getErrorMessage(error as NetworkExceptions);
+      final key = NetworkExceptionUtils.getErrorMessage(
+        error as NetworkExceptions,
+      );
       return key;
     }
     return message;

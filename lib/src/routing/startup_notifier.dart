@@ -20,14 +20,18 @@ class StartupNotifier extends _$StartupNotifier {
     return const StartupState.loading();
   }
 
-  Future<void> _handleStartupLogic() async {
+  Future<void> _handleStartupLogic({
+    void Function(bool)? setRetryLoading,
+  }) async {
     final logger = ref.read(loggerProvider);
+    setRetryLoading?.call(true);
     try {
       // No need to check state here as we're already initialized in loading state
       // and using Future.microtask ensures this runs after build() completes
 
-      final didCompleteOnboarding =
-          await ref.read(isOnboardingCompleteProvider.future);
+      final didCompleteOnboarding = await ref.read(
+        isOnboardingCompleteProvider.future,
+      );
 
       await Future.delayed(const Duration(seconds: 2));
 
@@ -78,12 +82,15 @@ class StartupNotifier extends _$StartupNotifier {
 
       // If this is happening during build(), we need to make sure we don't throw
       // an exception that would crash the app
+    } finally {
+      setRetryLoading?.call(false);
     }
   }
 
-  void retry() {
-    state = const StartupState.loading();
-    _handleStartupLogic();
+  void retry({void Function(bool)? setRetryLoading}) {
+    // Don't emit loading state during retry to avoid showing the loading widget
+    // The retry button will show its own loading indicator
+    _handleStartupLogic(setRetryLoading: setRetryLoading);
   }
 
   void completeOnboardingAndSetUnauthenticated() {

@@ -15,30 +15,61 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$StartupState {
 
-
+ bool get isRetrying;
+/// Create a copy of StartupState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$StartupStateCopyWith<StartupState> get copyWith => _$StartupStateCopyWithImpl<StartupState>(this as StartupState, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is StartupState);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StartupState&&(identical(other.isRetrying, isRetrying) || other.isRetrying == isRetrying));
 }
 
 
 @override
-int get hashCode => runtimeType.hashCode;
+int get hashCode => Object.hash(runtimeType,isRetrying);
 
 @override
 String toString() {
-  return 'StartupState()';
+  return 'StartupState(isRetrying: $isRetrying)';
 }
 
 
 }
 
 /// @nodoc
-class $StartupStateCopyWith<$Res>  {
-$StartupStateCopyWith(StartupState _, $Res Function(StartupState) __);
+abstract mixin class $StartupStateCopyWith<$Res>  {
+  factory $StartupStateCopyWith(StartupState value, $Res Function(StartupState) _then) = _$StartupStateCopyWithImpl;
+@useResult
+$Res call({
+ bool isRetrying
+});
+
+
+
+
+}
+/// @nodoc
+class _$StartupStateCopyWithImpl<$Res>
+    implements $StartupStateCopyWith<$Res> {
+  _$StartupStateCopyWithImpl(this._self, this._then);
+
+  final StartupState _self;
+  final $Res Function(StartupState) _then;
+
+/// Create a copy of StartupState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? isRetrying = null,}) {
+  return _then(_self.copyWith(
+isRetrying: null == isRetrying ? _self.isRetrying : isRetrying // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
 }
 
 
@@ -46,47 +77,82 @@ $StartupStateCopyWith(StartupState _, $Res Function(StartupState) __);
 
 
 class StartupLoading implements StartupState {
-  const StartupLoading();
+  const StartupLoading({this.isRetrying = false});
   
 
+@override@JsonKey() final  bool isRetrying;
 
-
+/// Create a copy of StartupState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$StartupLoadingCopyWith<StartupLoading> get copyWith => _$StartupLoadingCopyWithImpl<StartupLoading>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is StartupLoading);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StartupLoading&&(identical(other.isRetrying, isRetrying) || other.isRetrying == isRetrying));
 }
 
 
 @override
-int get hashCode => runtimeType.hashCode;
+int get hashCode => Object.hash(runtimeType,isRetrying);
 
 @override
 String toString() {
-  return 'StartupState.loading()';
+  return 'StartupState.loading(isRetrying: $isRetrying)';
 }
 
 
 }
 
+/// @nodoc
+abstract mixin class $StartupLoadingCopyWith<$Res> implements $StartupStateCopyWith<$Res> {
+  factory $StartupLoadingCopyWith(StartupLoading value, $Res Function(StartupLoading) _then) = _$StartupLoadingCopyWithImpl;
+@override @useResult
+$Res call({
+ bool isRetrying
+});
 
 
+
+
+}
+/// @nodoc
+class _$StartupLoadingCopyWithImpl<$Res>
+    implements $StartupLoadingCopyWith<$Res> {
+  _$StartupLoadingCopyWithImpl(this._self, this._then);
+
+  final StartupLoading _self;
+  final $Res Function(StartupLoading) _then;
+
+/// Create a copy of StartupState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? isRetrying = null,}) {
+  return _then(StartupLoading(
+isRetrying: null == isRetrying ? _self.isRetrying : isRetrying // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
 
 /// @nodoc
 
 
 class StartupError implements StartupState {
-  const StartupError([this.message, this.errorObject]);
+  const StartupError([this.message, this.errorObject, this.isRetrying = false]);
   
 
  final  String? message;
  final  Object? errorObject;
+@override@JsonKey() final  bool isRetrying;
 
 /// Create a copy of StartupState
 /// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
+@override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
 $StartupErrorCopyWith<StartupError> get copyWith => _$StartupErrorCopyWithImpl<StartupError>(this, _$identity);
 
@@ -94,16 +160,16 @@ $StartupErrorCopyWith<StartupError> get copyWith => _$StartupErrorCopyWithImpl<S
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is StartupError&&(identical(other.message, message) || other.message == message)&&const DeepCollectionEquality().equals(other.errorObject, errorObject));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StartupError&&(identical(other.message, message) || other.message == message)&&const DeepCollectionEquality().equals(other.errorObject, errorObject)&&(identical(other.isRetrying, isRetrying) || other.isRetrying == isRetrying));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message,const DeepCollectionEquality().hash(errorObject));
+int get hashCode => Object.hash(runtimeType,message,const DeepCollectionEquality().hash(errorObject),isRetrying);
 
 @override
 String toString() {
-  return 'StartupState.error(message: $message, errorObject: $errorObject)';
+  return 'StartupState.error(message: $message, errorObject: $errorObject, isRetrying: $isRetrying)';
 }
 
 
@@ -112,9 +178,9 @@ String toString() {
 /// @nodoc
 abstract mixin class $StartupErrorCopyWith<$Res> implements $StartupStateCopyWith<$Res> {
   factory $StartupErrorCopyWith(StartupError value, $Res Function(StartupError) _then) = _$StartupErrorCopyWithImpl;
-@useResult
+@override @useResult
 $Res call({
- String? message, Object? errorObject
+ String? message, Object? errorObject, bool isRetrying
 });
 
 
@@ -131,10 +197,11 @@ class _$StartupErrorCopyWithImpl<$Res>
 
 /// Create a copy of StartupState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? message = freezed,Object? errorObject = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? message = freezed,Object? errorObject = freezed,Object? isRetrying = null,}) {
   return _then(StartupError(
 freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String?,freezed == errorObject ? _self.errorObject : errorObject ,
+as String?,freezed == errorObject ? _self.errorObject : errorObject ,null == isRetrying ? _self.isRetrying : isRetrying // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -145,47 +212,82 @@ as String?,freezed == errorObject ? _self.errorObject : errorObject ,
 
 
 class StartupUnauthenticated implements StartupState {
-  const StartupUnauthenticated();
+  const StartupUnauthenticated({this.isRetrying = false});
   
 
+@override@JsonKey() final  bool isRetrying;
 
-
+/// Create a copy of StartupState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$StartupUnauthenticatedCopyWith<StartupUnauthenticated> get copyWith => _$StartupUnauthenticatedCopyWithImpl<StartupUnauthenticated>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is StartupUnauthenticated);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StartupUnauthenticated&&(identical(other.isRetrying, isRetrying) || other.isRetrying == isRetrying));
 }
 
 
 @override
-int get hashCode => runtimeType.hashCode;
+int get hashCode => Object.hash(runtimeType,isRetrying);
 
 @override
 String toString() {
-  return 'StartupState.unauthenticated()';
+  return 'StartupState.unauthenticated(isRetrying: $isRetrying)';
 }
 
 
 }
 
+/// @nodoc
+abstract mixin class $StartupUnauthenticatedCopyWith<$Res> implements $StartupStateCopyWith<$Res> {
+  factory $StartupUnauthenticatedCopyWith(StartupUnauthenticated value, $Res Function(StartupUnauthenticated) _then) = _$StartupUnauthenticatedCopyWithImpl;
+@override @useResult
+$Res call({
+ bool isRetrying
+});
 
 
+
+
+}
+/// @nodoc
+class _$StartupUnauthenticatedCopyWithImpl<$Res>
+    implements $StartupUnauthenticatedCopyWith<$Res> {
+  _$StartupUnauthenticatedCopyWithImpl(this._self, this._then);
+
+  final StartupUnauthenticated _self;
+  final $Res Function(StartupUnauthenticated) _then;
+
+/// Create a copy of StartupState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? isRetrying = null,}) {
+  return _then(StartupUnauthenticated(
+isRetrying: null == isRetrying ? _self.isRetrying : isRetrying // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
 
 /// @nodoc
 
 
 class StartupCompleted implements StartupState {
-  const StartupCompleted({required this.didCompleteOnboarding, required this.isLoggedIn});
+  const StartupCompleted({required this.didCompleteOnboarding, required this.isLoggedIn, this.isRetrying = false});
   
 
  final  bool didCompleteOnboarding;
  final  bool isLoggedIn;
+@override@JsonKey() final  bool isRetrying;
 
 /// Create a copy of StartupState
 /// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
+@override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
 $StartupCompletedCopyWith<StartupCompleted> get copyWith => _$StartupCompletedCopyWithImpl<StartupCompleted>(this, _$identity);
 
@@ -193,16 +295,16 @@ $StartupCompletedCopyWith<StartupCompleted> get copyWith => _$StartupCompletedCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is StartupCompleted&&(identical(other.didCompleteOnboarding, didCompleteOnboarding) || other.didCompleteOnboarding == didCompleteOnboarding)&&(identical(other.isLoggedIn, isLoggedIn) || other.isLoggedIn == isLoggedIn));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StartupCompleted&&(identical(other.didCompleteOnboarding, didCompleteOnboarding) || other.didCompleteOnboarding == didCompleteOnboarding)&&(identical(other.isLoggedIn, isLoggedIn) || other.isLoggedIn == isLoggedIn)&&(identical(other.isRetrying, isRetrying) || other.isRetrying == isRetrying));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,didCompleteOnboarding,isLoggedIn);
+int get hashCode => Object.hash(runtimeType,didCompleteOnboarding,isLoggedIn,isRetrying);
 
 @override
 String toString() {
-  return 'StartupState.completed(didCompleteOnboarding: $didCompleteOnboarding, isLoggedIn: $isLoggedIn)';
+  return 'StartupState.completed(didCompleteOnboarding: $didCompleteOnboarding, isLoggedIn: $isLoggedIn, isRetrying: $isRetrying)';
 }
 
 
@@ -211,9 +313,9 @@ String toString() {
 /// @nodoc
 abstract mixin class $StartupCompletedCopyWith<$Res> implements $StartupStateCopyWith<$Res> {
   factory $StartupCompletedCopyWith(StartupCompleted value, $Res Function(StartupCompleted) _then) = _$StartupCompletedCopyWithImpl;
-@useResult
+@override @useResult
 $Res call({
- bool didCompleteOnboarding, bool isLoggedIn
+ bool didCompleteOnboarding, bool isLoggedIn, bool isRetrying
 });
 
 
@@ -230,10 +332,11 @@ class _$StartupCompletedCopyWithImpl<$Res>
 
 /// Create a copy of StartupState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? didCompleteOnboarding = null,Object? isLoggedIn = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? didCompleteOnboarding = null,Object? isLoggedIn = null,Object? isRetrying = null,}) {
   return _then(StartupCompleted(
 didCompleteOnboarding: null == didCompleteOnboarding ? _self.didCompleteOnboarding : didCompleteOnboarding // ignore: cast_nullable_to_non_nullable
 as bool,isLoggedIn: null == isLoggedIn ? _self.isLoggedIn : isLoggedIn // ignore: cast_nullable_to_non_nullable
+as bool,isRetrying: null == isRetrying ? _self.isRetrying : isRetrying // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
