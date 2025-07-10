@@ -86,10 +86,35 @@ flutter pub get
      - Password: `emilyspassword`
      - Or get test users from: [https://dummyjson.com/users](https://dummyjson.com/users)
 
-4. Run code generation for Riverpod, JSON serialization, and more:
-```bash
-dart run build_runner build --delete-conflicting-outputs
-```
+4. **Generate code and assets**:
+
+   **Run all code generation** (Riverpod, JSON serialization, Freezed, etc.):
+   ```bash
+   dart run build_runner build --delete-conflicting-outputs
+   ```
+
+   **Generate localization keys** (run after adding new translation keys to assets/translations/*.json):
+   ```bash
+   dart run easy_localization:generate \
+     -S assets/translations \
+     -f keys \
+     -o locale_keys.g.dart \
+     -O lib/src/localization
+   ```
+
+   **Generate asset references with flutter_gen** (run after adding new images/icons to assets/):
+   ```bash
+   fluttergen -c pubspec.yaml
+   ```
+   Or if using build_runner:
+   ```bash
+   dart run build_runner build -d
+   ```
+   This generates `Assets` class for type-safe asset access:
+   ```dart
+   // Instead of 'assets/images/logo.png'
+   Assets.images.logo  // Type-safe and autocompleted
+   ```
 
 5. Run the app in your preferred flavor:
 ```bash
@@ -238,6 +263,52 @@ flutter pub run flutter_flavorizr
 ### Changing Theme
 
 Modify theme configurations in `lib/src/theme/` directory.
+
+## Development Workflow
+
+### Code Generation Commands
+
+During development, you'll need to run these commands when making certain changes:
+
+```bash
+# After adding/modifying Riverpod providers, models, or repositories
+dart run build_runner build --delete-conflicting-outputs
+
+# After adding new translation keys to assets/translations/*.json
+dart run easy_localization:generate \
+  -S assets/translations \
+  -f keys \
+  -o locale_keys.g.dart \
+  -O lib/src/localization
+
+# After adding new images or icons to assets/
+fluttergen -c pubspec.yaml
+# Or using build_runner
+dart run build_runner build -d
+
+# Clean build (if generation issues occur)
+dart run build_runner clean
+dart run build_runner build --delete-conflicting-outputs
+```
+
+### Asset Management
+
+**Adding Images/Icons:**
+1. Add your asset files to `assets/images/` or `assets/icons/`
+2. Run `fluttergen -c pubspec.yaml` or `dart run build_runner build -d`
+3. Use the generated references:
+   ```dart
+   Image.asset(Assets.images.yourImage)
+   SvgPicture.asset(Assets.icons.yourIcon)
+   ```
+
+**Adding Translations:**
+1. Add keys to `assets/translations/en.json` and other language files
+2. Run the localization generation command
+3. Use the generated keys:
+   ```dart
+   Text(LocaleKeys.welcomeMessage.tr())
+   ```
 
 ## Testing
 

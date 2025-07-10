@@ -10,10 +10,12 @@ This guide provides detailed examples and best practices for using this Flutter 
 4. [Adding Features](#adding-features)
 5. [Working with Network Requests](#working-with-network-requests)
 6. [Error Handling](#error-handling)
-7. [Localization](#localization)
-8. [Local Storage](#local-storage)
-9. [Flavors and Environment Configuration](#flavors-and-environment-configuration)
-10. [Testing](#testing)
+7. [Code Generation](#code-generation)
+8. [Localization](#localization)
+9. [Asset Management](#asset-management)
+10. [Local Storage](#local-storage)
+11. [Flavors and Environment Configuration](#flavors-and-environment-configuration)
+12. [Testing](#testing)
 
 ## Authentication Flow
 
@@ -405,47 +407,434 @@ ApiClient productApiClient(Ref ref) {
 
 ## Error Handling
 
-This template includes robust error handling for network requests and other operations.
+This template includes robust error handling patterns for network requests and other async operations.
 
-### Network Error Handling
+### Error Types
+
+The template defines specific error types for different scenarios:
 
 ```dart
-// Using the NetworkErrorHandler mixin
-mixin class UserRepository with NetworkErrorHandler {
+// Base failure types
+sealed class Failure {
+  const Failure(this.message);
+  final String message;
+}
+
+class NetworkFailure extends Failure {
+  const NetworkFailure(super.message);
+}
+
+class ValidationFailure extends Failure {
+  const ValidationFailure(super.message, this.errors);
+  final Map<String, String> errors;
+}
+
+class UnknownFailure extends Failure {
+  const UnknownFailure(super.message);
+}
+```
+
+### Repository Error Handling
+
+Use the Result type for robust error handling in repositories:
+
+```dart
+// Using Result type in repositories
+class UserRepository {
+  final ApiClient _apiClient;
+  
+  UserRepository(this._apiClient);
+  
   Future<Result<User>> getUser(String id) async {
-    return handleNetworkCall(() async {
-      final response = await dio.get('/users/$id');
-      return User.fromJson(response.data);
-    });
+    try {
+      final response = await _apiClient.get('/users/$id');
+      return Success(User.fromJson(response.data));
+    } on DioException catch (e) {
+      return Error(_mapDioException(e));
+    } catch (e) {
+      return Error(UnknownFailure('Unexpected error: $e'));
+    }
+  }
+  
+  Failure _mapDioException(DioException e) {
+    return switch (e.type) {
+      DioExceptionType.connectionTimeout ||
+      DioExceptionType.receiveTimeout ||
+      DioExceptionType.sendTimeout => 
+        const NetworkFailure('Connection timeout'),
+      DioExceptionType.connectionError => 
+        const NetworkFailure('No internet connection'),
+      DioExceptionType.badResponse => _handleBadResponse(e),
+      _ => NetworkFailure('Network error: ${e.message}'),
+    };
+  }
+  
+  Failure _handleBadResponse(DioException e) {
+    final statusCode = e.response?.statusCode;
+    return switch (statusCode) {
+      400 => ValidationFailure('Invalid request', 
+             _parseValidationErrors(e.response?.data)),
+      401 => const NetworkFailure('Unauthorized'),
+      403 => const NetworkFailure('Access forbidden'),
+      404 => const NetworkFailure('Resource not found'),
+      500 => const NetworkFailure('Server error'),
+      _ => NetworkFailure('HTTP $statusCode: ${e.message}'),
+    };
   }
 }
 ```
 
-### Error Presentation
+### Service Layer Error Handling
+
+Services coordinate between repositories and handle business logic errors:
 
 ```dart
-// In UI layer
-errorAsync.when(
-  data: (_) => const SizedBox.shrink(), // No error
-  loading: () => const CircularProgressIndicator(),
-  error: (error, stack) => switch (error) {
-    NetworkFailure() => NetworkErrorWidget(
-      message: error.message,
-      onRetry: () => ref.refresh(userProvider),
-    ),
-    ValidationFailure() => FormErrorWidget(
-      errors: error.validationErrors,
-    ),
-    _ => GenericErrorWidget(
-      message: error.toString(),
-    ),
-  },
-);
+class UserService {
+  final UserRepository _userRepository;
+  
+  UserService(this._userRepository);
+  
+  Future<Result<User>> getUserProfile(String id) async {
+    // Validate input
+    if (id.isEmpty) {
+      return const Error(ValidationFailure('User ID is required', 
+        {'id': 'User ID cannot be empty'}));
+    }
+    
+    // Call repository
+    final result = await _userRepository.getUser(id);
+    
+    return switch (result) {
+      Success(data: final user) => _validateUser(user),
+      Error(error: final error) => Error(error),
+    };
+  }
+  
+  Result<User> _validateUser(User user) {
+    if (user.isBlocked) {
+      return const Error(ValidationFailure('User is blocked', 
+        {'user': 'This user account has been blocked'}));
+    }
+    return Success(user);
+  }
+}
 ```
+
+### UI Error Handling
+
+In the presentation layer, handle errors gracefully:
+
+```dart
+class UserProfileScreen extends ConsumerWidget {
+  final String userId;
+  
+  const UserProfileScreen({required this.userId, super.key});
+  
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userAsync = ref.watch(userProvider(userId));
+    
+    return Scaffold(
+      appBar: AppBar(title: const Text('User Profile')),
+      body: userAsync.when(
+        data: (result) => switch (result) {
+          Success(data: final user) => UserProfileContent(user: user),
+          Error(error: final error) => ErrorDisplayWidget(
+            error: error,
+            onRetry: () => ref.refresh(userProvider(userId)),
+          ),
+        },
+        loading: () => const LoadingWidget(),
+        error: (error, stack) => UnexpectedErrorWidget(
+          error: error,
+          onRetry: () => ref.refresh(userProvider(userId)),
+        ),
+      ),
+    );
+  }
+}
+```
+
+### Error Display Widgets
+
+Create reusable error display widgets:
+
+```dart
+class ErrorDisplayWidget extends StatelessWidget {
+  final Failure error;
+  final VoidCallback? onRetry;
+  
+  const ErrorDisplayWidget({
+    required this.error,
+    this.onRetry,
+    super.key,
+  });
+  
+  @override
+  Widget build(BuildContext context) {
+    return switch (error) {
+      NetworkFailure() => NetworkErrorWidget(
+        message: error.message,
+        onRetry: onRetry,
+      ),
+      ValidationFailure() => ValidationErrorWidget(
+        message: error.message,
+        errors: error.errors,
+      ),
+      UnknownFailure() => GenericErrorWidget(
+        message: error.message,
+        onRetry: onRetry,
+      ),
+    };
+  }
+}
+
+class NetworkErrorWidget extends StatelessWidget {
+  final String message;
+  final VoidCallback? onRetry;
+  
+  const NetworkErrorWidget({
+    required this.message,
+    this.onRetry,
+    super.key,
+  });
+  
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.wifi_off, size: 64, color: Colors.grey),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            style: Theme.of(context).textTheme.titleMedium,
+            textAlign: TextAlign.center,
+          ),
+          if (onRetry != null) ...[
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: onRetry,
+              child: const Text('Retry'),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+```
+
+### Provider Error Handling
+
+Handle errors in Riverpod providers:
+
+```dart
+@riverpod
+class UserController extends _$UserController {
+  @override
+  Future<Result<User>> build(String userId) async {
+    final userService = ref.watch(userServiceProvider);
+    return userService.getUserProfile(userId);
+  }
+  
+  Future<void> refreshUser() async {
+    state = const AsyncValue.loading();
+    
+    final userService = ref.read(userServiceProvider);
+    final result = await userService.getUserProfile(userId);
+    
+    state = AsyncValue.data(result);
+  }
+  
+  Future<void> updateUser(User updatedUser) async {
+    // Show loading for the current user while updating
+    final currentState = state.value;
+    if (currentState is Success<User>) {
+      state = AsyncValue.data(
+        Success(updatedUser.copyWith(isLoading: true))
+      );
+    }
+    
+    final userService = ref.read(userServiceProvider);
+    final result = await userService.updateUser(updatedUser);
+    
+    state = AsyncValue.data(result);
+  }
+}
+```
+
+### Global Error Handling
+
+Set up global error handling for unhandled exceptions:
+
+```dart
+// In main.dart
+void main() {
+  runZonedGuarded(() {
+    WidgetsFlutterBinding.ensureInitialized();
+    
+    FlutterError.onError = (details) {
+      // Log to crash reporting service
+      FirebaseCrashlytics.instance.recordFlutterError(details);
+    };
+    
+    runApp(const ProviderScope(child: MyApp()));
+  }, (error, stack) {
+    // Handle errors that occur outside of Flutter
+    FirebaseCrashlytics.instance.recordError(error, stack);
+  });
+}
+
+## Code Generation
+
+This template heavily uses code generation for Riverpod providers, JSON serialization, and other boilerplate code.
+
+### Understanding Code Generation
+
+The template uses several code generation tools:
+
+1. **build_runner**: Orchestrates all code generation
+2. **riverpod_generator**: Generates provider code
+3. **freezed**: Generates immutable classes with copy methods
+4. **json_serializable**: Generates JSON serialization code
+5. **flutter_gen**: Generates type-safe asset references
+
+### Code Generation Commands
+
+```bash
+# Run all code generation (most common)
+dart run build_runner build --delete-conflicting-outputs
+
+# Watch for changes and regenerate automatically (during development)
+dart run build_runner watch --delete-conflicting-outputs
+
+# Clean generated files (when having issues)
+dart run build_runner clean
+dart run build_runner build --delete-conflicting-outputs
+
+# Generate only specific files
+dart run build_runner build --build-filter="lib/src/features/**"
+```
+
+### Code Generation Best Practices
+
+**1. Always run code generation after:**
+- Adding/modifying `@riverpod` providers
+- Adding/modifying `@freezed` classes
+- Adding/modifying `@JsonSerializable` classes
+- Adding new assets to the project
+
+**2. Use proper annotations:**
+
+```dart
+// Riverpod provider with code generation
+@riverpod
+class UserNotifier extends _$UserNotifier {
+  @override
+  User? build() => null;
+  
+  void setUser(User user) => state = user;
+}
+
+// Freezed model with JSON serialization
+@freezed
+class User with _$User {
+  const factory User({
+    required String id,
+    required String name,
+    @Default('') String email,
+  }) = _User;
+  
+  factory User.fromJson(Map<String, dynamic> json) => 
+      _$UserFromJson(json);
+}
+```
+
+**3. Handle generation errors:**
+
+If you encounter generation errors:
+
+```bash
+# Common error fixes
+flutter clean
+flutter pub get
+dart run build_runner clean
+dart run build_runner build --delete-conflicting-outputs
+
+# If still having issues, check for:
+# - Missing imports in your code
+# - Syntax errors in annotated classes
+# - Conflicting file names
+```
+
+**4. Commit generated files:**
+
+The template includes generated files in version control for easier collaboration. Make sure to:
+- Run code generation before committing
+- Include both source and generated files in commits
+- Use `--delete-conflicting-outputs` to avoid merge conflicts
+
+### Troubleshooting Code Generation
+
+**Common Issues:**
+
+1. **"Could not find part file"**:
+   ```dart
+   // Make sure you have the correct part directive
+   part 'user_model.freezed.dart';
+   part 'user_model.g.dart';
+   ```
+
+2. **"No top-level method 'build' declared"**:
+   ```dart
+   // Ensure your provider extends the generated class
+   @riverpod
+   class MyProvider extends _$MyProvider { // <- This line is important
+     @override
+     String build() => 'initial';
+   }
+   ```
+
+3. **Build runner hangs**:
+   ```bash
+   # Kill the process and restart
+   dart run build_runner clean
+   # Then run build again
+   ```
+
+4. **Conflicting outputs**:
+   ```bash
+   # Always use --delete-conflicting-outputs
+   dart run build_runner build --delete-conflicting-outputs
+   ```
+
+### IDE Integration
+
+**VS Code users:**
+- Install the "Dart Code" extension for better code generation support
+- Use Cmd/Ctrl+Shift+P → "Dart: Run Build Runner" for quick access
+
+**Android Studio/IntelliJ users:**
+- Use the terminal or configure external tools for build runner commands
 
 ## Localization
 
 The template uses easy_localization for internationalization.
+
+### Setting Up Localization
+
+The template includes automated localization setup. After adding translation keys, run:
+
+```bash
+# Generate localization keys
+dart run easy_localization:generate \
+  -S assets/translations \
+  -f keys \
+  -o locale_keys.g.dart \
+  -O lib/src/localization
+```
 
 ### Adding Translations
 
@@ -467,25 +856,113 @@ The template uses easy_localization for internationalization.
 }
 ```
 
+2. Add corresponding translations to other language files (e.g., `es.json`).
+
+3. Run the localization generation command to create typed keys.
+
 ### Using Translations
 
 ```dart
-// Import the extension
-import 'package:easy_localization/easy_localization.dart';
+// Import the generated keys
+import '../localization/locale_keys.g.dart';
 
-// In widgets
-Text('auth.login'.tr());
+// In widgets using generated keys (recommended)
+Text(LocaleKeys.auth_login.tr());
 TextField(
   decoration: InputDecoration(
-    labelText: 'auth.email'.tr(),
+    labelText: LocaleKeys.auth_email.tr(),
   ),
 );
 
+// Using string keys (alternative)
+Text('auth.login'.tr());
+
 // With parameters
-Text('greeting'.tr(args: ['John'])); // "Hello, John!"
+Text(LocaleKeys.greeting.tr(args: ['John'])); // "Hello, John!"
 
 // With named parameters
-Text('role'.tr(namedArgs: {'role': 'Admin'})); // "Your role: Admin"
+Text(LocaleKeys.role.tr(namedArgs: {'role': 'Admin'})); // "Your role: Admin"
+```
+
+## Asset Management
+
+The template uses flutter_gen for type-safe asset management.
+
+### Setting Up Asset Generation
+
+Run the following command after adding new assets:
+
+```bash
+# Using flutter_gen (recommended)
+fluttergen -c pubspec.yaml
+
+# Or using build_runner
+dart run build_runner build -d
+```
+
+### Adding Assets
+
+1. Add your assets to the appropriate directories:
+   ```
+   assets/
+   ├── images/
+   │   └── your_image.png
+   ├── icons/
+   │   └── your_icon.svg
+   └── lottie/
+       └── your_animation.json
+   ```
+
+2. Run the asset generation command.
+
+3. Use the generated references:
+
+```dart
+// Type-safe asset access
+Image.asset(Assets.images.yourImage);
+SvgPicture.asset(Assets.icons.yourIcon);
+
+// With error handling
+Image.asset(
+  Assets.images.profile,
+  errorBuilder: (context, error, stackTrace) => 
+    const Icon(Icons.error),
+);
+```
+
+### Asset Organization Best Practices
+
+1. **Group by purpose**: Keep related assets together
+2. **Use descriptive names**: `user_profile_placeholder.png` instead of `img1.png`
+3. **Optimize file sizes**: Use appropriate formats and compress images
+4. **Provide multiple resolutions**: Use 1x, 2x, 3x versions for images
+
+```dart
+// Example of using different asset types
+class AssetExamples extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Regular image
+        Image.asset(Assets.images.appLogo),
+        
+        // SVG icon
+        SvgPicture.asset(
+          Assets.icons.searchIcon,
+          width: 24,
+          height: 24,
+        ),
+        
+        // Lottie animation
+        Lottie.asset(
+          Assets.lottie.errorLottie,
+          repeat: false,
+        ),
+      ],
+    );
+  }
+}
 ```
 
 ## Local Storage

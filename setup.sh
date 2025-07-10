@@ -34,6 +34,13 @@ echo ""
 echo "🔧 Running code generation..."
 dart run build_runner build --delete-conflicting-outputs
 
+echo "🌍 Generating localization keys..."
+dart run easy_localization:generate \
+  -S assets/translations \
+  -f keys \
+  -o locale_keys.g.dart \
+  -O lib/src/localization
+
 echo ""
 echo "🎉 Setup complete!"
 echo ""
