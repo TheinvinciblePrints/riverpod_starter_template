@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod_starter_template/src/utils/path_provider.dart';
 
 import 'flavors.dart';
 import 'src/app.dart';
@@ -13,6 +14,7 @@ import 'src/providers/riverpod_logger_observer.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
+  await AppPathProvider.initPath();
   _initializeAppFlavor();
   registerErrorHandlers();
   // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);

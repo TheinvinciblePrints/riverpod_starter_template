@@ -4,166 +4,68 @@ import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter_riverpod_starter_template/src/utils/path_provider.dart';
+import 'package:http_cache_hive_store/http_cache_hive_store.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'persistent_cache_provider.g.dart';
 
-/// Custom Hive-based CacheStore implementation for persistent caching
-/// This is used for static data like countries API that should persist across app restarts
-class HiveCacheStore implements CacheStore {
-  late Box<Map<dynamic, dynamic>> _box;
-  final String boxName;
+/// Custom cache tracking interceptor to properly detect cache hits
+class CacheTrackingInterceptor extends Interceptor {
+  final CacheStore store;
 
-  HiveCacheStore({required this.boxName});
+  CacheTrackingInterceptor(this.store);
 
-  /// Initialize the Hive box
-  Future<void> init() async {
-    if (!Hive.isBoxOpen(boxName)) {
-      await Hive.initFlutter();
-      _box = await Hive.openBox<Map<dynamic, dynamic>>(boxName);
-    } else {
-      _box = Hive.box<Map<dynamic, dynamic>>(boxName);
-    }
+  @override
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    // Store request start time
+    options.extra['request_start_time'] = DateTime.now();
+
+    // Check if cache exists before making request
+    final cacheKey = CacheOptions.defaultCacheKeyBuilder(url: options.uri);
+    final cacheExists = await store.exists(cacheKey);
+    options.extra['cache_exists_before_request'] = cacheExists;
+
+    debugPrint('🔍 [CACHE_TRACKING] Request: ${options.uri}');
+    debugPrint('📦 [CACHE_TRACKING] Cache exists: $cacheExists');
+
+    handler.next(options);
   }
 
   @override
-  Future<void> clean({
-    CachePriority priorityOrBelow = CachePriority.high,
-    bool staleOnly = false,
-  }) async {
-    await _box.clear();
-    debugPrint('🗑️ [HIVE_CACHE] Cleaned all cache entries');
-  }
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    final requestStartTime =
+        response.requestOptions.extra['request_start_time'] as DateTime?;
+    final cacheExistedBefore =
+        response.requestOptions.extra['cache_exists_before_request'] as bool?;
 
-  @override
-  Future<void> delete(String key, {bool staleOnly = false}) async {
-    await _box.delete(key);
-    debugPrint('🗑️ [HIVE_CACHE] Deleted cache entry: $key');
-  }
+    if (requestStartTime != null) {
+      final responseTime = DateTime.now().difference(requestStartTime);
+      response.extra['response_time_ms'] = responseTime.inMilliseconds;
 
-  @override
-  Future<CacheResponse?> get(String key) async {
-    final data = _box.get(key);
-    if (data == null) return null;
-
-    try {
-      return CacheResponse(
-        cacheControl: CacheControl(),
-        content: data['content'] as Uint8List?,
-        date:
-            data['date'] != null
-                ? DateTime.parse(data['date'] as String)
-                : null,
-        eTag: data['eTag'] as String?,
-        expires:
-            data['expires'] != null
-                ? DateTime.parse(data['expires'] as String)
-                : null,
-        headers: <int>[], // Headers simplified
-        key: data['key'] as String,
-        lastModified: data['lastModified'] as String?,
-        maxStale:
-            data['maxStale'] != null
-                ? DateTime.fromMillisecondsSinceEpoch(data['maxStale'] as int)
-                : null,
-        priority: CachePriority.values[data['priority'] as int? ?? 0],
-        requestDate: DateTime.parse(data['requestDate'] as String),
-        responseDate: DateTime.parse(data['responseDate'] as String),
-        url: data['url'] as String,
-      );
-    } catch (e) {
-      debugPrint('❌ [HIVE_CACHE] Error reading cache entry $key: $e');
-      await delete(key);
-      return null;
-    }
-  }
-
-  @override
-  Future<void> set(CacheResponse response) async {
-    final data = <String, dynamic>{
-      'content': response.content,
-      'date': response.date?.toIso8601String(),
-      'eTag': response.eTag,
-      'expires': response.expires?.toIso8601String(),
-      'key': response.key,
-      'lastModified': response.lastModified,
-      'maxStale': response.maxStale?.millisecondsSinceEpoch,
-      'priority': response.priority.index,
-      'requestDate': response.requestDate.toIso8601String(),
-      'responseDate': response.responseDate.toIso8601String(),
-      'url': response.url,
-    };
-
-    await _box.put(response.key, data);
-    debugPrint('💾 [HIVE_CACHE] Cached entry: ${response.key}');
-  }
-
-  @override
-  Future<bool> exists(String key) async {
-    return _box.containsKey(key);
-  }
-
-  @override
-  Future<void> deleteFromPath(
-    RegExp pathPattern, {
-    Map<String, String?>? queryParams,
-  }) async {
-    // Simple implementation - delete all matching keys
-    final keysToDelete = <String>[];
-    for (final key in _box.keys) {
-      if (pathPattern.hasMatch(key.toString())) {
-        keysToDelete.add(key.toString());
+      // Fast response + cache existed = likely cache hit
+      if (cacheExistedBefore == true && responseTime.inMilliseconds < 100) {
+        response.extra['likely_from_cache'] = true;
+        debugPrint(
+          '💾 [CACHE_TRACKING] Likely cache hit - fast response (${responseTime.inMilliseconds}ms)',
+        );
+      } else {
+        response.extra['likely_from_cache'] = false;
+        debugPrint(
+          '🌐 [CACHE_TRACKING] Likely network response (${responseTime.inMilliseconds}ms)',
+        );
       }
     }
-    for (final key in keysToDelete) {
-      await delete(key);
-    }
-    debugPrint(
-      '🗑️ [HIVE_CACHE] Deleted ${keysToDelete.length} entries matching pattern',
-    );
-  }
 
-  @override
-  Future<List<CacheResponse>> getFromPath(
-    RegExp pathPattern, {
-    Map<String, String?>? queryParams,
-  }) async {
-    // Return all matching entries
-    final responses = <CacheResponse>[];
-    for (final key in _box.keys) {
-      if (pathPattern.hasMatch(key.toString())) {
-        final response = await get(key.toString());
-        if (response != null) {
-          responses.add(response);
-        }
-      }
-    }
-    return responses;
-  }
-
-  @override
-  bool pathExists(
-    String url,
-    RegExp pathPattern, {
-    Map<String, String?>? queryParams,
-  }) {
-    for (final key in _box.keys) {
-      if (pathPattern.hasMatch(key.toString())) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /// Close the Hive box
-  @override
-  Future<void> close() async {
-    if (_box.isOpen) {
-      await _box.close();
-    }
+    handler.next(response);
   }
 }
+
+/// Custom Hive-based CacheStore implementation for persistent caching
+/// This is used for static data like countries API that should persist across app restarts
 
 /// Persistent cache provider specifically for static data like countries API
 /// Uses custom HiveCacheStore for data that should persist across app restarts
@@ -175,16 +77,11 @@ Future<CacheStore> persistentCacheStore(Ref ref) async {
 
   try {
     // Use custom HiveCacheStore for persistent storage
-    final store = HiveCacheStore(boxName: 'dio_cache_persistent');
-    await store.init();
+    final store = HiveCacheStore(AppPathProvider.path);
 
     debugPrint('✅ [PERSISTENT_CACHE] HiveCacheStore initialized successfully');
     debugPrint('📦 [PERSISTENT_CACHE] Cache box: dio_cache_persistent');
-    debugPrint('♻️ [PERSISTENT_CACHE] Cache WILL persist across app restarts');
-    debugPrint(
-      '🎯 [PERSISTENT_CACHE] Ideal for static data (countries, sources)',
-    );
-    debugPrint('🚀 [PERSISTENT_CACHE] Hive provides fast key-value storage');
+    debugPrint('♻️ [PERSISTENT_CACHE] Cache will persist across app restarts');
 
     return store;
   } catch (e, stackTrace) {
@@ -201,7 +98,7 @@ Future<CacheOptions> persistentCacheOptions(Ref ref) async {
   return CacheOptions(
     store: store,
     policy: CachePolicy.forceCache, // Prefer cache for static data
-    hitCacheOnErrorExcept: [401, 403], // Don't cache auth errors
+    hitCacheOnErrorCodes: [200, 201, 202, 204, 300, 301, 302, 304, 403, 404],
     maxStale: const Duration(days: 30), // Static data can be stale for longer
     priority: CachePriority.high, // High priority for static data
     cipher: null,
@@ -214,6 +111,13 @@ Future<CacheOptions> persistentCacheOptions(Ref ref) async {
 Future<DioCacheInterceptor> persistentCacheInterceptor(Ref ref) async {
   final options = await ref.watch(persistentCacheOptionsProvider.future);
   return DioCacheInterceptor(options: options);
+}
+
+/// Provider for cache tracking interceptor
+@Riverpod(keepAlive: true)
+Future<CacheTrackingInterceptor> cacheTrackingInterceptor(Ref ref) async {
+  final store = await ref.watch(persistentCacheStoreProvider.future);
+  return CacheTrackingInterceptor(store);
 }
 
 /// Helper methods for persistent cache management
@@ -235,7 +139,7 @@ class PersistentCacheHelper {
 
   /// Clear cache for a specific URL
   static Future<void> clearCacheForUrl(CacheStore store, String url) async {
-    final key = CacheOptions.defaultCacheKeyBuilder(RequestOptions(path: url));
+    final key = CacheOptions.defaultCacheKeyBuilder(url: Uri.parse(url));
     await store.delete(key);
     debugPrint('🗑️ [PERSISTENT_CACHE] Cleared cache for: $url');
   }
@@ -257,6 +161,74 @@ class PersistentCacheHelper {
       return 'Error getting cache stats: $e';
     }
   }
+
+  /// Detect and clear corrupted cache for large data endpoints
+  /// This is useful for endpoints that return large JSON arrays (like countries)
+  static Future<bool> validateAndFixCacheForUrl(
+    CacheStore store,
+    String url,
+  ) async {
+    try {
+      final key = CacheOptions.defaultCacheKeyBuilder(url: Uri.parse(url));
+
+      if (store is HiveCacheStore) {
+        // Check if cache entry exists
+        final exists = await store.exists(key);
+        if (!exists) {
+          debugPrint('ℹ️ [PERSISTENT_CACHE] No cache entry found for: $url');
+          return true; // No cache is fine
+        }
+
+        // Try to get the cache entry
+        final response = await store.get(key);
+        if (response == null) {
+          debugPrint(
+            '⚠️ [PERSISTENT_CACHE] Cache entry exists but returns null for: $url',
+          );
+          return true; // Already cleaned up by the get() method
+        }
+
+        // Validate content size for large data endpoints
+        final content = response.content;
+        if (content != null && content.isNotEmpty) {
+          final contentString = String.fromCharCodes(content);
+
+          // For countries endpoint, expect reasonably large JSON array
+          if (url.contains('restcountries.com') &&
+              contentString.length < 1000) {
+            debugPrint(
+              '⚠️ [PERSISTENT_CACHE] Suspiciously small countries cache: ${contentString.length} bytes',
+            );
+            await store.delete(key);
+            debugPrint(
+              '🗑️ [PERSISTENT_CACHE] Cleared small/corrupted countries cache',
+            );
+            return false;
+          }
+
+          // Basic JSON structure validation for array endpoints
+          if (contentString.trim().startsWith('[') &&
+              !contentString.trim().endsWith(']')) {
+            debugPrint(
+              '⚠️ [PERSISTENT_CACHE] Incomplete JSON array detected for: $url',
+            );
+            await store.delete(key);
+            debugPrint('🗑️ [PERSISTENT_CACHE] Cleared incomplete JSON cache');
+            return false;
+          }
+        }
+
+        debugPrint('✅ [PERSISTENT_CACHE] Cache validation passed for: $url');
+        return true;
+      }
+    } catch (e) {
+      debugPrint('❌ [PERSISTENT_CACHE] Error validating cache for $url: $e');
+      await clearCacheForUrl(store, url);
+      return false;
+    }
+
+    return true;
+  }
 }
 
 /// Cache debugging for persistent cache
@@ -268,11 +240,82 @@ class PersistentCacheDebugger {
     buffer.writeln('🔍 [PERSISTENT_CACHE DEBUG] Response Info:');
     buffer.writeln('Status: ${response.statusCode}');
 
-    // Check if it came from cache
-    final fromCache =
-        response.statusCode == 304 ||
-        response.headers['x-cache']?.first.contains('HIT') == true;
-    buffer.writeln(fromCache ? '💾 From Persistent Cache' : '🌐 From Network');
+    // Enhanced cache detection - check multiple indicators
+    bool fromCache = false;
+    String cacheIndicator = '';
+
+    // Check our custom cache tracking flag (most reliable)
+    final dioCacheExtra = response.extra;
+    if (dioCacheExtra.containsKey('likely_from_cache')) {
+      fromCache = dioCacheExtra['likely_from_cache'] == true;
+      if (fromCache) {
+        cacheIndicator = 'CacheTrackingInterceptor';
+        final responseTime = dioCacheExtra['response_time_ms'];
+        if (responseTime != null) {
+          cacheIndicator += ' (${responseTime}ms)';
+        }
+      }
+    }
+
+    // Fallback: Check dio_cache_interceptor specific headers
+    if (!fromCache) {
+      final dioCacheResponse = response.headers['dio-cache-response']?.first;
+      if (dioCacheResponse != null) {
+        fromCache = true;
+        cacheIndicator = 'dio-cache-response header';
+      }
+    }
+
+    // Fallback: Check for cache-specific extra data
+    if (!fromCache && dioCacheExtra.containsKey('dio_cache_interceptor_key')) {
+      fromCache = true;
+      cacheIndicator = 'dio_cache_interceptor key present';
+    }
+
+    // Fallback: Check for response from cache store
+    if (!fromCache && dioCacheExtra.containsKey('from_cache')) {
+      fromCache = dioCacheExtra['from_cache'] == true;
+      if (fromCache) {
+        cacheIndicator = 'from_cache extra flag';
+      }
+    }
+
+    // Fallback: Check standard cache headers
+    if (!fromCache) {
+      final xCache = response.headers['x-cache']?.first;
+      if (xCache != null && xCache.contains('HIT')) {
+        fromCache = true;
+        cacheIndicator = 'x-cache header';
+      }
+
+      // Check for 304 Not Modified
+      if (response.statusCode == 304) {
+        fromCache = true;
+        cacheIndicator = '304 Not Modified status';
+      }
+    }
+
+    // Log cache extra data for debugging
+    if (dioCacheExtra.isNotEmpty) {
+      buffer.writeln('🔍 Extra data keys: ${dioCacheExtra.keys.toList()}');
+      for (final key in dioCacheExtra.keys) {
+        if (key.toString().toLowerCase().contains('cache') ||
+            key.toString().toLowerCase().contains('dio') ||
+            key.toString().contains('likely_from_cache') ||
+            key.toString().contains('response_time')) {
+          buffer.writeln('  $key: ${dioCacheExtra[key]}');
+        }
+      }
+    }
+
+    // Display cache status with clear indicators
+    if (fromCache) {
+      buffer.writeln('💾 🟢 FROM PERSISTENT CACHE ($cacheIndicator)');
+      buffer.writeln('✅ Cache hit - data served from local storage');
+    } else {
+      buffer.writeln('🌐 🔵 FROM NETWORK (fresh data)');
+      buffer.writeln('📡 Network request - data fetched from server');
+    }
 
     final headers = response.headers;
     final date = headers[HttpHeaders.dateHeader]?.first;
@@ -299,6 +342,19 @@ class PersistentCacheDebugger {
       buffer.writeln('${HttpHeaders.cacheControlHeader}: $cacheControl');
     }
 
+    // Add response time information
+    final responseTime = response.extra['response_time'];
+    if (responseTime != null) {
+      buffer.writeln('⏱️ Response time: ${responseTime}ms');
+    }
+
+    // Add content size information
+    final contentLength =
+        response.headers[HttpHeaders.contentLengthHeader]?.first;
+    if (contentLength != null) {
+      buffer.writeln('📊 Content length: $contentLength bytes');
+    }
+
     buffer.writeln('');
     buffer.writeln(
       '💡 [PERSISTENT_CACHE] This cache persists across app restarts',
@@ -306,6 +362,110 @@ class PersistentCacheDebugger {
     buffer.writeln(
       '🎯 [PERSISTENT_CACHE] Ideal for static data like countries',
     );
+
+    return buffer.toString();
+  }
+
+  /// Get detailed cache information for debugging
+  static Future<Map<String, dynamic>> getCacheDetails(
+    CacheStore store,
+    String url,
+  ) async {
+    final details = <String, dynamic>{
+      'url': url,
+      'exists': false,
+      'contentSize': 0,
+      'contentPreview': '',
+      'lastModified': null,
+      'expires': null,
+    };
+
+    try {
+      final key = CacheOptions.defaultCacheKeyBuilder(url: Uri.parse(url));
+
+      if (store is HiveCacheStore) {
+        details['exists'] = await store.exists(key);
+
+        if (details['exists'] == true) {
+          final response = await store.get(key);
+          if (response != null) {
+            final content = response.content;
+            if (content != null) {
+              details['contentSize'] = content.length;
+              final contentString = String.fromCharCodes(content);
+              details['contentPreview'] =
+                  contentString.length > 100
+                      ? '${contentString.substring(0, 100)}...'
+                      : contentString;
+            }
+            details['lastModified'] = response.lastModified;
+            details['expires'] = response.expires?.toIso8601String();
+          }
+        }
+      }
+    } catch (e) {
+      details['error'] = e.toString();
+    }
+
+    return details;
+  }
+
+  /// Check cache status before making a request
+  static Future<String> getCacheStatusBeforeRequest(
+    CacheStore store,
+    String url,
+  ) async {
+    final buffer = StringBuffer();
+
+    try {
+      final key = CacheOptions.defaultCacheKeyBuilder(url: Uri.parse(url));
+      final exists = await store.exists(key);
+
+      buffer.writeln('🔍 [PERSISTENT_CACHE] Pre-request cache check:');
+      buffer.writeln('URL: $url');
+      buffer.writeln('Cache key: $key');
+
+      if (exists) {
+        buffer.writeln('💾 ✅ Cache entry EXISTS');
+
+        // Try to get cache details
+        final response = await store.get(key);
+        if (response != null) {
+          final now = DateTime.now();
+          final expires = response.expires;
+
+          buffer.writeln(
+            '📅 Cached on: ${response.date?.toIso8601String() ?? 'Unknown'}',
+          );
+          buffer.writeln(
+            '⏰ Expires: ${expires?.toIso8601String() ?? 'No expiration'}',
+          );
+
+          if (expires != null) {
+            final timeUntilExpiry = expires.difference(now);
+            if (timeUntilExpiry.isNegative) {
+              buffer.writeln(
+                '🔴 Cache is EXPIRED (${timeUntilExpiry.abs().inMinutes} minutes ago)',
+              );
+            } else {
+              buffer.writeln(
+                '🟢 Cache is VALID (expires in ${timeUntilExpiry.inMinutes} minutes)',
+              );
+            }
+          }
+
+          final content = response.content;
+          if (content != null) {
+            buffer.writeln('📊 Content size: ${content.length} bytes');
+          }
+        }
+      } else {
+        buffer.writeln('❌ No cache entry found');
+        buffer.writeln('🌐 Request will fetch from network');
+      }
+    } catch (e) {
+      buffer.writeln('❌ Error checking cache: $e');
+    }
 
     return buffer.toString();
   }

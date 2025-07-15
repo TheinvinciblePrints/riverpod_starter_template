@@ -6,7 +6,7 @@ part of 'startup_notifier.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$startupNotifierHash() => r'bd2c3c4abb41444ad8e1901e2d4f04f0535ed4fe';
+String _$startupNotifierHash() => r'f39f22bb9ec45131c4dadf39d0e74dd3a8f15df6';
 
 /// See also [StartupNotifier].
 @ProviderFor(StartupNotifier)

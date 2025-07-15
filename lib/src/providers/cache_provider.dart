@@ -46,7 +46,7 @@ Future<CacheOptions> cacheOptions(Ref ref) async {
     policy:
         CachePolicy
             .request, // Default policy - respect server headers but use cache
-    hitCacheOnErrorExcept: [401, 403], // Don't cache auth errors
+    // hitCacheOnErrorExcept: [401, 403], // Don't cache auth errors
     maxStale: const Duration(days: 7), // Cache is valid for 7 days when stale
     priority: CachePriority.normal,
     cipher: null,
@@ -92,7 +92,7 @@ class CacheHelper {
 
   /// Clear cache for a specific URL (equivalent to deleteEntry)
   static Future<void> clearCacheForUrl(CacheStore store, String url) async {
-    final key = CacheOptions.defaultCacheKeyBuilder(RequestOptions(path: url));
+    final key = CacheOptions.defaultCacheKeyBuilder(url: Uri.parse(url));
     await store.delete(key);
     debugPrint('🗑️ [CACHE] Cleared cache for: $url');
   }

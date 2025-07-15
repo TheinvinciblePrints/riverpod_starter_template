@@ -3,6 +3,8 @@ import 'package:flutter_riverpod_starter_template/src/providers/logger_provider.
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../features/authentication/application/auth_service.dart';
+import '../features/countries/data/countries_repository.dart';
+import '../features/countries/domain/country.dart';
 import '../features/onboarding/application/onboarding_logic.dart';
 import '../features/onboarding/data/onboarding_repository.dart';
 import '../network/network.dart';
@@ -26,53 +28,67 @@ class StartupNotifier extends _$StartupNotifier {
     final logger = ref.read(loggerProvider);
     setRetryLoading?.call(true);
     try {
-      // No need to check state here as we're already initialized in loading state
-      // and using Future.microtask ensures this runs after build() completes
-
-      final didCompleteOnboarding = await ref.read(
-        isOnboardingCompleteProvider.future,
-      );
 
       await Future.delayed(const Duration(seconds: 2));
+      // Use Future.wait with error-wrapped futures for parallel loading
+      // This allows us to handle failures gracefully for non-critical operations
+      final results = await Future.wait([
+        // Critical: Must succeed or app can't proceed
+        ref.read(isOnboardingCompleteProvider.future),
+        // Optional: Wrap in error handling so failure doesn't break startup
+        _loadCountriesWithErrorHandling(),
+        // Important: Wrap in error handling with fallback to unauthenticated
+        _loadAuthWithErrorHandling(),
+      ]);
 
-      try {
-        final authService = await ref.read(authServiceProvider.future);
-        final userResult = await authService.getCurrentUser();
+      final didCompleteOnboarding = results[0] as bool;
+      final countriesResult = results[1] as ApiResult<List<Country>>?;
+      final authResult = results[2] as ApiResult<dynamic>?;
 
-        state = switch (userResult) {
-          Success(data: final user) =>
-            (() {
-              logger.i(
-                'Startup completed: onboarding=$didCompleteOnboarding, user=${user.username}',
-              );
+      // Log countries result
+      switch (countriesResult) {
+        case Success(data: final countries):
+          logger.i(
+            '🌍 [STARTUP] Countries loaded successfully: ${countries.length} countries',
+          );
+        case Error(error: final error):
+          logger.w('🌍 [STARTUP] Countries loading failed: $error');
+        case null:
+          logger.w('🌍 [STARTUP] Countries loading failed with null result');
+      }
+
+      // Handle auth result
+      state = switch (authResult) {
+        Success(data: final user) =>
+          (() {
+            logger.i(
+              'Startup completed: onboarding=$didCompleteOnboarding, user=${user.username}',
+            );
+            return StartupState.completed(
+              didCompleteOnboarding: didCompleteOnboarding,
+              isLoggedIn: true,
+            );
+          })(),
+        Error(error: final error) =>
+          (() {
+            logger.w('Startup auth error: $error');
+            if (error is UnauthorisedRequestNetworkFailure) {
               return StartupState.completed(
                 didCompleteOnboarding: didCompleteOnboarding,
-                isLoggedIn: true,
+                isLoggedIn: false,
               );
-            })(),
-          Error(error: final error) =>
-            (() {
-              logger.w('Startup error: $error');
-              if (error is UnauthorisedRequestNetworkFailure) {
-                return StartupState.completed(
-                  didCompleteOnboarding: didCompleteOnboarding,
-                  isLoggedIn: false,
-                );
-              }
-              return StartupState.error(error.message, error);
-            })(),
-        };
-      } catch (e, st) {
-        logger.w(
-          'Auth error, continuing unauthenticated',
-          error: e,
-          stackTrace: st,
-        );
-        state = StartupState.completed(
-          didCompleteOnboarding: didCompleteOnboarding,
-          isLoggedIn: false,
-        );
-      }
+            }
+            return StartupState.error(error.message, error);
+          })(),
+        null =>
+          (() {
+            logger.w('Auth failed, continuing unauthenticated');
+            return StartupState.completed(
+              didCompleteOnboarding: didCompleteOnboarding,
+              isLoggedIn: false,
+            );
+          })(),
+      };
     } catch (e, st) {
       logger.f('Startup failed', error: e, stackTrace: st);
 
@@ -84,6 +100,38 @@ class StartupNotifier extends _$StartupNotifier {
       // an exception that would crash the app
     } finally {
       setRetryLoading?.call(false);
+    }
+  }
+
+  /// Load countries with error handling - returns null if failed
+  Future<ApiResult<List<Country>>?> _loadCountriesWithErrorHandling() async {
+    try {
+      final countriesRepo = await ref.read(countriesRepositoryProvider.future);
+      return await countriesRepo.getCountries();
+    } catch (e, st) {
+      final logger = ref.read(loggerProvider);
+      logger.w(
+        '🌍 [STARTUP] Countries service error',
+        error: e,
+        stackTrace: st,
+      );
+      return ApiResult.error(
+        error: CustomNetworkFailure(message: 'Failed to load countries: $e'),
+      );
+    }
+  }
+
+  /// Load auth state with error handling - returns null if failed
+  Future<ApiResult<dynamic>?> _loadAuthWithErrorHandling() async {
+    try {
+      final authService = await ref.read(authServiceProvider.future);
+      return await authService.getCurrentUser();
+    } catch (e, st) {
+      final logger = ref.read(loggerProvider);
+      logger.w('🔐 [STARTUP] Auth service error', error: e, stackTrace: st);
+      return ApiResult.error(
+        error: CustomNetworkFailure(message: 'Failed to load auth: $e'),
+      );
     }
   }
 

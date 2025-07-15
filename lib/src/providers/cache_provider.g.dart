@@ -26,7 +26,7 @@ final cacheStoreProvider = FutureProvider<CacheStore>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef CacheStoreRef = FutureProviderRef<CacheStore>;
-String _$cacheOptionsHash() => r'e8d646a0fecdfb196a25dfb7bd3ebbeb75853338';
+String _$cacheOptionsHash() => r'904481cbfbfafe366bfb38da553ea97411d01558';
 
 /// See also [cacheOptions].
 @ProviderFor(cacheOptions)
